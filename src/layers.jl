@@ -184,7 +184,7 @@ struct Embed
     w
     b
     actf
-    Embed(i,embed; actf=idy) = new(param(embed,i), param0(embed), actf)
+    Embed(i,embed; actf=identity) = new(param(embed,i), param0(embed), actf)
 end
 
 (l::Embed)(x) = l.actf.(w[:, permutedims(hcat(x...))] .+ l.b)

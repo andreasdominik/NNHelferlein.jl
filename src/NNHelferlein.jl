@@ -1,7 +1,10 @@
 module NNHelferlein
 
-using Knet
-using CUDA
+using Knet: param, param0, sigm, mat,
+            conv4, pool
+import CUDA
+import CSV
+import OdsIO
 
 include("nets")
 include("layers")
