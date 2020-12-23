@@ -144,7 +144,7 @@ end
     struct PyFlat <: Layer
 
 Flatten layer with optional Python-stype flattening (row-major).
-This layer can be used if pre-trained weight matrices from 
+This layer can be used if pre-trained weight matrices from
 tensorflow are applied after the flatten layer.
 
 ### Constructors:
@@ -155,3 +155,36 @@ struct PyFlat <: Layer
     PyFlat(; python=false) = new(python)
 end
 (l::PyFlat)(x) = l.python ? mat(permutedims(x, (3,2,1,4))) : mat(x)
+
+
+
+"""
+    struct Embed
+
+Simple type for an embedding layer to embed a virtual onehot-vector
+into a smaller number of neurons by linear combination.
+The onehot-vector is virtual, because not the vector, but only
+the index of the "one" in the vector has to be provided as Integer value
+(or a minibatch of integers).
+
+### Fields:
++ w
++ b
++ actf
+
+### Constructors:
++ `Embed(i,j; actf=identity) = new(param(j,i), param0(j), actf):` with
+    input size i, output size j and default activation function idendity.
+
+### Signatures:
++ `(l::Embed)(x) = l.actf.(w[:, permutedims(hcat(x...))] .+ l.b)` default
+  embedding of input vector x.
+"""
+struct Embed
+    w
+    b
+    actf
+    Embed(i,embed; actf=idy) = new(param(embed,i), param0(embed), actf)
+end
+
+(l::Embed)(x) = l.actf.(w[:, permutedims(hcat(x...))] .+ l.b)
