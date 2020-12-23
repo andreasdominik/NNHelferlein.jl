@@ -1,5 +1,6 @@
 module NNHelferlein
 
+import Base.iterate
 import Knet
 using Knet: KnetArray, Param
 import CUDA
