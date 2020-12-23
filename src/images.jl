@@ -2,10 +2,12 @@
 #
 # (c) A. Dominik, 2020
 
+import Images
 
 """
     function mk_image_minibatch(dir, batchsize; split=false, fr=0.2,
-                                balanced=false, shuffle=true)
+                                balanced=false, shuffle=true,
+                                pre_proc=nothing)
 
 Return an iterable image-loader-object that provides
 minibatches of path-names of image files, relative to dir.
@@ -19,9 +21,12 @@ minibatches of path-names of image files, relative to dir.
 + `balanced`: return balanced data (i.e. same number of instances
         for all classes). Balancing is achieved via oversampling
 + `shuffle`: if true, shuffle the images.
++ `pre_proc`: function or list of functions with preprocessing
+        and augmentation algoritms of type x = f(x)
 """
 function mk_image_minibatch(dir, batchsize; split=false, fr=0.2,
-                            balanced=false, shuffle=true)
+                            balanced=false, shuffle=true,
+                            pre_proc=[])
 
     i_paths = get_files_list(dir)
     i_class_names = get_class_names(dir, i_paths)
@@ -29,7 +34,7 @@ function mk_image_minibatch(dir, batchsize; split=false, fr=0.2,
     i_classes = [findall(x->x==c, classes)[1] for c in i_class_names]
 
     train_loader = ImageLoader(dir, i_paths, i_classes, classes,
-                               batchsize, shuffle)
+                               batchsize, shuffle, pre_proc)
 
     if split
         # return train_loader, valid_loader
@@ -47,6 +52,7 @@ end
         classes
         batchsize
         shuffle
+        pre_proc
     end
 
 Iterable image loader.
@@ -58,6 +64,7 @@ struct ImageLoader
     classes
     batchsize
     shuffle
+    pre_proc
 end
 
 
@@ -65,7 +72,7 @@ end
 #
 function iterate(il::ImageLoader)
 
-    if shuffle
+    if il.shuffle
         idx = Random.randperm(length(il.i_paths))
         il.i_paths .= il.i_paths[idx]   # xv = @view x[idx] ??
         il.i_classes .= il.i_classes[idx]
@@ -78,6 +85,7 @@ end
 #
 function iterate(il::ImageLoader, state)
 
+    println("State: $state")
     # check if empty:
     #
     if state > length(il.i_paths)
@@ -88,13 +96,55 @@ function iterate(il::ImageLoader, state)
     #
     n = length(il.i_paths)
     mb_start = state
-    mb_size = mb_start + il.batchsize > n ? n-mb_start : il.batchsize
+    mb_size = mb_start + il.batchsize > n ? n-mb_start+1 : il.batchsize
 
-    return mk_image_mb(il, mb_start, mb_size), mb_start+mb_size+1
+    return mk_image_mb(il, mb_start, mb_size), mb_start+il.batchsize
+end
+
+
+function mk_image_mb(il, mb_start, mb_size)
+
+    if mb_size < 1
+        return nothing
+    end
+
+    # nice way:
+    # is = mb_start:mb_start+mb_size
+    # mb_i = Float32.(cat(read_one_image.(is, il)..., dims=4))
+
+    i = mb_start
+    mb_i = Float32.(read_one_image(i, il))
+    mb_i = reshape(mb_i, size(mb_i)..., 1)
+    i += 1
+    while i < mb_start+mb_size
+        img = Float32.(read_one_image(i, il))
+        mb_i = Float32.(cat(mb_i, img, dims=4))
+        i += 1
+    end
+
+    mb_y = UInt8.(il.i_classes[mb_start:mb_start+mb_size-1])
+
+    if CUDA.functional()
+        mb_i = KnetArray(mb_i)
+    end
+    return mb_i, mb_y
 end
 
 
 
+function read_one_image(i, il)
+
+    img = Images.load(il.i_paths[i])
+    img = Float32.(permutedims(Images.channelview(img), (3,2,1)))
+
+    if il.pre_proc isa Function
+        il.pre_proc = [il.pre_proc]
+    end
+    for fun in il.pre_proc
+        img = fun(img)
+    end
+    return(img)
+end
 
 
 
