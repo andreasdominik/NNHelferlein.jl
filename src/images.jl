@@ -6,7 +6,7 @@ import Images
 
 """
     function mk_image_minibatch(dir, batchsize; split=false, fr=0.2,
-                                balanced=false, shuffle=true,
+                                balanced=false, shuffle=true, train=true,
                                 pre_proc=nothing)
 
 Return an iterable image-loader-object that provides
@@ -20,12 +20,14 @@ minibatches of path-names of image files, relative to dir.
 + `fr`: split fraction
 + `balanced`: return balanced data (i.e. same number of instances
         for all classes). Balancing is achieved via oversampling
-+ `shuffle`: if true, shuffle the images.
++ `shuffle`: if true, shuffle the images
++ `train`: if true, minibatches with (x,y) Tuples are provided,
+        if false only x (for prediction)
 + `pre_proc`: function or list of functions with preprocessing
         and augmentation algoritms of type x = f(x)
 """
 function mk_image_minibatch(dir, batchsize; split=false, fr=0.2,
-                            balanced=false, shuffle=true,
+                            balanced=false, shuffle=true, train=true,
                             pre_proc=[])
 
     i_paths = get_files_list(dir)
@@ -34,7 +36,7 @@ function mk_image_minibatch(dir, batchsize; split=false, fr=0.2,
     i_classes = [findall(x->x==c, classes)[1] for c in i_class_names]
 
     train_loader = ImageLoader(dir, i_paths, i_classes, classes,
-                               batchsize, shuffle, pre_proc)
+                               batchsize, shuffle, train, pre_proc)
 
     if split
         # return train_loader, valid_loader
@@ -52,6 +54,7 @@ end
         classes
         batchsize
         shuffle
+        train
         pre_proc
     end
 
@@ -64,6 +67,7 @@ struct ImageLoader
     classes
     batchsize
     shuffle
+    train
     pre_proc
 end
 
@@ -127,7 +131,12 @@ function mk_image_mb(il, mb_start, mb_size)
     if CUDA.functional()
         mb_i = KnetArray(mb_i)
     end
-    return mb_i, mb_y
+
+    if il.train
+        return mb_i, mb_y
+    else
+        return mb_i
+    end
 end
 
 
