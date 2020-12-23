@@ -18,10 +18,10 @@ abstract type Layer end
 Default Dense layer.
 
 ### Constructors:
-+ `Dense(w, b, actf):` default constructor
-+ `Dense(i::Int, j::Int; actf=sigm):` layer of j neurons with
++ `Dense(w, b, actf)`: default constructor
++ `Dense(i::Int, j::Int; actf=sigm)`: layer of j neurons with
         i inputs.
-+ `Dense(hdfo::Dict, group::String; trainable=false, actf=sigm):` layer
++ `Dense(hdfo::Dict, group::String; trainable=false, actf=sigm)`: layer
         imported from a hdf5-file from tensorflow with the
         hdf-object hdfo and the group name group.
 """
@@ -64,10 +64,10 @@ end
 Default Conv layer.
 
 ### Constructors:
-+ `Conv(w, b, padding, actf):` default constructor
-+ `Conv(w1::Int, w2::Int,  i::Int, o::Int; actf=relu, padding=0):` layer with
++ `Conv(w, b, padding, actf)`: default constructor
++ `Conv(w1::Int, w2::Int,  i::Int, o::Int; actf=relu, padding=0)`: layer with
     o kernels of size (w1,w2) for an input of i layers.
-+ `Conv(hdfo::Dict, group::String; trainable=false, actf=relu):` layer
++ `Conv(hdfo::Dict, group::String; trainable=false, actf=relu)`: layer
         imported from a hdf5-file from tensorflow with the
         hdf-object hdfo and the group name group.
 """
@@ -108,17 +108,48 @@ end
 (c::Conv)(x) = c.actf.(conv4(c.w, x, padding=c.padding) .+ c.b)
 
 
+
+"""
+    struct Pool <: Layer
+
+Pooling layer.
+
+### Constructors:
++ `Pool()`: default 2×2 pooling
++ `Pool(k...)`: user-defined pooling
+"""
 struct Pool <: Layer
     kernel
     Pool(k...) = new(k)
+    Pool() = new(2,2)
 end
 (l::Pool)(x) = pool(x, window=l.kernel)
 
 
+"""
+    struct Flat <: Layer
+
+Default flatten layer.
+
+### Constructors:
++ `Flat()`: with no options.
+"""
 struct Flat <: Layer
 end
 (l::Flat)(x) = mat(x)
 
+
+
+"""
+    struct PyFlat <: Layer
+
+Flatten layer with optional Python-stype flattening (row-major).
+This layer can be used if pre-trained weight matrices from 
+tensorflow are applied after the flatten layer.
+
+### Constructors:
++ `Flat(; python=false)`: if true, row-major flatten is performed.
+"""
 struct PyFlat <: Layer
     python
     PyFlat(; python=false) = new(python)
