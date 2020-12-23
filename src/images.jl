@@ -60,18 +60,52 @@ struct ImageLoader
     shuffle
 end
 
+
+# two iterate funs for ImageLoader
+#
 function iterate(il::ImageLoader)
 
     if shuffle
-        idx = Random.shuffle(1:length(il.i_paths))
-        ip = il.i_paths[idx]   # xv = @view x[idx] ??
-        ic = il.i_classes[idx]
+        idx = Random.randperm(length(il.i_paths))
+        il.i_paths .= il.i_paths[idx]   # xv = @view x[idx] ??
+        il.i_classes .= il.i_classes[idx]
     end
     state = 1
     return iterate(il, state)
 end
 
+# state is the index of the next image after the currect batch.
+#
+function iterate(il::ImageLoader, state)
 
+    # check if empty:
+    #
+    if state > length(il.i_paths)
+        return nothing
+    end
+
+    # range for next minibatch:
+    #
+    n = length(il.i_paths)
+    mb_start = state
+    mb_size = mb_start + il.batchsize > n ? n-mb_start : il.batchsize
+
+    return mk_image_mb(il, mb_start, mb_size), mb_start+mb_size+1
+end
+
+
+
+
+
+
+
+
+
+
+function Base.length(il::ImageLoader)
+    n = length(il.i_paths) / il.batchsize
+    return ceil(Int, n)
+end
 
 
 

@@ -1,12 +1,14 @@
 module NNHelferlein
 
-import Base.iterate
+import Base.iterate, Base.length
 import Knet
 using Knet: KnetArray, Param
 import CUDA
 import CSV
 import OdsIO
 import DataFrames
+import Random
+
 
 include("nets")
 include("layers")
