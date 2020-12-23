@@ -1,5 +1,9 @@
 module NNHelferlein
 
-greet() = print("Hello World!")
+using Knet
+using CUDA
+
+include("nets")
+include("layers")
 
 end # module
