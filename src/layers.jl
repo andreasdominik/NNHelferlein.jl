@@ -30,10 +30,10 @@ struct Dense  <: Layer
     b
     actf
     Dense(w, b, actf) = new(w, b, actf)
-    Dense(i::Int, j::Int; actf=sigm) = new(param(j,i), param0(j), actf)
+    Dense(i::Int, j::Int; actf=Knet.sigm) = new(Knet.param(j,i), Knet.param0(j), actf)
  end
 
-function Dense(hdfo::Dict, group::String; trainable=false, actf=sigm)
+function Dense(hdfo::Dict, group::String; trainable=false, actf=Knet.sigm)
 
     w = hdfo[group][group]["kernel:0"]
     b = hdfo[group][group]["bias:0"]
@@ -77,11 +77,11 @@ struct Conv  <: Layer
     padding
     actf
     Conv(w, b, padding, actf) = new(w, b, padding, actf)
-    Conv(w1::Int, w2::Int,  i::Int, o::Int; actf=relu, padding=0) =
-            new(param(w1,w2,i,o), param0(1,1,o,1), padding, actf)
+    Conv(w1::Int, w2::Int,  i::Int, o::Int; actf=Knet.relu, padding=0) =
+            new(Knet.param(w1,w2,i,o), Knet.param0(1,1,o,1), padding, actf)
 end
 
-function Conv(hdfo::Dict, group::String; trainable=false, actf=relu)
+function Conv(hdfo::Dict, group::String; trainable=false, actf=Knet.relu)
 
     w = hdfo[group][group]["kernel:0"]
     w = permutedims(w, [4,3,2,1])
@@ -123,7 +123,7 @@ struct Pool <: Layer
     Pool(k...) = new(k)
     Pool() = new(2,2)
 end
-(l::Pool)(x) = pool(x, window=l.kernel)
+(l::Pool)(x) = Knet.pool(x, window=l.kernel)
 
 
 """
@@ -136,7 +136,7 @@ Default flatten layer.
 """
 struct Flat <: Layer
 end
-(l::Flat)(x) = mat(x)
+(l::Flat)(x) = Knet.mat(x)
 
 
 
@@ -154,7 +154,7 @@ struct PyFlat <: Layer
     python
     PyFlat(; python=false) = new(python)
 end
-(l::PyFlat)(x) = l.python ? mat(permutedims(x, (3,2,1,4))) : mat(x)
+(l::PyFlat)(x) = l.python ? Knet.mat(permutedims(x, (3,2,1,4))) : mat(x)
 
 
 
@@ -184,7 +184,7 @@ struct Embed
     w
     b
     actf
-    Embed(i,embed; actf=identity) = new(param(embed,i), param0(embed), actf)
+    Embed(i,embed; actf=identity) = new(Knet.param(embed,i), Knet.param0(embed), actf)
 end
 
 (l::Embed)(x) = l.actf.(w[:, permutedims(hcat(x...))] .+ l.b)

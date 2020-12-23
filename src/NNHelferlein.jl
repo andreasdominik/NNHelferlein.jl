@@ -1,10 +1,11 @@
 module NNHelferlein
 
-using Knet: param, param0, sigm, mat,
-            conv4, pool
+import Knet
+using Knet: KnetArray, Param
 import CUDA
 import CSV
 import OdsIO
+import DataFrames
 
 include("nets")
 include("layers")
@@ -12,7 +13,8 @@ include("layers")
 export NeuNet, Classifier, Regressor,           # chains
        Dense, Conv, Pool, Flat, PyFlat,         # layers
        Embed,
-       readDataTable                            # import data
+       dataframe_read, dataframe_split,         # import data
+       dataframe_minibatches
 
 
 end # module
