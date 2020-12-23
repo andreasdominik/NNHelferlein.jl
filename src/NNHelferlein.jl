@@ -11,7 +11,8 @@ include("layers")
 
 export NeuNet, Classifier, Regressor,           # chains
        Dense, Conv, Pool, Flat, PyFlat,         # layers
-       Embed
+       Embed,
+       readDataTable                            # import data
 
 
 end # module
