@@ -39,10 +39,10 @@ function mk_image_minibatch(dir, batchsize; split=false, fr=0.5,
 
 
     if split                    # return train_loader, valid_loader
-        ((xtrn,ytrn), (xvld,yvld)) = d_split(i_paths, i_classes, at=fr)
+        ((xtrn,ytrn), (xvld,yvld)) = do_split(i_paths, i_classes, at=fr)
         if balanced
-            (xtrn,ytrn) = d_balance(xtrn, ytrn)
-            (xvld,yvld) = d_balance(xvld, yvld)
+            (xtrn,ytrn) = do_balance(xtrn, ytrn)
+            (xvld,yvld) = do_balance(xvld, yvld)
         end
         trn_loader = ImageLoader(dir, xtrn, ytrn, classes,
                             batchsize, shuffle, train,
@@ -54,7 +54,7 @@ function mk_image_minibatch(dir, batchsize; split=false, fr=0.5,
     else
         xtrn, ytrn = i_paths, i_classes
         if balanced
-            (xtrn, ytrn) = d_balance(i_paths, i_classes)
+            (xtrn, ytrn) = do_balance(i_paths, i_classes)
         end
         trn_loader = ImageLoader(dir, xtrn, ytrn, classes,
                             batchsize, shuffle, train,
@@ -79,7 +79,7 @@ end
 
 Iterable image loader.
 """
-struct ImageLoader
+mutable struct ImageLoader
     dir
     i_paths
     i_classes
@@ -97,9 +97,10 @@ end
 function Base.iterate(il::ImageLoader)
 
     if il.shuffle
-        idx = Random.randperm(length(il.i_paths))
-        il.i_paths .= il.i_paths[idx]   # xv = @view x[idx] ??
-        il.i_classes .= il.i_classes[idx]
+        # idx = Random.randperm(length(il.i_paths))
+        # il.i_paths .= il.i_paths[idx]   # xv = @view x[idx] ??
+        # il.i_classes .= il.i_classes[idx]
+        il.i_paths, il.i_classes = do_shuffle(il.i_paths, il.i_classes)
     end
     state = 1
     return iterate(il, state)
