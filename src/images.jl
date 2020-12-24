@@ -2,8 +2,6 @@
 #
 # (c) A. Dominik, 2020
 
-import Images
-
 """
     function mk_image_minibatch(dir, batchsize; split=false, fr=0.2,
                                 balanced=false, shuffle=true, train=true,
@@ -16,19 +14,23 @@ minibatches of path-names of image files, relative to dir.
 + `dir`: base-directory of the image dataset. The first level of
         sub-dirs are used as class names.
 + `batchsize`: size of minibatches
-+ `spilt`: return two iterators for training and validation
+
+### Keyword arguments:
++ `split`: return two iterators for training and validation
 + `fr`: split fraction
 + `balanced`: return balanced data (i.e. same number of instances
         for all classes). Balancing is achieved via oversampling
 + `shuffle`: if true, shuffle the images
 + `train`: if true, minibatches with (x,y) Tuples are provided,
         if false only x (for prediction)
++ `aug_pipl`: augmentation pipeline for Augmentor.jl. Augmentation
+        is performed before the pre_proc-function is applied
 + `pre_proc`: function or list of functions with preprocessing
-        and augmentation algoritms of type x = f(x)
+        and augmentation algoritms of type x = f(x).
 """
 function mk_image_minibatch(dir, batchsize; split=false, fr=0.2,
                             balanced=false, shuffle=true, train=true,
-                            pre_proc=[])
+                            aug_pipl=nothing, pre_proc=nothing)
 
     i_paths = get_files_list(dir)
     i_class_names = get_class_names(dir, i_paths)
@@ -36,7 +38,8 @@ function mk_image_minibatch(dir, batchsize; split=false, fr=0.2,
     i_classes = [findall(x->x==c, classes)[1] for c in i_class_names]
 
     train_loader = ImageLoader(dir, i_paths, i_classes, classes,
-                               batchsize, shuffle, train, pre_proc)
+                               batchsize, shuffle, train,
+                               aug_pipl, pre_proc)
 
     if split
         # return train_loader, valid_loader
@@ -55,6 +58,7 @@ end
         batchsize
         shuffle
         train
+        aug_pipl
         pre_proc
     end
 
@@ -68,6 +72,7 @@ struct ImageLoader
     batchsize
     shuffle
     train
+    aug_pipl
     pre_proc
 end
 
@@ -146,11 +151,11 @@ function read_one_image(i, il)
     img = Images.load(il.i_paths[i])
     img = Float32.(permutedims(Images.channelview(img), (3,2,1)))
 
-    if il.pre_proc isa Function
-        il.pre_proc = [il.pre_proc]
+    if il.aug_pipl isa Augmentor.ImmutablePipeline
+        img = Augmentor.augment(img, il.aug_pipl)
     end
-    for fun in il.pre_proc
-        img = fun(img)
+    if il.pre_proc isa Function
+        img = il.pre_proc(img)
     end
     return(img)
 end

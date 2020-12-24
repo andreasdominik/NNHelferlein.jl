@@ -30,13 +30,13 @@ end
 function readCSV(fname)
 
     printf("Reading data from CSV: $fname")
-    return DataFrame(CSV.File(fname, header=true))
+    return DataFrames.DataFrame(CSV.File(fname, header=true))
 end
 
 
 
 """
-    dataframe_minibatches(data::DataFrame; size=256, ignore=[], teaching=:y, regression=true)
+    dataframe_minibatches(data::DataFrames.DataFrame; size=256, ignore=[], teaching=:y, regression=true)
 
 Make Knet-conform minibatches from a dataframe
 with one sample per row.
@@ -67,7 +67,7 @@ end
 
 
 """
-    function dataframe_split(df::DataFrame; teaching=:y, fr=0.2, balanced=true)
+    function dataframe_split(df::DataFrames.DataFrame; teaching=:y, fr=0.2, balanced=true)
 
 Split data, organised row-wise in a DataFrame into train and valid sets.
 
@@ -79,7 +79,7 @@ Split data, organised row-wise in a DataFrame into train and valid sets.
               Returned datasets will be bigger as expected
               but perfectly balanced.
 """
-function dataframe_split(df::DataFrame; teaching=:y, fr=0.2, balanced=false)
+function dataframe_split(df::DataFrames.DataFrame; teaching=:y, fr=0.2, balanced=false)
 
     n_raw = nrow(df)
     classes = unique(df[teaching])
