@@ -1,7 +1,6 @@
 module NNHelferlein
 
-import Base.iterate
-import Base.length
+import Base: iterate, length
 import Knet
 using Knet: KnetArray, Param
 import CUDA
@@ -14,6 +13,7 @@ import Augmentor
 import MLDataUtils
 
 
+include("util.jl")
 include("nets.jl")
 include("layers.jl")
 include("images.jl")

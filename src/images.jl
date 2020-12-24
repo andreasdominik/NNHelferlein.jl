@@ -28,7 +28,7 @@ minibatches of path-names of image files, relative to dir.
 + `pre_proc`: function or list of functions with preprocessing
         and augmentation algoritms of type x = f(x).
 """
-function mk_image_minibatch(dir, batchsize; split=false, fr=0.2,
+function mk_image_minibatch(dir, batchsize; split=false, fr=0.5,
                             balanced=false, shuffle=true, train=true,
                             aug_pipl=nothing, pre_proc=nothing)
 
@@ -37,14 +37,29 @@ function mk_image_minibatch(dir, batchsize; split=false, fr=0.2,
     classes = unique(i_class_names)
     i_classes = [findall(x->x==c, classes)[1] for c in i_class_names]
 
-    train_loader = ImageLoader(dir, i_paths, i_classes, classes,
-                               batchsize, shuffle, train,
-                               aug_pipl, pre_proc)
 
-    if split
-        # return train_loader, valid_loader
+    if split                    # return train_loader, valid_loader
+        ((xtrn,ytrn), (xvld,yvld)) = d_split(i_paths, i_classes, at=fr)
+        if balanced
+            (xtrn,ytrn) = d_balance(xtrn, ytrn)
+            (xvld,yvld) = d_balance(xvld, yvld)
+        end
+        trn_loader = ImageLoader(dir, xtrn, ytrn, classes,
+                            batchsize, shuffle, train,
+                            aug_pipl, pre_proc)
+        vld_loader = ImageLoader(dir, xvld, yvld, classes,
+                            batchsize, shuffle, train,
+                            aug_pipl, pre_proc)
+        return trn_loader, vld_loader
     else
-        return train_loader
+        xtrn, ytrn = i_paths, i_classes
+        if balanced
+            (xtrn, ytrn) = d_balance(i_paths, i_classes)
+        end
+        trn_loader = ImageLoader(dir, xtrn, ytrn, classes,
+                            batchsize, shuffle, train,
+                            aug_pipl, pre_proc)
+        return trn_loader
     end
 end
 
@@ -79,7 +94,7 @@ end
 
 # two iterate funs for ImageLoader
 #
-function iterate(il::ImageLoader)
+function Base.iterate(il::ImageLoader)
 
     if il.shuffle
         idx = Random.randperm(length(il.i_paths))
@@ -92,7 +107,7 @@ end
 
 # state is the index of the next image after the currect batch.
 #
-function iterate(il::ImageLoader, state)
+function Base.iterate(il::ImageLoader, state)
 
     println("State: $state")
     # check if empty:
