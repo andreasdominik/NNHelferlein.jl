@@ -149,7 +149,6 @@ end
 function read_one_image(i, il)
 
     img = Images.load(il.i_paths[i])
-    img = Float32.(permutedims(Images.channelview(img), (3,2,1)))
 
     if il.aug_pipl isa Augmentor.ImmutablePipeline
         img = Augmentor.augment(img, il.aug_pipl)
@@ -157,6 +156,7 @@ function read_one_image(i, il)
     if il.pre_proc isa Function
         img = il.pre_proc(img)
     end
+    img = Float32.(permutedims(Images.channelview(img), (3,2,1)))
     return(img)
 end
 
