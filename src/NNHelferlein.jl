@@ -23,7 +23,7 @@ include("dataframes.jl")
 export NeuNet, Classifier, Regressor,           # chains
        ImageLoader, iterate,
        Dense, Conv, Pool, Flat, PyFlat,         # layers
-       Embed,
+       Embed, Predictions,
        dataframe_read, dataframe_split,         # import data
        dataframe_minibatches,
        mk_image_minibatch

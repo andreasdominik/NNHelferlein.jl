@@ -197,12 +197,9 @@ that can used as output layer (because all loss-functions
 of the package assume raw output activations).
 
 ### Constructors:
-+ `Predictions(i,j) = new(param(j,i), param0(j), actf=identity):` with
++ `Predictions(i::Int, j:Int)`: with
     input size i, output size j activation function idendity.
 """
-struct Predictions <: Dense
-    w
-    b
-    actf
-    Predictions(i,j) = new(param(j,i), param0(j), actf=identity)
+struct Predictions
+    Predictions(i::Int,j::Int) = Dense(i, j, actf=identity)
 end
