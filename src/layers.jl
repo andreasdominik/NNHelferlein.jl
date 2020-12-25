@@ -188,3 +188,21 @@ struct Embed
 end
 
 (l::Embed)(x) = l.actf.(w[:, permutedims(hcat(x...))] .+ l.b)
+
+"""
+    struct Predictions
+
+Simple wrapper around a Dense layer without activation function
+that can used as output layer (because all loss-functions
+of the package assume raw output activations).
+
+### Constructors:
++ `Predictions(i,j) = new(param(j,i), param0(j), actf=identity):` with
+    input size i, output size j activation function idendity.
+"""
+struct Predictions <: Dense
+    w
+    b
+    actf
+    Predictions(i,j) = new(param(j,i), param0(j), actf=identity)
+end
