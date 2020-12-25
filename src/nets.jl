@@ -15,7 +15,7 @@ Mother type for DNN hierarchy with implementation for a chain of layers.
 """
 abstract type NeuNet end
 (n::NeuNet)(x) = (for l in n.layers; x = l(x); end; x)
-(m::NeuNet)(d::Knet.Data) = mean( m(x,y) for (x,y) in d)
+(m::NeuNet)(d::Union(Knet.Data, NNHelferlein.DataLoader) = mean( m(x,y) for (x,y) in d)
 
 """
     struct Classifier <: NeuNet

@@ -77,7 +77,7 @@ Split data, organised row-wise in a DataFrame into train and valid sets.
 + `fr`: fraction of data to be used for validation
 + `balanced`: if `true`, result datasets will be balanced by oversampling.
               Returned datasets will be bigger as expected
-              but perfectly balanced.
+              but include the same numbers of samples for each class.
 """
 function dataframe_split(df::DataFrames.DataFrame; teaching=:y,
                          fr=0.2, balanced=false)

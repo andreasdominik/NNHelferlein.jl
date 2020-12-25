@@ -20,7 +20,8 @@ minibatches of path-names of image files, relative to dir.
 + `fr`: split fraction
 + `balanced`: return balanced data (i.e. same number of instances
         for all classes). Balancing is achieved via oversampling
-+ `shuffle`: if true, shuffle the images
++ `shuffle`: if true, shuffle the images everytime the iterator
+        restarts
 + `train`: if true, minibatches with (x,y) Tuples are provided,
         if false only x (for prediction)
 + `aug_pipl`: augmentation pipeline for Augmentor.jl. Augmentation
@@ -65,7 +66,25 @@ end
 
 
 """
-    struct ImageLoader
+    abstract type DataLoader
+
+Mother type for minimatch iterators.
+"""
+abstract type DataLoader end
+
+
+
+"""
+    function get_class_labels(d::DataLoader)
+
+Extracts a list of class labels from a DataLoader.
+"""
+function get_class_labels(dl::DataLoader)
+    return dl.classes
+end
+
+"""
+    struct ImageLoader <: DataLoader
         dir
         i_paths
         i_classes
@@ -79,7 +98,7 @@ end
 
 Iterable image loader.
 """
-mutable struct ImageLoader
+mutable struct ImageLoader <: DataLoader
     dir
     i_paths
     i_classes

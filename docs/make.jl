@@ -15,4 +15,3 @@ makedocs(modules = [NNHelferlein],
          #  html_prettyurls = !("local" in ARGS),
           html_canonical = "https://andreasdominik.github.io/NNHelferlein.jl/stable/"
          )
-)

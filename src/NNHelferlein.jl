@@ -21,7 +21,9 @@ include("dataframes.jl")
 
 
 export NeuNet, Classifier, Regressor,           # chains
-       ImageLoader, iterate,
+       ImageLoader, DataLoader,
+       get_class_labels,
+       iterate, length,
        Dense, Conv, Pool, Flat, PyFlat,         # layers
        Embed, Predictions,
        dataframe_read, dataframe_split,         # import data

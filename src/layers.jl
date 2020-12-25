@@ -148,11 +148,11 @@ This layer can be used if pre-trained weight matrices from
 tensorflow are applied after the flatten layer.
 
 ### Constructors:
-+ `Flat(; python=false)`: if true, row-major flatten is performed.
++ `PyFlat(; python=true)`: if true, row-major flatten is performed.
 """
 struct PyFlat <: Layer
     python
-    PyFlat(; python=false) = new(python)
+    PyFlat(; python=true) = new(python)
 end
 (l::PyFlat)(x) = l.python ? Knet.mat(permutedims(x, (3,2,1,4))) : mat(x)
 
