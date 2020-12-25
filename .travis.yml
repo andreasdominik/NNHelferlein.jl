@@ -1,0 +1,58 @@
+## Documentation: http://docs.travis-ci.com/user/languages/julia/
+language: julia
+os:
+  - linux
+#  - osx
+julia:
+  # - 0.7
+  # - 1.0.3
+  - 1.5
+#  - nightly
+notifications:
+  email: false
+git:
+  depth: 99999999
+
+before_install:
+  # Update Julia packages metadata.
+  # only for new package manager (>= 0.7)
+  # - julia -e 'using Pkg; Pkg.add("Test"); Pkg.add("LinearAlgebra"); ; Pkg.add("RDatasets"); Pkg.update()'
+  - julia -e 'using Pkg; Pkg.activate("."); Pkg.instantiate(); Pkg.add("Test")'
+# uncomment the following lines to allow failures on nightly julia
+# (tests will run but not make your overall status red)
+# matrix:
+#   allow_failures:
+#   - julia: nightly
+#   include:
+#    - os: linux
+#      sudo: required  # Gtk needs to apt-get install
+#      before_script:  # Using xvfb to run tests that require a GUI
+#        - "export DISPLAY=:99.0"
+#        - "sh -e /etc/init.d/xvfb start"
+#        - sleep 3 # Give xvfb some time to start
+#    - os: osx
+
+# uncomment and modify the following lines to manually install system packages
+# addons:
+#  apt: # apt-get for linux
+#    packages:
+#    - gfortran
+# before_script:
+#
+# script:
+  # Work around (part 2/2) matplotlib backend error leading to "matplotlib.pyplot could not be found by pyimport": point LD_LIBRARY_PATH to Conda libs.
+  # - export LD_LIBRARY_PATH=$HOME/.julia/v0.7/Conda/deps/usr/lib; julia -e 'using Pkg; Pkg.add("SOM#master"); Pkg.build("SOM"); Pkg.test("SOM"; coverage=true)'
+  # - julia -e 'using Pkg; Pkg.build(); Pkg.test()'
+  # - julia -e 'using Pkg; Pkg.clone(pwd()); Pkg.build("SOM"); Pkg.test("SOM", coverage=true)'
+  ##  - julia -e 'println("My Path=$(pwd())"); using Pkg; Pkg.build("SOM"); Pkg.test("SOM", coverage=true)'
+after_success:
+  # push coverage results to Coveralls
+  #- julia -e 'using Pkg; import SOM; cd(dirname(pathof(SOM))); Pkg.add("Coverage"); using Coverage; Coveralls.submit(Coveralls.process_folder())'
+  # - julia -e 'using Pkg; Pkg.add("Coverage")'
+  # - julia -e 'using Coverage; println("My Path=$(pwd()). Coveralls=$(Coveralls.process_folder())"); Coveralls.submit(Coveralls.process_folder())'
+  # push coverage results to Codecov
+  # - julia -e 'using Coverage; Codecov.submit(Codecov.process_folder())'
+  # Documentation
+  - julia -e 'using Pkg; Pkg.add("Documenter")'
+  #- julia -e 'using Pkg; cd(Pkg.dir("SOM")); include(joinpath("docs", "make.jl"))'
+  - julia -e 'using Pkg; include(joinpath("docs", "make.jl"))'
