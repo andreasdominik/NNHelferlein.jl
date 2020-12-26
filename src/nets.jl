@@ -30,7 +30,7 @@ struct Classifier <: NeuNet
     layers
     Classifier(layers...) = new(layers)
 end
-(m::Classifier)(x,y) = nll(m(x), y)
+(m::Classifier)(x,y) = Knet.nll(m(x), y)
 
 
 """
