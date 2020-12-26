@@ -203,3 +203,21 @@ of the package assume raw output activations).
 struct Predictions
     Predictions(i::Int,j::Int) = Dense(i, j, actf=identity)
 end
+
+
+"""
+    struct Softmax
+
+Simple softmax layer to compute softmax probabilities as:
+
+
+```math
+p_i = \frac{\exp y_i}{\sum_{c=1}^C \exp y_c}
+```
+
+### Constructors:
++ `Softmax()`
+"""
+struct Softmax
+end
+(l:Softmax)(x) = Knet.softmax(x)
