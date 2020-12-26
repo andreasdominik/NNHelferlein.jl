@@ -121,7 +121,7 @@ Pooling layer.
 struct Pool <: Layer
     kernel
     Pool(k...) = new(k)
-    Pool() = new(2,2)
+    Pool() = new((2,2))
 end
 (l::Pool)(x) = Knet.pool(x, window=l.kernel)
 
