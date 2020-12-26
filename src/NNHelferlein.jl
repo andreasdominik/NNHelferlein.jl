@@ -11,6 +11,7 @@ import Random
 import Images
 import Augmentor
 import MLDataUtils
+using Statistics: mean
 
 
 include("util.jl")
