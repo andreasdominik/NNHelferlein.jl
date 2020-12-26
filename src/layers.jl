@@ -105,7 +105,7 @@ function Conv(hdfo::Dict, group::String; trainable=false, actf=Knet.relu)
     return Conv(w, b, pad, actf)
 end
 
-(c::Conv)(x) = c.actf.(conv4(c.w, x, padding=c.padding) .+ c.b)
+(c::Conv)(x) = c.actf.(Knet.conv4(c.w, x, padding=c.padding) .+ c.b)
 
 
 
