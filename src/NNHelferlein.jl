@@ -14,6 +14,7 @@ import MLDataUtils
 using Statistics: mean
 
 
+include("types.jl")
 include("util.jl")
 include("nets.jl")
 include("layers.jl")

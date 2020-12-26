@@ -65,14 +65,6 @@ function mk_image_minibatch(dir, batchsize; split=false, fr=0.5,
 end
 
 
-"""
-    abstract type DataLoader
-
-Mother type for minimatch iterators.
-"""
-abstract type DataLoader end
-
-
 
 """
     function get_class_labels(d::DataLoader)
