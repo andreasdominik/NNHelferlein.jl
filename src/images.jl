@@ -26,8 +26,10 @@ minibatches of path-names of image files, relative to dir.
         if false only x (for prediction)
 + `aug_pipl`: augmentation pipeline for Augmentor.jl. Augmentation
         is performed before the pre_proc-function is applied
-+ `pre_proc`: function or list of functions with preprocessing
-        and augmentation algoritms of type x = f(x).
++ `pre_proc`: function with preprocessing
+        and augmentation algoritms of type x = f(x). In contrast
+        to the augmentation that modifies images, is `pre_proc`
+        working on Arrays{Float32}.
 """
 function mk_image_minibatch(dir, batchsize; split=false, fr=0.5,
                             balanced=false, shuffle=true, train=true,
@@ -121,7 +123,7 @@ end
 #
 function Base.iterate(il::ImageLoader, state)
 
-    println("State: $state")
+    # println("State: $state")
     # check if empty:
     #
     if state > length(il.i_paths)
@@ -180,10 +182,12 @@ function read_one_image(i, il)
     if il.aug_pipl isa Augmentor.ImmutablePipeline
         img = Augmentor.augment(img, il.aug_pipl)
     end
-    if il.pre_proc isa Function
+
+    img = Float32.(permutedims(Images.channelview(img), (3,2,1)))
+
+    if il.pre_proc != nothing && il.pre_proc isa Function
         img = il.pre_proc(img)
     end
-    img = Float32.(permutedims(Images.channelview(img), (3,2,1)))
     return(img)
 end
 
