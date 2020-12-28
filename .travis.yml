@@ -9,7 +9,7 @@ jobs:
       julia: 1.5
       os: linux
       before_install:
-        - julia -e 'import Pkg; Pkg.add("Documenter")'
+        # - julia -e 'import Pkg; Pkg.add("Documenter")'
       script:
         - julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd()));
                                                Pkg.instantiate()'
