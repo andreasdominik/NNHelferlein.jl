@@ -5,7 +5,7 @@
 """
     function mk_image_minibatch(dir, batchsize; split=false, fr=0.2,
                                 balanced=false, shuffle=true, train=true,
-                                pre_proc=nothing)
+                                aug_pipl=nothing, pre_proc=nothing)
 
 Return an iterable image-loader-object that provides
 minibatches of path-names of image files, relative to dir.

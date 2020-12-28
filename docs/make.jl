@@ -13,6 +13,21 @@ makedocs(modules = [NNHelferlein],
                   "License" => "license.md"
                   ],
          #          # Use clean URLs, unless built as a "local" build
-         #  html_prettyurls = !("local" in ARGS),
+          html_prettyurls = false, #!("local" in ARGS),
           html_canonical = "https://andreasdominik.github.io/NNHelferlein.jl/stable/"
          )
+
+deploydocs(
+    root   = "<current-directory>",
+    target = "build",
+    repo   = "github.com/andreasdominik/NNHelferlein.jl.git",
+    branch = "gh-pages",
+    deps   = nothing | <Function>,
+    make   = nothing | <Function>,
+    devbranch = "master",
+    devurl = "dev",
+    versions = ["stable" => "v^", "v#.#", devurl => devurl],
+    push_preview    = false,
+    repo_previews   = repo,
+    branch_previews = branch
+)

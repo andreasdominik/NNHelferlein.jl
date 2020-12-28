@@ -26,13 +26,14 @@ include("train.jl")
 
 
 export NeuNet, Classifier, Regressor,           # chains
-       ImageLoader, DataLoader,
+       ImageLoader, DataLoader, preproc_imagenet,
        get_class_labels,
        iterate, length,
        Dense, Conv, Pool, Flat, PyFlat,         # layers
        Embed, Predictions,
        dataframe_read, dataframe_split,         # import data
        dataframe_minibatches,
-       mk_image_minibatch
+       mk_image_minibatch,
+       tb_train!
 
 end # module

@@ -51,12 +51,6 @@ version = "0.1.0"
 [[Base64]]
 uuid = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
 
-[[BinaryProvider]]
-deps = ["Libdl", "Logging", "SHA"]
-git-tree-sha1 = "ecdec412a9abc8db54c0efc5548c64dfce072058"
-uuid = "b99e7846-7c00-51b0-8f62-c81ae34c0232"
-version = "0.5.10"
-
 [[CEnum]]
 git-tree-sha1 = "215a9aa4a1f23fbd05b92769fdd62559488d70e9"
 uuid = "fa961155-64e5-5f13-b03f-caf6b980ea82"
@@ -199,12 +193,6 @@ git-tree-sha1 = "b7715ae18be02110a8cf9cc8ed2ccdb1e3e3aba2"
 uuid = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 version = "0.26.1"
 
-[[DocumenterTools]]
-deps = ["Base64", "DocStringExtensions", "Documenter", "FileWatching", "LibGit2", "Sass"]
-git-tree-sha1 = "9b40fd93f54ba5ef9d364981124a8ed389fd634e"
-uuid = "35a29f4d-8980-5a13-9543-d66fff28ecb8"
-version = "0.1.9"
-
 [[EllipsisNotation]]
 git-tree-sha1 = "65dad386e877850e6fce4fc77f60fe75a468ce9d"
 uuid = "da5c29d0-fa7d-589e-88eb-ea29b0a81949"
@@ -238,9 +226,6 @@ deps = ["Pkg"]
 git-tree-sha1 = "fee8955b9dfa7bec67117ef48085fb2b559b9c22"
 uuid = "5789e2e9-d7fb-5bc7-8068-2c6fae9b9549"
 version = "1.4.5"
-
-[[FileWatching]]
-uuid = "7b1f6079-737a-58dc-b8bc-7a2ca5c1b5ee"
 
 [[FixedPointNumbers]]
 deps = ["Statistics"]
@@ -640,12 +625,6 @@ version = "1.0.2"
 
 [[SHA]]
 uuid = "ea8e919c-243c-51af-8825-aaa63cd721ce"
-
-[[Sass]]
-deps = ["BinaryProvider", "Libdl", "Test"]
-git-tree-sha1 = "de11179555c6363c5a61c4c94376db3498983734"
-uuid = "322a6be2-4ae8-5d68-aaf1-3e960788d1d9"
-version = "0.1.0"
 
 [[Scratch]]
 deps = ["Dates"]

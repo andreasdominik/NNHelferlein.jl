@@ -137,3 +137,7 @@ tb_train!
 
 
 ### ImageNet tools
+
+```@docs
+preproc_imagenet
+```
