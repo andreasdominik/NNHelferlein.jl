@@ -21,7 +21,7 @@ Default Dense layer.
 + `Dense(w, b, actf)`: default constructor
 + `Dense(i::Int, j::Int; actf=sigm)`: layer of j neurons with
         i inputs.
-+ `Dense(hdfo::Dict, group::String; trainable=false, actf=sigm)`: layer
++ `Dense(h5::HDF5File, group::String; trainable=false, actf=sigm)`: layer
         imported from a hdf5-file from tensorflow with the
         hdf-object hdfo and the group name group.
 """
@@ -33,10 +33,10 @@ struct Dense  <: Layer
     Dense(i::Int, j::Int; actf=Knet.sigm) = new(Knet.param(j,i), Knet.param0(j), actf)
  end
 
-function Dense(hdfo::Dict, group::String; trainable=false, actf=Knet.sigm)
+function Dense(h5::HDF5File, group::String; trainable=false, actf=Knet.sigm)
 
-    w = hdfo[group][group]["kernel:0"]
-    b = hdfo[group][group]["bias:0"]
+    w = read(h5, "$group/$group/kernel:0")
+    b = read(h5, "$group/$group/bias:0")
 
     if CUDA.functional()
         w = KnetArray(w)
@@ -67,7 +67,7 @@ Default Conv layer.
 + `Conv(w, b, padding, actf)`: default constructor
 + `Conv(w1::Int, w2::Int,  i::Int, o::Int; actf=relu, padding=0)`: layer with
     o kernels of size (w1,w2) for an input of i layers.
-+ `Conv(hdfo::Dict, group::String; trainable=false, actf=relu)`: layer
++ `Conv(h5::HDF5File, group::String; trainable=false, actf=relu)`: layer
         imported from a hdf5-file from tensorflow with the
         hdf-object hdfo and the group name group.
 """
@@ -81,12 +81,12 @@ struct Conv  <: Layer
             new(Knet.param(w1,w2,i,o), Knet.param0(1,1,o,1), padding, actf)
 end
 
-function Conv(hdfo::Dict, group::String; trainable=false, actf=Knet.relu)
+function Conv(h5::HDF5File, group::String; trainable=false, actf=Knet.relu)
 
-    w = hdfo[group][group]["kernel:0"]
+    w = read(h5, "$group/$group/kernel:0")
     w = permutedims(w, [4,3,2,1])
 
-    b = hdfo[group][group]["bias:0"]
+    b = read(h5, "$group/$group/bias:0")
     b = reshape(b, 1,1,:,1)
 
     if CUDA.functional()
@@ -199,9 +199,13 @@ of the package assume raw output activations).
 ### Constructors:
 + `Predictions(i::Int, j:Int)`: with
     input size i, output size j activation function idendity.
++ `Predictions(h5::HDF5File, group::String; trainable=false)`: with
+    an hdf5-object and group name of the output layer.
 """
 struct Predictions
     Predictions(i::Int,j::Int) = Dense(i, j, actf=identity)
+    Predictions(h5::HDF5File, group::String; trainable=false) =
+                Dense(h5, group, trainable=trainable, actf=identity)
 end
 
 

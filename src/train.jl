@@ -115,3 +115,20 @@ function calc_and_report_loss_acc(mdl, trn, vld, tbl, step)
             @info "Evaluation Accuracy (every $step steps)" train=acc_trn valid=acc_vld log_step_increment=0
     end
 end
+
+
+
+function predict_top5(nn, x; top_n=5, classes=nothing)
+
+    y = nn(x)
+
+    for (i,o) in enumerate(eachcol(y))
+        o = softmax(vec(Array(o)))
+        top = sortperm(vec(Array(o)), rev=true)[1:top_n]
+        println("top-$top_n hits for sample $i: $top"); flush(stdout)
+        if classes != nothing && length(classes) >= top_n
+            display(collect(zip( o[top_n], classes[top_n])))
+        end
+    end
+    return y
+end

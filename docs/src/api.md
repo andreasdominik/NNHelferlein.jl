@@ -21,39 +21,40 @@ Regressor
 Layer
 ```
 
-
 ```@docs
 Dense
 ```
-
 
 ```@docs
 Conv
 ```
 
-
 ```@docs
 Pool
 ```
-
 
 ```@docs
 Flat
 ```
 
-
 ```@docs
 PyFlat
 ```
-
 
 ```@docs
 Embed
 ```
 
-
 ```@docs
 Predictions
+```
+
+```@docs
+Softmax
+```
+
+```@docs
+Layer
 ```
 
 

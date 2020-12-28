@@ -15,6 +15,7 @@ using Statistics: mean
 using ProgressMeter, Dates
 using TensorBoardLogger, Logging
 using IterTools: ncycle, takenth
+using HDF5
 
 include("types.jl")
 include("util.jl")
