@@ -12,7 +12,9 @@ import Images
 import Augmentor
 import MLDataUtils
 using Statistics: mean
-
+using ProgressMeter, Dates
+using TensorBoardLogger, Logging
+using IterTools: ncycle, takenth
 
 include("types.jl")
 include("util.jl")
@@ -20,6 +22,7 @@ include("nets.jl")
 include("layers.jl")
 include("images.jl")
 include("dataframes.jl")
+include("train.jl")
 
 
 export NeuNet, Classifier, Regressor,           # chains
