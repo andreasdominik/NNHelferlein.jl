@@ -129,6 +129,9 @@ get_class_labels
 
 ### Training
 
+```@docs
+tb_train!
+```
 
 ### Evaluation
 
