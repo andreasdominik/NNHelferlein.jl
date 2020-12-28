@@ -1,3 +1,4 @@
+
 """
     function preproc_imagenet(img)
 
@@ -39,11 +40,48 @@ dtrn, dvld = mk_image_minibatch("./example_pics", 16;
 function preproc_imagenet(img)
 
     (r, g, b) = (103.939, 116.779, 123.68)
-    ia = Float32.(permutedims(channelview(img), (3,2,1)) .* 255.0)
+    img = img .* 255.0
 
-    y = zeros(Float32, size(ia))
-    y[:,:,1] .= ia[:,:,3] .- r
-    y[:,:,2] .= ia[:,:,2] .- g
-    y[:,:,3] .= ia[:,:,1] .- b
+    y = zeros(Float32, size(img))
+    y[:,:,1] .= img[:,:,3] .- r
+    y[:,:,2] .= img[:,:,2] .- g
+    y[:,:,3] .= img[:,:,1] .- b
     return y
+end
+
+
+"""
+    function get_imagenet_classes()
+
+Return a list of all 1000 ImageNet class labels.
+"""
+function get_imagenet_classes()
+
+    IMAGENET_CLASSES = joinpath(@__DIR__, "..",
+                             "data", "imagenet", "classes.txt")
+
+    if isfile(IMAGENET_CLASSES)
+        classes = readlines(IMAGENET_CLASSES)
+    else
+        println("File with ImageNet class labels not found at")
+        println("$IMAGENET_CLASSES.")
+
+        classes = repeat(["?"], 1000)
+    end
+    return classes
+end
+
+
+
+
+"""
+    function predict_imagenet(mdl, x; top_n=5)
+
+Predict the ImageNet-class of images from the
+predefined list of class labels.
+"""
+function predict_imagenet(mdl, x; top_n=5)
+
+    classes = get_imagenet_classes()
+    return predict_top5(mdl, x; top_n=top_n, classes=classes)
 end

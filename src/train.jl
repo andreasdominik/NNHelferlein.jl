@@ -118,17 +118,34 @@ end
 
 
 
-function predict_top5(nn, x; top_n=5, classes=nothing)
+"""
+    function predict_top5(mdl, x; top_n=5, classes=nothing)
 
-    y = nn(x)
+Run the model mdl for data in x and prints the top 5
+predictions as softmax probabilities.
 
+### Arguments:
+`top_n`: print top *n* hits instead of *5*
+`classes` may be a list of human readable class labels.
+"""
+function predict_top5(mdl, x; top_n=5, classes=nothing)
+
+    x = first(x)
+    y = mdl(x)
+
+    if classes == nothing
+        classes = repeat(["-"], maximum(top))
+    end
     for (i,o) in enumerate(eachcol(y))
-        o = softmax(vec(Array(o)))
+        o = Knet.softmax(vec(Array(o)))
         top = sortperm(vec(Array(o)), rev=true)[1:top_n]
         println("top-$top_n hits for sample $i: $top"); flush(stdout)
-        if classes != nothing && length(classes) >= top_n
-            display(collect(zip( o[top_n], classes[top_n])))
+
+        @printf("%6s  %6s   %s\n", "softmax", "#", "class label")
+        for t in top
+            @printf(" %6.2f  %6i   \"%s\"\n", o[t], t, classes[t])
         end
+        println(" ")
     end
     return y
 end

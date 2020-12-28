@@ -16,6 +16,7 @@ using ProgressMeter, Dates
 using TensorBoardLogger, Logging
 using IterTools: ncycle, takenth
 using HDF5
+using Printf
 
 include("types.jl")
 include("util.jl")
@@ -24,6 +25,7 @@ include("layers.jl")
 include("images.jl")
 include("dataframes.jl")
 include("train.jl")
+include("imagenet.jl")
 
 
 export NeuNet, Classifier, Regressor,           # chains
@@ -35,6 +37,7 @@ export NeuNet, Classifier, Regressor,           # chains
        dataframe_read, dataframe_split,         # import data
        dataframe_minibatches,
        mk_image_minibatch,
-       tb_train!
+       tb_train!, predict_top5, predict_imagenet,
+       get_imagenet_classes
 
 end # module
