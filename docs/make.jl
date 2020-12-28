@@ -1,4 +1,4 @@
-import Pkg; Pkg.add("Documenter")
+# import Pkg; Pkg.add("Documenter")
 using Documenter, NNHelferlein
 
 makedocs(modules = [NNHelferlein],
@@ -18,7 +18,7 @@ makedocs(modules = [NNHelferlein],
          )
 
 deploydocs(
-    root   = "<current-directory>",
+    # root   = "<current-directory>",
     target = "build",
     repo   = "github.com/andreasdominik/NNHelferlein.jl.git",
     branch = "gh-pages",
@@ -26,8 +26,8 @@ deploydocs(
     # make   = nothing | <Function>,
     devbranch = "master",
     devurl = "dev",
-    versions = ["stable" => "v^", "v#.#", devurl => devurl],
+    # versions = ["stable" => "v^", "v#.#", devurl => "dev"],
     push_preview    = false,
-    repo_previews   = repo,
-    branch_previews = branch
+    # repo_previews   = repo,
+    # branch_previews = branch
 )
