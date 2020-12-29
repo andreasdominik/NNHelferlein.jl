@@ -36,7 +36,8 @@ TensorBoard log-directory is created from 3 parts:
 `tb_dir/tb/name/<current date time>`.
 
 + `tb_dir="tensorboard_logs"`: root directory for tensorborad logs.
-+ `tb_name="run"`: name of training run.
++ `tb_name="run"`: name of training run. `tb_name` will be used as
+        directory name and should not include whitespace
 + `tb_text`:  description
         to be included in the TensorBoard log.
 """
