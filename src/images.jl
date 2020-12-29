@@ -183,6 +183,7 @@ function read_one_image(i, il)
         img = Augmentor.augment(img, il.aug_pipl)
     end
 
+    println(il.i_paths[i], summary(img))
     img = Float32.(permutedims(Images.channelview(img), (3,2,1)))
 
     if il.pre_proc != nothing && il.pre_proc isa Function
