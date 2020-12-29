@@ -28,7 +28,8 @@ The model is updated (in-place) and the trained model is returned.
         If mb_loss_freq is greater then the number of minibatches,
         loss is logged for each minibatch.
 + `cp_freq=1`: frequency of model checkpoints written to disk.
-        Default is to write the model after each epoch.
+        Default is to write the model after each epoch with
+        name `model`.
 + `cp_dir="checkpoints"`: directory for checkpoints.
 
 ### TensorBoard kw-args:
@@ -80,6 +81,8 @@ function tb_train!(mdl, opti, trn; epochs=1, vld=nothing, eval_size=0.1,
     tbl = TensorBoardLogger.TBLogger(tb_log_dir,
                     min_level=Logging.Info)
     log_text(tbl, tb_log_dir, tb_name, start_time, tb_text)
+    calc_and_report_loss_acc(mdl, takenth(trn, nth_trn),
+            takenth(vld, nth_vld), tbl, 0)
 
     # Training:
     #
@@ -134,7 +137,7 @@ function write_cp(model, step, dir)
         mkdir(dir_name)
     end
     fname = joinpath(dir_name, "checkpoint_$step.jld2")
-    @save fname model
+    JLD2.@save fname model
 end
 
 # Helper to calc loss and acc with only ONE forward run:
@@ -162,8 +165,8 @@ function calc_and_report_loss_acc(mdl, trn, vld, tbl, step)
         #     println("eval at $i: loss = $loss_trn, $loss_vld; acc =  = $acc_trn, $acc_vld")
 
         with_logger(tbl) do
-            @info "Evaluation Loss (every $step steps)" train=loss_trn valid=loss_vld log_step_increment=step
-            @info "Evaluation Accuracy (every $step steps)" train=acc_trn valid=acc_vld log_step_increment=0
+            @info "Evaluation Loss" train=loss_trn valid=loss_vld log_step_increment=step
+            @info "Evaluation Accuracy" train=acc_trn valid=acc_vld log_step_increment=0
     end
 end
 
@@ -200,3 +203,16 @@ function predict_top5(mdl, x; top_n=5, classes=nothing)
     end
     return y
 end
+
+function predict(mdl, x; softmax=true)
+
+    if mdl isa Classifier && softmax
+        softmax = true
+    else
+        softmax = false
+    end
+
+    if x isa AbstractArray
+        y = mdl(x)
+    else
+        y =
