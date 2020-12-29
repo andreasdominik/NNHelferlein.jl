@@ -39,6 +39,7 @@ export NeuNet, Classifier, Regressor,           # chains
        dataframe_minibatches,
        mk_image_minibatch,
        tb_train!, predict_top5, predict_imagenet,
+       predict,
        get_imagenet_classes
 
 end # module

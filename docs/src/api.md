@@ -126,17 +126,27 @@ get_class_labels
 ```
 
 
-## Training
+# Training
 
 ```@docs
 tb_train!
 ```
 
-## Evaluation
+# Evaluation
 
+```@docs
+predict
+```
 
-## ImageNet tools
+```@docs
+predict_top5
+```
+
+# ImageNet tools
 
 ```@docs
 preproc_imagenet
+```
+```@docs
+precdict_imagenet
 ```
