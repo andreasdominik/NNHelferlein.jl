@@ -1,5 +1,5 @@
 """
-    function tb_train!(mdl, opti, trn; epoch=1, vld=nothing, eval_size=0.2,
+    function tb_train!(mdl, opti, trn; epochs=1, vld=nothing, eval_size=0.2,
                       mb_loss_freq=100, eval_freq=1,
                       cp_freq=1, cp_dir="checkpoints",
                       tb_dir="tensorboard_logs", tb_name="run",

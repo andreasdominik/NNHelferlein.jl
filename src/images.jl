@@ -42,7 +42,7 @@ function mk_image_minibatch(dir, batchsize; split=false, fr=0.5,
 
 
     if split                    # return train_loader, valid_loader
-        ((xtrn,ytrn), (xvld,yvld)) = do_split(i_paths, i_classes, at=fr)
+        ((xvld,yvld),(xtrn,ytrn)) = do_split(i_paths, i_classes, at=fr)
         if balanced
             (xtrn,ytrn) = do_balance(xtrn, ytrn)
             (xvld,yvld) = do_balance(xvld, yvld)
