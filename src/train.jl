@@ -220,19 +220,19 @@ Return the prediction for x.
 """
 function predict(mdl, x; softmax=false)
 
-    # if mdl isa Classifier && softmax
-    #     softmax = true
-    # else
-    #     softmax = false
-    # end
+    if mdl isa Classifier && softmax
+        softmax = true
+    else
+        softmax = false
+    end
 
     if x isa AbstractArray
         y = mdl(x)
     else
-        ys = [mdl(i) for i in x]
-        nd = ndims(ys[1])
-        y = cat(ys..., dims=nd)
+        # ys = [mdl(i) for i in x]
+        y = cat((mdl(i) for i in x)..., dims=2)
     end
+    y = convert(Array{Float32}, y)
 
     if softmax
         return Knet.softmax(y)
