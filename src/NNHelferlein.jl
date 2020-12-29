@@ -16,6 +16,7 @@ using ProgressMeter, Dates
 using TensorBoardLogger, Logging
 using IterTools: ncycle, takenth
 using HDF5
+using JLD2
 using Printf
 
 include("types.jl")

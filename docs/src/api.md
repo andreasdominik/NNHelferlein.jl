@@ -121,23 +121,21 @@ ImageLoader
 mk_image_minibatch
 ```
 
-## Utilities
-
 ```@docs
 get_class_labels
 ```
 
 
-### Training
+## Training
 
 ```@docs
 tb_train!
 ```
 
-### Evaluation
+## Evaluation
 
 
-### ImageNet tools
+## ImageNet tools
 
 ```@docs
 preproc_imagenet

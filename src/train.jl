@@ -3,7 +3,7 @@
                       mb_loss_freq=100, eval_freq=1,
                       cp_freq=1, cp_dir="checkpoints",
                       tb_dir="tensorboard_logs", tb_name="run",
-                      tb_text="""Description of tb_train!() run.""")
+                      tb_text=\"\"\"Description of tb_train!() run.\"\"\")
 
 Train function with TensorBoard integration. TB logs are written with
 the TensorBoardLogger.jl package.
@@ -16,7 +16,7 @@ The model is updated (in-place) and the trained model is returned.
         minibatches
 
 ### Keyword arguments:
-+ `epoch=1`: number of epochs to train
++ `epochs=1`: number of epochs to train
 + `vld=nothing`: validation data
 + `eval_size=0.2`: fraction of validation data to be used for calculating
         loss and accuracy for train and validation data during training.
@@ -37,13 +37,13 @@ TensorBoard log-directory is created from 3 parts:
 
 + `tb_dir="tensorboard_logs"`: root directory for tensorborad logs.
 + `tb_name="run"`: name of training run.
-+ `tb_text`="""Description of tb_train!() run.""":  description
++ `tb_text`:  description
         to be included in the TensorBoard log.
 """
-function tb_train!(mdl, opti, trn; epoch=1, vld=nothing, eval_size=0.1,
+function tb_train!(mdl, opti, trn; epochs=1, vld=nothing, eval_size=0.1,
                   mb_loss_freq=100, eval_freq=1,
                   cp_freq=1, cp_dir="checkpoints",
-                  tb_dir="./tensorboard_logs", tb_name="run",
+                  tb_dir="logs", tb_name="run",
                   tb_text="""Description of tb_train!() run.""")
 
     # use every n-th mb for evaluation (based on vld if defined):
@@ -62,26 +62,28 @@ function tb_train!(mdl, opti, trn; epoch=1, vld=nothing, eval_size=0.1,
     eval_nth = Int(cld(n_trn, eval_freq))
     mb_loss_nth = Int(cld(n_trn, mb_loss_freq))
 
-    println("Training $epoch epochs with $n_trn minibatches/epoch (and $n_vld validation mbs).")
-    println("Evaluation is performed every $eval_freq minibatches (with $n_eval mbs).")
+    println("Training $epochs epochs with $n_trn minibatches/epoch (and $n_vld validation mbs).")
+    println("Evaluation is performed every $eval_nth minibatches (with $n_eval mbs).")
 
     # mk log directory:
     #
+    start_time = Dates.now()
     tb_log_dir = joinpath(tb_dir, tb_name,
-                    Dates.format(now(), "yyyy-mm-ddTHH:MM:SS"))
+                    Dates.format(start_time, "yyyy-mm-ddTHH:MM:SS"))
     # checkpoints:
     #
-    n_cp = Int(ceil(n_trn * cp_freq))
+    cp_nth = Int(ceil(n_trn * cp_freq))
 
     # Tensorboard logger:
     #
     tbl = TensorBoardLogger.TBLogger(tb_log_dir,
                     min_level=Logging.Info)
+    log_text(tbl, tb_log_dir, tb_name, start_time, tb_text)
 
     # Training:
     #
     mb_losses = Float32[]
-    @showprogress for (i, mb_loss) in enumerate(adam(lenet, ncycle(dtrn,1)))
+    @showprogress for (i, mb_loss) in enumerate(opti(mdl, ncycle(trn,epochs)))
 
         push!(mb_losses, mb_loss)
         if (i % eval_nth) == 0
@@ -97,17 +99,41 @@ function tb_train!(mdl, opti, trn; epoch=1, vld=nothing, eval_size=0.1,
         end
 
         if (i % cp_nth) == 0
-            write_cp(mdl, i, tb_dir)
+            write_cp(mdl, i, tb_log_dir)
         end
     end
     return mdl
 end
 
 
-function write_cp(mdl, step, dir)
+function log_text(tbl, tb_log_dir, tb_name, start_time, tb_text)
 
-    fname = joinpath(dir, "checkpoints", "checkpoint_$step.jld2")
-    @save fname mdl
+    tb_log_text =
+    "<h2>NNHelferlein.jl tb_train!() log</h2>" *
+    "   <ul> " *
+    "   <li>dir:  $tb_log_dir</li> " *
+    "   <li>name: $tb_name</li> " *
+    "   <li>time: $(Dates.format(start_time, "E, yyyy/mm/dd, HH:MM:SS"))</li> " *
+    "   </ul> " *
+    "   <p> " *
+    "   $tb_text " *
+    "   </p> "
+
+
+    TensorBoardLogger.log_text(tbl, "Description", tb_log_text, step=0)
+    # with_logger(tbl) do
+    #         @info "Description" text=tb_log_text log_step_increment=0
+    # end
+end
+
+function write_cp(model, step, dir)
+
+    dir_name = joinpath(dir, "checkpoints")
+    if !isdir(dir_name)
+        mkdir(dir_name)
+    end
+    fname = joinpath(dir_name, "checkpoint_$step.jld2")
+    @save fname model
 end
 
 # Helper to calc loss and acc with only ONE forward run:
