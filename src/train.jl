@@ -66,6 +66,7 @@ function tb_train!(mdl, opti, trn; epochs=1, vld=nothing, eval_size=0.1,
 
     println("Training $epochs epochs with $n_trn minibatches/epoch (and $n_vld validation mbs).")
     println("Evaluation is performed every $eval_nth minibatches (with $n_eval mbs).")
+    println("Watch the progress with TensorBoard.")
 
     # mk log directory:
     #
