@@ -1,7 +1,9 @@
 """
-    function tb_train!(mdl, opti, trn; epoch=1, vld=nothing, eval_size=0.1,
+    function tb_train!(mdl, opti, trn; epoch=1, vld=nothing, eval_size=0.2,
                       mb_loss_freq=100, eval_freq=1,
-                      tb_dir="./tensorboard_logs", tb_name="run")
+                      cp_freq=1, cp_dir="checkpoints",
+                      tb_dir="tensorboard_logs", tb_name="run",
+                      tb_text="""Description of tb_train!() run.""")
 
 Train function with TensorBoard integration. TB logs are written with
 the TensorBoardLogger.jl package.
@@ -14,28 +16,35 @@ The model is updated (in-place) and the trained model is returned.
         minibatches
 
 ### Keyword arguments:
-+ `epoch`: number of epochs to train
-+ `vld`: validation data
-+ `eval_size`: fraction of validation data to be used for calculating
++ `epoch=1`: number of epochs to train
++ `vld=nothing`: validation data
++ `eval_size=0.2`: fraction of validation data to be used for calculating
         loss and accuracy for train and validation data during training.
-+ `eval_freq`: frequency of evaluation; default=1 means evaluation is
++ `eval_freq=1`: frequency of evaluation; default=1 means evaluation is
         calculated after each epoch. With eval_freq=10 eveluation is
         calculated 10 times per epoch.
-+ `mb_loss_freq`: frequency of training loss reporting. default=100
++ `mb_loss_freq=100`: frequency of training loss reporting. default=100
         means that 100 loss-values per epoch will be logged to TensorBoard.
         If mb_loss_freq is greater then the number of minibatches,
         loss is logged for each minibatch.
++ `cp_freq=1`: frequency of model checkpoints written to disk.
+        Default is to write the model after each epoch.
++ `cp_dir="checkpoints"`: directory for checkpoints.
 
-### Definition of TensorBoard log-directory:
+### TensorBoard kw-args:
 TensorBoard log-directory is created from 3 parts:
 `tb_dir/tb/name/<current date time>`.
 
-+ `tb_dir`: root directory for tensorborad logs.
-+ `tb_name`: name of training run.
++ `tb_dir="tensorboard_logs"`: root directory for tensorborad logs.
++ `tb_name="run"`: name of training run.
++ `tb_text`="""Description of tb_train!() run.""":  description
+        to be included in the TensorBoard log.
 """
 function tb_train!(mdl, opti, trn; epoch=1, vld=nothing, eval_size=0.1,
                   mb_loss_freq=100, eval_freq=1,
-                  tb_dir="./tensorboard_logs", tb_name="run")
+                  cp_freq=1, cp_dir="checkpoints",
+                  tb_dir="./tensorboard_logs", tb_name="run",
+                  tb_text="""Description of tb_train!() run.""")
 
     # use every n-th mb for evaluation (based on vld if defined):
     #
@@ -50,22 +59,24 @@ function tb_train!(mdl, opti, trn; epoch=1, vld=nothing, eval_size=0.1,
     nth_trn = Int(cld(n_trn, n_eval))
     nth_vld = Int(cld(n_vld, n_eval))
 
-    eval_freq = Int(cld(n_trn, eval_freq))
-    mb_loss_freq = Int(cld(n_trn, mb_loss_freq))
+    eval_nth = Int(cld(n_trn, eval_freq))
+    mb_loss_nth = Int(cld(n_trn, mb_loss_freq))
 
     println("Training $epoch epochs with $n_trn minibatches/epoch (and $n_vld validation mbs).")
     println("Evaluation is performed every $eval_freq minibatches (with $n_eval mbs).")
 
+    # mk log directory:
+    #
+    tb_log_dir = joinpath(tb_dir, tb_name,
+                    Dates.format(now(), "yyyy-mm-ddTHH:MM:SS"))
+    # checkpoints:
+    #
+    n_cp = Int(ceil(n_trn * cp_freq))
+
     # Tensorboard logger:
     #
-    tb_log_dir = joinpath(tb_dir, tb_name, Dates.format(now(), "yyyy-mm-ddTHH:MM:SS"))
-    tbl = TensorBoardLogger.TBLogger(tb_log_dir, min_level=Logging.Info)
-
-    #     layout_loss = Dict("Losses" => Dict("Train and valid loss" => (tb_multiline, ["train loss", "valid loss"])))
-    #     TensorBoardLogger.log_custom_scalar(tbl, layout_loss)
-    #     layout_acc = Dict("Accuracies" => Dict("Train and valid accuracy" => (tb_multiline, ["train acc", "valid acc"])))
-    #     TensorBoardLogger.log_custom_scalar(tbl, layout_acc)
-    #     calc_and_report_loss_acc(mdl, takenth(trn, nth_trn), takenth(vld, nth_vld), tbl, 0)
+    tbl = TensorBoardLogger.TBLogger(tb_log_dir,
+                    min_level=Logging.Info)
 
     # Training:
     #
@@ -73,17 +84,30 @@ function tb_train!(mdl, opti, trn; epoch=1, vld=nothing, eval_size=0.1,
     @showprogress for (i, mb_loss) in enumerate(adam(lenet, ncycle(dtrn,1)))
 
         push!(mb_losses, mb_loss)
-        if (i % eval_freq) == 0
-            calc_and_report_loss_acc(mdl, takenth(trn, nth_trn), takenth(vld, nth_vld), tbl, eval_freq)
+        if (i % eval_nth) == 0
+            calc_and_report_loss_acc(mdl, takenth(trn, nth_trn),
+                    takenth(vld, nth_vld), tbl, eval_nth)
         end
 
-        if (i % mb_loss_freq) == 0
-        #     println("             write loss at $i: $(mean(mb_losses))")
-            TensorBoardLogger.log_value(tbl, "Minibatch loss (epoch = $n_trn steps)", mean(mb_losses), step=i)
+        if (i % mb_loss_nth) == 0
+            TensorBoardLogger.log_value(tbl,
+                    "Minibatch loss (epoch = $n_trn steps)",
+                    mean(mb_losses), step=i)
             mb_losses = Float32[]
+        end
+
+        if (i % cp_nth) == 0
+            write_cp(mdl, i, tb_dir)
         end
     end
     return mdl
+end
+
+
+function write_cp(mdl, step, dir)
+
+    fname = joinpath(dir, "checkpoints", "checkpoint_$step.jld2")
+    @save fname mdl
 end
 
 # Helper to calc loss and acc with only ONE forward run:
