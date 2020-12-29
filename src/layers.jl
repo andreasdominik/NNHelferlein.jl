@@ -78,7 +78,7 @@ struct Conv  <: Layer
     actf
     Conv(w, b, padding, actf) = new(w, b, padding, actf)
     Conv(w1::Int, w2::Int,  i::Int, o::Int; actf=Knet.relu, padding=0) =
-            new(Knet.param(w1,w2,i,o), Knet.param0(1,1,o,1), padding, actf)
+            new(Knet.param(w1,w2,i,o), Knet.param0(1,1,o,1), (padding,padding), actf)
 end
 
 function Conv(h5::HDF5File, group::String; trainable=false, actf=Knet.relu)
