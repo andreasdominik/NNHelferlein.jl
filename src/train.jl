@@ -205,15 +205,38 @@ function predict_top5(mdl, x; top_n=5, classes=nothing)
     return y
 end
 
-function predict(mdl, x; softmax=true)
+"""
+    function predict(mdl, x; softmax=false)
 
-    if mdl isa Classifier && softmax
-        softmax = true
-    else
-        softmax = false
-    end
+Return the prediction for x.
+
+### Arguments:
+`mdl`: executable network model
+`x`: tensor, minibatch or iterator providing minibatches
+        of input data
+`softmax`: if true and if model is a `::Classifier` the prediction
+        softmax probabilities are rezrned instead of raw
+        activations.
+"""
+function predict(mdl, x; softmax=false)
+
+    # if mdl isa Classifier && softmax
+    #     softmax = true
+    # else
+    #     softmax = false
+    # end
 
     if x isa AbstractArray
         y = mdl(x)
     else
-        y =
+        ys = [mdl(i) for i in x]
+        nd = ndims(ys[1])
+        y = cat(ys..., dims=nd)
+    end
+
+    if softmax
+        return Knet.softmax(y)
+    else
+        return y
+    end
+end
