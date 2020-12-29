@@ -185,8 +185,7 @@ predictions as softmax probabilities.
 """
 function predict_top5(mdl, x; top_n=5, classes=nothing)
 
-    x = first(x)
-    y = mdl(x)
+    y = predict(mdl, x, softmax=false)
 
     if classes == nothing
         classes = repeat(["-"], maximum(top))
