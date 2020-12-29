@@ -2,7 +2,7 @@
     function tb_train!(mdl, opti, trn; epochs=1, vld=nothing, eval_size=0.2,
                       mb_loss_freq=100, eval_freq=1,
                       cp_freq=1, cp_dir="checkpoints",
-                      tb_dir="tensorboard_logs", tb_name="run",
+                      tb_dir="logs", tb_name="run",
                       tb_text=\"\"\"Description of tb_train!() run.\"\"\")
 
 Train function with TensorBoard integration. TB logs are written with
@@ -36,7 +36,7 @@ The model is updated (in-place) and the trained model is returned.
 TensorBoard log-directory is created from 3 parts:
 `tb_dir/tb/name/<current date time>`.
 
-+ `tb_dir="tensorboard_logs"`: root directory for tensorborad logs.
++ `tb_dir="logs"`: root directory for tensorborad logs.
 + `tb_name="run"`: name of training run. `tb_name` will be used as
         directory name and should not include whitespace
 + `tb_text`:  description
@@ -153,6 +153,10 @@ function loss_and_acc(mdl, data)
         acc += Knet.accuracy(preds,y, average=false)[1]
         nll += Knet.nll(preds,y, average=false)[1]
     end
+    # y = predict(mdl, data, softmax=false)
+    # acc = Knet.accuracy(preds,y, average=false)[1]
+    # nll = Knet.nll(preds,y, average=false)[1]
+
 
     return nll/len, acc/len
 end

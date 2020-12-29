@@ -178,6 +178,7 @@ end
 function read_one_image(i, il)
 
     img = Images.load(il.i_paths[i])
+    img = Images.RGB(img)
 
     if il.aug_pipl isa Augmentor.ImmutablePipeline
         img = Augmentor.augment(img, il.aug_pipl)
