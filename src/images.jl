@@ -24,6 +24,9 @@ minibatches of path-names of image files, relative to dir.
         restarts
 + `train`: if true, minibatches with (x,y) Tuples are provided,
         if false only x (for prediction)
++ `pre_load`: if `true` all images are loaded in advance;
+        otherwise images are loaded on demand durng training.
+        (option is *not implemented yet!*)
 + `aug_pipl`: augmentation pipeline for Augmentor.jl. Augmentation
         is performed before the pre_proc-function is applied
 + `pre_proc`: function with preprocessing
@@ -33,6 +36,7 @@ minibatches of path-names of image files, relative to dir.
 """
 function mk_image_minibatch(dir, batchsize; split=false, fr=0.5,
                             balanced=false, shuffle=true, train=true,
+                            pre_load=false,
                             aug_pipl=nothing, pre_proc=nothing)
 
     i_paths = get_files_list(dir)
@@ -229,6 +233,7 @@ end
 #
 function get_class_names(dir, image_paths)
 
+    # TODO: splitpath()
     classes = String[]
     regex = Regex("$dir/?([^/]+)/")
     for image in image_paths

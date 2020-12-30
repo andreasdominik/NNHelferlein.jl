@@ -169,25 +169,23 @@ the index of the "one" in the vector has to be provided as Integer value
 
 ### Fields:
 + w
-+ b
 + actf
 
 ### Constructors:
-+ `Embed(i,j; actf=identity) = new(param(j,i), param0(j), actf):` with
++ `Embed(i,j; actf=identity) = new(param(j,i), actf):` with
     input size i, output size j and default activation function idendity.
 
 ### Signatures:
-+ `(l::Embed)(x) = l.actf.(w[:, permutedims(hcat(x...))] .+ l.b)` default
++ `(l::Embed)(x) = l.actf.(w[:, permutedims(hcat(x...))])` default
   embedding of input vector x.
 """
 struct Embed
     w
-    b
     actf
-    Embed(i,embed; actf=identity) = new(Knet.param(embed,i), Knet.param0(embed), actf)
+    Embed(i,embed; actf=identity) = new(Knet.param(embed,i), actf)
 end
 
-(l::Embed)(x) = l.actf.(w[:, permutedims(hcat(x...))] .+ l.b)
+(l::Embed)(x) = l.actf.(l.w[:, permutedims(hcat(x...))])
 
 """
     struct Predictions
