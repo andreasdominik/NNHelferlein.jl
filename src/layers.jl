@@ -185,7 +185,7 @@ struct Embed
     Embed(i,embed; actf=identity) = new(Knet.param(embed,i), actf)
 end
 
-(l::Embed)(x) = l.actf.(l.w[:, vec(x...)])
+(l::Embed)(x) = l.actf.(l.w[:, permutedims(hcat(x...))])
 
 """
     struct Predictions
