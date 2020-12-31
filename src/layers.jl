@@ -182,7 +182,7 @@ the index of the "one" in the vector has to be provided as Integer value
 struct Embed
     w
     actf
-    Embed(i,embed; actf=identity) = new(Knet.param(embed,i), actf)
+    Embed(i, embed; actf=identity) = new(Knet.param(embed,i), actf)
 end
 
 (l::Embed)(x) = l.actf.(l.w[:, permutedims(hcat(x...))])

@@ -3,7 +3,8 @@
                       mb_loss_freq=100, eval_freq=1,
                       cp_freq=1, cp_dir="checkpoints",
                       tb_dir="logs", tb_name="run",
-                      tb_text=\"\"\"Description of tb_train!() run.\"\"\")
+                      tb_text=\"\"\"Description of tb_train!() run.\"\"\";
+                      args...)
 
 Train function with TensorBoard integration. TB logs are written with
 the TensorBoardLogger.jl package.
@@ -30,7 +31,9 @@ The model is updated (in-place) and the trained model is returned.
 + `cp_freq=1`: frequency of model checkpoints written to disk.
         Default is to write the model after each epoch with
         name `model`.
-+ `cp_dir="checkpoints"`: directory for checkpoints.
++ `cp_dir="checkpoints"`: directory for checkpoints
++ `; args...`: optional keyword arguments for the optimiser can be specified
+        after the semicolon.
 
 ### TensorBoard kw-args:
 TensorBoard log-directory is created from 3 parts:
@@ -42,11 +45,12 @@ TensorBoard log-directory is created from 3 parts:
 + `tb_text`:  description
         to be included in the TensorBoard log.
 """
-function tb_train!(mdl, opti, trn; epochs=1, vld=nothing, eval_size=0.1,
+function tb_train!(mdl, opti, trn; args=nothing, epochs=1, vld=nothing, eval_size=0.1,
                   mb_loss_freq=100, eval_freq=1,
                   cp_freq=1, cp_dir="checkpoints",
                   tb_dir="logs", tb_name="run",
-                  tb_text="""Description of tb_train!() run.""")
+                  tb_text="""Description of tb_train!() run.""";
+                  args...)
 
     # use every n-th mb for evaluation (based on vld if defined):
     #
@@ -88,7 +92,7 @@ function tb_train!(mdl, opti, trn; epochs=1, vld=nothing, eval_size=0.1,
     # Training:
     #
     mb_losses = Float32[]
-    @showprogress for (i, mb_loss) in enumerate(opti(mdl, ncycle(trn,epochs)))
+    @showprogress for (i, mb_loss) in enumerate(opti(mdl, ncycle(trn,epochs); args...))
 
         push!(mb_losses, mb_loss)
         if (i % eval_nth) == 0
