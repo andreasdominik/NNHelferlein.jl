@@ -3,7 +3,7 @@
                       mb_loss_freq=100, eval_freq=1,
                       cp_freq=1, cp_dir="checkpoints",
                       tb_dir="logs", tb_name="run",
-                      tb_text=\"\"\"Description of tb_train!() run.\"\"\";
+                      tb_text=\"\"\"Description of tb_train!() run.\"\"\",
                       args...)
 
 Train function with TensorBoard integration. TB logs are written with
@@ -33,7 +33,7 @@ The model is updated (in-place) and the trained model is returned.
         name `model`.
 + `cp_dir="checkpoints"`: directory for checkpoints
 + `; args...`: optional keyword arguments for the optimiser can be specified
-        after the semicolon.
+        after all other args.
 
 ### TensorBoard kw-args:
 TensorBoard log-directory is created from 3 parts:
@@ -45,11 +45,11 @@ TensorBoard log-directory is created from 3 parts:
 + `tb_text`:  description
         to be included in the TensorBoard log.
 """
-function tb_train!(mdl, opti, trn; args=nothing, epochs=1, vld=nothing, eval_size=0.1,
+function tb_train!(mdl, opti, trn; epochs=1, vld=nothing, eval_size=0.1,
                   mb_loss_freq=100, eval_freq=1,
                   cp_freq=1, cp_dir="checkpoints",
                   tb_dir="logs", tb_name="run",
-                  tb_text="""Description of tb_train!() run.""";
+                  tb_text="""Description of tb_train!() run.""",
                   args...)
 
     # use every n-th mb for evaluation (based on vld if defined):
