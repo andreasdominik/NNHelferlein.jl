@@ -196,7 +196,7 @@ function predict_top5(mdl, x; top_n=5, classes=nothing)
     y = predict(mdl, x, softmax=false)
 
     if classes == nothing
-        classes = repeat(["-"], maximum(top))
+        classes = repeat(["-"], size(y)[1])
     end
     for (i,o) in enumerate(eachcol(y))
         o = Knet.softmax(vec(Array(o)))
