@@ -1,6 +1,8 @@
 """
-    function tb_train!(mdl, opti, trn; epochs=1, vld=nothing, eval_size=0.2,
-                      mb_loss_freq=100, eval_freq=1,
+    function tb_train!(mdl, opti, trn, vld; epochs=1,
+                      lr_decay=0.0, lrd_freq=1, l2=0.0,
+                      eval_size=0.2, eval_freq=1,
+                      mb_loss_freq=100,
                       cp_freq=1, cp_dir="checkpoints",
                       tb_dir="logs", tb_name="run",
                       tb_text=\"\"\"Description of tb_train!() run.\"\"\",
@@ -15,10 +17,22 @@ The model is updated (in-place) and the trained model is returned.
 + `opti`: Knet-stype optimiser iterator
 + `trn`: training data; iterator to provide (x,y)-tuples with
         minibatches
++ `vld`: validation data; iterator to provide (x,y)-tuples with
+        minibatches.
 
 ### Keyword arguments:
+#### Optimiser:
 + `epochs=1`: number of epochs to train
-+ `vld=nothing`: validation data
++ `lr_decay=0.0`: Leraning rate decay: factor (<1) to reduce the
+        lr.
++ `lrd_freq=1`: frequency of learning rate decay steps. Default is
+        to modify the lr after every epoch
++ `l2=0.0`: L2 regularisation; implemented as weight decay per
+        parameter
++ `args...`: optional keyword arguments for the optimiser can be specified
+        (i.e. `lr`, `gamma`, ...).
+
+#### Model evaluation:
 + `eval_size=0.2`: fraction of validation data to be used for calculating
         loss and accuracy for train and validation data during training.
 + `eval_freq=1`: frequency of evaluation; default=1 means evaluation is
@@ -29,27 +43,28 @@ The model is updated (in-place) and the trained model is returned.
         If mb_loss_freq is greater then the number of minibatches,
         loss is logged for each minibatch.
 + `cp_freq=1`: frequency of model checkpoints written to disk.
+after all other args.
         Default is to write the model after each epoch with
         name `model`.
 + `cp_dir="checkpoints"`: directory for checkpoints
-+ `; args...`: optional keyword arguments for the optimiser can be specified
-        after all other args.
 
-### TensorBoard kw-args:
+#### TensorBoard:
 TensorBoard log-directory is created from 3 parts:
-`tb_dir/tb/name/<current date time>`.
+`tb_dir/tb_name/<current date time>`.
 
 + `tb_dir="logs"`: root directory for tensorborad logs.
 + `tb_name="run"`: name of training run. `tb_name` will be used as
         directory name and should not include whitespace
 + `tb_text`:  description
-        to be included in the TensorBoard log.
+        to be included in the TensorBoard log as *text* log.
 """
-function tb_train!(mdl, opti, trn; epochs=1, vld=nothing, eval_size=0.1,
-                  mb_loss_freq=100, eval_freq=1,
+function tb_train!(mdl, opti, trn, vld; epochs=1,
+                  lr_decay=0.0, lrd_freq=1, l2=0.0,
+                  eval_size=0.2, eval_freq=1,
+                  mb_loss_freq=100,
                   cp_freq=1, cp_dir="checkpoints",
                   tb_dir="logs", tb_name="run",
-                  tb_text="""Description of tb_train!() run.""",
+                  tb_text=""""Description of tb_train!() run.""",
                   args...)
 
     # use every n-th mb for evaluation (based on vld if defined):
@@ -67,6 +82,8 @@ function tb_train!(mdl, opti, trn; epochs=1, vld=nothing, eval_size=0.1,
 
     eval_nth = Int(cld(n_trn, eval_freq))
     mb_loss_nth = Int(cld(n_trn, mb_loss_freq))
+
+    lr_nth = Int(cld(n_trn, lr_freq))
 
     println("Training $epochs epochs with $n_trn minibatches/epoch (and $n_vld validation mbs).")
     println("Evaluation is performed every $eval_nth minibatches (with $n_eval mbs).")
@@ -89,17 +106,33 @@ function tb_train!(mdl, opti, trn; epochs=1, vld=nothing, eval_size=0.1,
     calc_and_report_loss_acc(mdl, takenth(trn, nth_trn),
             takenth(vld, nth_vld), tbl, 0)
 
+    # set optimiser:
+    #
+    for p in params(mdl)
+        p.opt = opti(;args...)
+    end
+
     # Training:
     #
     mb_losses = Float32[]
-    @showprogress for (i, mb_loss) in enumerate(opti(mdl, ncycle(trn,epochs); args...))
+    @showprogress for (i, mb_loss) in enumerate(ncycle(trn,epochs))
 
+        loss = @diff mdl(x,y)
+        mb_loss = value(loss)
+
+        for p in params(loss)
+            Δw = grad(loss, p) + p .* l2
+            println("updating $i: $(p.opt.lr), Δw: $Δw")
+            Knet.update!(p, Δw)
+        end
+
+        # TensorBoard:
+        #
         push!(mb_losses, mb_loss)
         if (i % eval_nth) == 0
             calc_and_report_loss_acc(mdl, takenth(trn, nth_trn),
                     takenth(vld, nth_vld), tbl, eval_nth)
         end
-
         if (i % mb_loss_nth) == 0
             TensorBoardLogger.log_value(tbl,
                     "Minibatch loss (epoch = $n_trn steps)",
@@ -107,8 +140,19 @@ function tb_train!(mdl, opti, trn; epochs=1, vld=nothing, eval_size=0.1,
             mb_losses = Float32[]
         end
 
+        # checkpoints:
+        #
         if (i % cp_nth) == 0
             write_cp(mdl, i, tb_log_dir)
+        end
+
+        # lr decay:
+        #
+        if (i % lr_nth == 0)
+            for p in params(mdl)
+                println("adapting lr in $p")
+                p.opt.lr = p.opt.lr * lr_decay
+            end
         end
     end
     return mdl
