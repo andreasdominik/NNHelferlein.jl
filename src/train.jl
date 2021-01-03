@@ -94,6 +94,7 @@ function tb_train!(mdl, opti, trn, vld; epochs=1,
     println("Training $epochs epochs with $n_trn minibatches/epoch (and $n_vld validation mbs).")
     println("Evaluation is performed every $eval_nth minibatches (with $n_eval mbs).")
     println("Watch the progress with TensorBoard at: $tb_log_dir")
+
     # checkpoints:
     #
     cp_nth = Int(ceil(n_trn * cp_freq))
@@ -149,8 +150,10 @@ function tb_train!(mdl, opti, trn, vld; epochs=1,
         # lr decay:
         #
         if (i % lr_nth == 0)
+            lr = first(params(mdl)).opt.lr * lr_decay
+            println("Set learning rate to η = $lr")
             for p in params(mdl)
-                p.opt.lr = p.opt.lr * lr_decay
+                p.opt.lr = lr
                 # println("adapting lr in $p to $(p.opt.lr)")
             end
         end
