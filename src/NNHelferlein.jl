@@ -1,8 +1,8 @@
 module NNHelferlein
 
 import Base: iterate, length
-import Knet
-using Knet: KnetArray, Param
+# import Knet
+using Knet #: KnetArray, Param, @diff
 import CUDA
 import CSV
 import OdsIO
