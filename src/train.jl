@@ -83,17 +83,17 @@ function tb_train!(mdl, opti, trn, vld; epochs=1,
     eval_nth = Int(cld(n_trn, eval_freq))
     mb_loss_nth = Int(cld(n_trn, mb_loss_freq))
 
-    lr_nth = Int(cld(n_trn, lr_freq))
+    lr_nth = Int(cld(n_trn, lrd_freq))
 
-    println("Training $epochs epochs with $n_trn minibatches/epoch (and $n_vld validation mbs).")
-    println("Evaluation is performed every $eval_nth minibatches (with $n_eval mbs).")
-    println("Watch the progress with TensorBoard.")
 
     # mk log directory:
     #
     start_time = Dates.now()
     tb_log_dir = joinpath(tb_dir, tb_name,
                     Dates.format(start_time, "yyyy-mm-ddTHH:MM:SS"))
+    println("Training $epochs epochs with $n_trn minibatches/epoch (and $n_vld validation mbs).")
+    println("Evaluation is performed every $eval_nth minibatches (with $n_eval mbs).")
+    println("Watch the progress with TensorBoard at: $tb_log_dir")
     # checkpoints:
     #
     cp_nth = Int(ceil(n_trn * cp_freq))
@@ -115,14 +115,14 @@ function tb_train!(mdl, opti, trn, vld; epochs=1,
     # Training:
     #
     mb_losses = Float32[]
-    @showprogress for (i, mb_loss) in enumerate(ncycle(trn,epochs))
+    @showprogress for (i, (x,y)) in enumerate(ncycle(trn,epochs))
 
         loss = @diff mdl(x,y)
         mb_loss = value(loss)
 
         for p in params(loss)
             Δw = grad(loss, p) + p .* l2
-            println("updating $i: $(p.opt.lr), Δw: $Δw")
+            # println("updating $i: $(p.opt.lr), Δw: -")
             Knet.update!(p, Δw)
         end
 
@@ -150,8 +150,8 @@ function tb_train!(mdl, opti, trn, vld; epochs=1,
         #
         if (i % lr_nth == 0)
             for p in params(mdl)
-                println("adapting lr in $p")
                 p.opt.lr = p.opt.lr * lr_decay
+                # println("adapting lr in $p to $(p.opt.lr)")
             end
         end
     end
