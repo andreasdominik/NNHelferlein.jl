@@ -33,6 +33,8 @@ minibatches of path-names of image files, relative to dir.
         and augmentation algoritms of type x = f(x). In contrast
         to the augmentation that modifies images, is `pre_proc`
         working on Arrays{Float32}.
++ `pre_load=false`: read all images from disk once when populating the
+        loader (requires loads of memory, but speeds up training).
 """
 function mk_image_minibatch(dir, batchsize; split=false, fr=0.5,
                             balanced=false, shuffle=true, train=true,
@@ -44,6 +46,12 @@ function mk_image_minibatch(dir, batchsize; split=false, fr=0.5,
     classes = unique(i_class_names)
     i_classes = [findall(x->x==c, classes)[1] for c in i_class_names]
 
+    if pre_load
+        i_images = pre_load_images(i_paths)
+    else
+        i_images = nothing
+    end
+
 
     if split                    # return train_loader, valid_loader
         ((xvld,yvld),(xtrn,ytrn)) = do_split(i_paths, i_classes, at=fr)
@@ -53,10 +61,12 @@ function mk_image_minibatch(dir, batchsize; split=false, fr=0.5,
         end
         trn_loader = ImageLoader(dir, xtrn, ytrn, classes,
                             batchsize, shuffle, train,
-                            aug_pipl, pre_proc)
+                            aug_pipl, pre_proc,
+                            pre_load, i_images)
         vld_loader = ImageLoader(dir, xvld, yvld, classes,
                             batchsize, shuffle, train,
-                            aug_pipl, pre_proc)
+                            aug_pipl, pre_proc,
+                            pre_load, i_images)
         return trn_loader, vld_loader
     else
         xtrn, ytrn = i_paths, i_classes
@@ -92,6 +102,8 @@ end
         train
         aug_pipl
         pre_proc
+        pre_load
+        i_images
     end
 
 Iterable image loader.
@@ -106,6 +118,8 @@ mutable struct ImageLoader <: DataLoader
     train
     aug_pipl
     pre_proc
+    pre_load
+    i_images
 end
 
 
@@ -114,10 +128,13 @@ end
 function Base.iterate(il::ImageLoader)
 
     if il.shuffle
-        # idx = Random.randperm(length(il.i_paths))
-        # il.i_paths .= il.i_paths[idx]   # xv = @view x[idx] ??
-        # il.i_classes .= il.i_classes[idx]
-        il.i_paths, il.i_classes = do_shuffle(il.i_paths, il.i_classes)
+        idx = Random.randperm(length(il.i_paths))
+        il.i_paths .= il.i_paths[idx]   # xv = @view x[idx] ??
+        il.i_classes .= il.i_classes[idx]
+        if pre_load
+            il.i_images .= il.i_images[idx]
+        end
+        # il.i_paths, il.i_classes = do_shuffle(il.i_paths, il.i_classes)
     end
     state = 1
     return iterate(il, state)
@@ -151,18 +168,19 @@ function mk_image_mb(il, mb_start, mb_size)
     end
 
     # nice way:
-    # is = mb_start:mb_start+mb_size
+    is = mb_start:mb_start+mb_size-1
     # mb_i = Float32.(cat(read_one_image.(is, il)..., dims=4))
+    mb_i = cat(read_one_image.(is, il)..., dims=4)
 
-    i = mb_start
-    mb_i = Float32.(read_one_image(i, il))
-    mb_i = reshape(mb_i, size(mb_i)..., 1)
-    i += 1
-    while i < mb_start+mb_size
-        img = Float32.(read_one_image(i, il))
-        mb_i = Float32.(cat(mb_i, img, dims=4))
-        i += 1
-    end
+    # i = mb_start
+    # mb_i = Float32.(read_one_image(i, il))
+    # mb_i = reshape(mb_i, size(mb_i)..., 1)
+    # i += 1
+    # while i < mb_start+mb_size
+    #     img = Float32.(read_one_image(i, il))
+    #     mb_i = Float32.(cat(mb_i, img, dims=4))
+    #     i += 1
+    # end
 
     mb_y = UInt8.(il.i_classes[mb_start:mb_start+mb_size-1])
 
@@ -181,8 +199,11 @@ end
 
 function read_one_image(i, il)
 
-    img = Images.load(il.i_paths[i])
-    img = Images.RGB.(img)
+    if il.pre_load
+        img = il.i_images[i]
+    else
+        img = Images.RGB.(Images.load(il.i_paths[i]))
+    end
 
     if il.aug_pipl isa Augmentor.ImmutablePipeline
         img = Augmentor.augment(img, il.aug_pipl)
@@ -246,4 +267,16 @@ function get_class_names(dir, image_paths)
     end
 
     return classes
+end
+
+
+# read all images into mem:
+#
+function pre_load_images(i_paths)
+
+    images = []
+    for path in i_paths
+        push!(images, Images.RGB.(Images.load(path)))
+    end
+    return images
 end
