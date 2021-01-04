@@ -59,7 +59,7 @@ TensorBoard log-directory is created from 3 parts:
         to be included in the TensorBoard log as *text* log.
 """
 function tb_train!(mdl, opti, trn, vld; epochs=1,
-                  lr_decay=0.0, lrd_freq=1, l2=0.0,
+                  lr_decay=1.0, lrd_freq=1, l2=0.0,
                   eval_size=0.2, eval_freq=1,
                   mb_loss_freq=100,
                   cp_freq=1, cp_dir="checkpoints",
@@ -129,7 +129,7 @@ function tb_train!(mdl, opti, trn, vld; epochs=1,
 
         # TensorBoard:
         #
-        println("mb_loss: $mb_loss"); flush(stdout)
+        # println("mb_loss: $mb_loss"); flush(stdout)
         push!(mb_losses, mb_loss)
         if (i % eval_nth) == 0
             calc_and_report_loss_acc(mdl, takenth(trn, nth_trn),
@@ -139,7 +139,7 @@ function tb_train!(mdl, opti, trn, vld; epochs=1,
             TensorBoardLogger.log_value(tbl,
                     "Minibatch loss (epoch = $n_trn steps)",
                     mean(mb_losses), step=i)
-            println("mb_loss-mean: $(mean(mb_losses))"); flush(stdout)
+            # println("mb_loss-mean: $(mean(mb_losses))"); flush(stdout)
             mb_losses = Float32[]
         end
 
