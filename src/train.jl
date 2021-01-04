@@ -129,7 +129,7 @@ function tb_train!(mdl, opti, trn, vld; epochs=1,
 
         # TensorBoard:
         #
-        println("mb_loss: $mb_loss")
+        println("mb_loss: $mb_loss"); flush(stdout)
         push!(mb_losses, mb_loss)
         if (i % eval_nth) == 0
             calc_and_report_loss_acc(mdl, takenth(trn, nth_trn),
@@ -139,7 +139,7 @@ function tb_train!(mdl, opti, trn, vld; epochs=1,
             TensorBoardLogger.log_value(tbl,
                     "Minibatch loss (epoch = $n_trn steps)",
                     mean(mb_losses), step=i)
-            println("mb_loss: $(mean(mb_losses))")
+            println("mb_loss-mean: $(mean(mb_losses))"); flush(stdout)
             mb_losses = Float32[]
         end
 
