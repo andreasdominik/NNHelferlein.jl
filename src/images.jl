@@ -131,7 +131,7 @@ function Base.iterate(il::ImageLoader)
         idx = Random.randperm(length(il.i_paths))
         il.i_paths .= il.i_paths[idx]   # xv = @view x[idx] ??
         il.i_classes .= il.i_classes[idx]
-        if pre_load
+        if il.pre_load
             il.i_images .= il.i_images[idx]
         end
         # il.i_paths, il.i_classes = do_shuffle(il.i_paths, il.i_classes)
