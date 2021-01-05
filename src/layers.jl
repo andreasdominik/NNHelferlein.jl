@@ -239,3 +239,24 @@ Dropouts are applied only if prediction.
 struct Dropout <: Layer
     p
 end
+(l::Dropout)(x) = Knet.dropout(x, l.p)
+
+
+
+"""
+    struct BatchNorm <: Layer
+
+Batchnormalisation layer.
+Implemented with help of Knet's batchnorm() function that evaluates
+AutoGrad.recording() to detect if in training or inprediction.
+In training the moments are updated to record the running averages;
+in prediction the moments are used, but not modified.
+
+### Constructors:
++ `Batchnom()` will initialise the moments with `Knet.bnmoments()`.
+"""
+
+struct BatchNorm <: Layer
+    moments
+    BatchNorm() = new(bnmoments())
+end
