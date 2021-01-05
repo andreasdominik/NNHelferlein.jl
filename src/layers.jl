@@ -225,3 +225,17 @@ end
 
 
 """
+    struct Dropout <: Layer
+
+Dropout layer.
+Implemented with help of Knet's dropout() function that evaluates
+AutoGrad.recording() to detect if in training or inprediction.
+Dropouts are applied only if prediction.
+
+### Constructors:
++ `Dropout(p)` with the dropout rate *p*.
+"""
+
+struct Dropout <: Layer
+    p
+end
