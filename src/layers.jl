@@ -231,7 +231,6 @@ Dropouts are applied only if prediction.
 ### Constructors:
 + `Dropout(p)` with the dropout rate *p*.
 """
-
 struct Dropout <: Layer
     p
 end
@@ -251,7 +250,6 @@ in prediction the moments are used, but not modified.
 ### Constructors:
 + `Batchnom()` will initialise the moments with `Knet.bnmoments()`.
 """
-
 struct BatchNorm <: Layer
     moments
     BatchNorm() = new(Knet.bnmoments())
