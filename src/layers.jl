@@ -258,5 +258,6 @@ in prediction the moments are used, but not modified.
 
 struct BatchNorm <: Layer
     moments
-    BatchNorm() = new(bnmoments())
+    BatchNorm() = new(Knet.bnmoments())
 end
+(l::BatchNorm)(x) = Knet.batchnorm(x, l.moments)
