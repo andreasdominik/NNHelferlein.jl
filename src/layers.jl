@@ -210,11 +210,7 @@ end
 """
     struct Softmax <: Layer
 
-Simple softmax layer to compute softmax probabilities as:
-
-```math
-p_i = \frac{\exp y_i}{\sum_{c=1}^C \exp y_c}
-```
+Simple softmax layer to compute softmax probabilities.
 
 ### Constructors:
 + `Softmax()`
