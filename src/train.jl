@@ -121,6 +121,11 @@ function tb_train!(mdl, opti, trn, vld; epochs=1,
         loss = @diff mdl(x,y)
         mb_loss = value(loss)
 
+        if isnan(loss)
+            println("ERROR: training aborted because of loss value NaN!")
+            break
+        end
+
         for p in params(loss)
             Δw = grad(loss, p) + p .* l2
             # println("updating $i: $(p.opt.lr), Δw: -")
