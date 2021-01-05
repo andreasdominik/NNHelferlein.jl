@@ -176,7 +176,7 @@ the index of the "one" in the vector has to be provided as Integer value
     input size i, output size j and default activation function idendity.
 
 ### Signatures:
-+ `(l::Embed)(x) = l.actf.(w[:, permutedims(hcat(x...))])` default
++ `(l::Embed)(x) = l.actf.(w[:,x])` default
   embedding of input vector x.
 """
 struct Embed
@@ -185,7 +185,7 @@ struct Embed
     Embed(i, embed; actf=identity) = new(Knet.param(embed,i), actf)
 end
 
-(l::Embed)(x) = l.actf.(l.w[:, permutedims(hcat(x...))])
+(l::Embed)(x) = l.actf.(l.w[:,x])
 
 """
     struct Predictions
