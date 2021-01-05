@@ -127,7 +127,7 @@ mutable struct ImageLoader <: DataLoader
     pre_proc            # function to process one 3d image tensor (RGB)
     pre_load            # load all images on init
     i_images            # list of all images; nothing if not predolad.
-    
+
     function ImageLoader(dir, i_paths, i_classes, classes,
                          batchsize, shuffle, train,
                          aug_pipl, pre_proc, pre_load)
@@ -286,16 +286,19 @@ end
 #
 function get_class_names(dir, image_paths)
 
-    # TODO: splitpath()
     classes = String[]
-    regex = Regex("$dir/?([^/]+)/")
-    for image in image_paths
-        m = match(regex, image)
-        if m != nothing
-            push!(classes, m[1])
-        else
-            push!(classes, "unknown_class")
+    for image_path in image_paths
+        image_path = replace(image_path, dir=>"")
+        dirs = splitpath(image_path)
+        while length(dirs) > 0 && !occursin(r"[A-Za-z1-9]", dirs[1])
+            popfirst!(dirs)
         end
+        if length(dirs) < 2
+            class = UNKNOWN_CLASS
+        else
+            class = dirs[1]
+        end
+        push!(classes, class)
     end
 
     return classes
