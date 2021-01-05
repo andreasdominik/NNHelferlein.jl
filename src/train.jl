@@ -1,6 +1,6 @@
 """
     function tb_train!(mdl, opti, trn, vld; epochs=1,
-                      lr_decay=0.0, lrd_freq=1, l2=0.0,
+                      lr_decay=1.0, lrd_freq=1, l2=0.0,
                       eval_size=0.2, eval_freq=1,
                       mb_loss_freq=100,
                       cp_freq=1, cp_dir="checkpoints",
@@ -23,7 +23,7 @@ The model is updated (in-place) and the trained model is returned.
 ### Keyword arguments:
 #### Optimiser:
 + `epochs=1`: number of epochs to train
-+ `lr_decay=0.0`: Leraning rate decay: factor (<1) to reduce the
++ `lr_decay=1.0`: Leraning rate decay: factor (<1) to reduce the
         lr.
 + `lrd_freq=1`: frequency of learning rate decay steps. Default is
         to modify the lr after every epoch

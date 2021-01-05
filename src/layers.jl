@@ -243,9 +243,9 @@ end
 
 Batchnormalisation layer.
 Implemented with help of Knet's batchnorm() function that evaluates
-AutoGrad.recording() to detect if in training or inprediction.
+AutoGrad.recording() to detect if in training or in prediction.
 In training the moments are updated to record the running averages;
-in prediction the moments are used, but not modified.
+in prediction the moments are applied, but not modified.
 
 ### Constructors:
 + `Batchnom()` will initialise the moments with `Knet.bnmoments()`.

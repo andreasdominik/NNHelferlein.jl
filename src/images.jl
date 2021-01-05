@@ -9,8 +9,10 @@ const UNKNOWN_CLASS = "unknwon_class"
                                 balanced=false, shuffle=true, train=true,
                                 aug_pipl=nothing, pre_proc=nothing)
 
-Return an iterable image-loader-object that provides
-minibatches of path-names of image files, relative to dir.
+Return one or two iterable image-loader-objects that provides
+minibatches of images. For training each minibatch is a tupel
+`(x,y)` with x: 4-d-array with the minibatch of data and y:
+vector of class IDs as Int.
 
 ### Arguments:
 + `dir`: base-directory of the image dataset. The first level of
@@ -112,7 +114,8 @@ end
         i_images
     end
 
-Iterable image loader.
+Iterable image loader to provide minibatches of images as
+4-d-arrays (x,y,rgb,mb).
 """
 mutable struct ImageLoader <: DataLoader
     dir                 # root dir
