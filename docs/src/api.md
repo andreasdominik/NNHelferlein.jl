@@ -53,10 +53,14 @@ Predictions
 Softmax
 ```
 
+
 ```@docs
-Layer
+Dropout
 ```
 
+```@docs
+BatchNorm
+```
 
 # Data providers
 
