@@ -2,6 +2,8 @@
 #
 # (c) A. Dominik, 2020
 
+const UNKNOWN_CLASS = "unknwon_class"
+
 """
     function mk_image_minibatch(dir, batchsize; split=false, fr=0.2,
                                 balanced=false, shuffle=true, train=true,
@@ -42,14 +44,16 @@ function mk_image_minibatch(dir, batchsize; split=false, fr=0.5,
                             aug_pipl=nothing, pre_proc=nothing)
 
     i_paths = get_files_list(dir)
-    i_class_names = get_class_names(dir, i_paths)
-    classes = unique(i_class_names)
-    i_classes = [findall(x->x==c, classes)[1] for c in i_class_names]
+    i_n = length(i_paths)
 
-    if pre_load
-        i_images = pre_load_images(i_paths)
+    if train
+        i_class_names = get_class_names(dir, i_paths)
+        classes = unique(i_class_names)
+        i_classes = [findall(x->x==c, classes)[1] for c in i_class_names]
     else
-        i_images = nothing
+        i_class_names = fill(UNKNOWN_CLASS, i_n)
+        classes =[UNKNOWN_CLASS]
+        i_classes = fill(0, i_n)
     end
 
 
@@ -62,11 +66,12 @@ function mk_image_minibatch(dir, batchsize; split=false, fr=0.5,
         trn_loader = ImageLoader(dir, xtrn, ytrn, classes,
                             batchsize, shuffle, train,
                             aug_pipl, pre_proc,
-                            pre_load, i_images)
+                            pre_load)
+
         vld_loader = ImageLoader(dir, xvld, yvld, classes,
                             batchsize, shuffle, train,
                             aug_pipl, pre_proc,
-                            pre_load, i_images)
+                            pre_load)
         return trn_loader, vld_loader
     else
         xtrn, ytrn = i_paths, i_classes
@@ -75,7 +80,8 @@ function mk_image_minibatch(dir, batchsize; split=false, fr=0.5,
         end
         trn_loader = ImageLoader(dir, xtrn, ytrn, classes,
                             batchsize, shuffle, train,
-                            aug_pipl, pre_proc)
+                            aug_pipl, pre_proc,
+                            pre_load)
         return trn_loader
     end
 end
@@ -109,17 +115,35 @@ end
 Iterable image loader.
 """
 mutable struct ImageLoader <: DataLoader
-    dir
-    i_paths
-    i_classes
-    classes
-    batchsize
-    shuffle
-    train
-    aug_pipl
-    pre_proc
-    pre_load
-    i_images
+    dir                 # root dir
+    i_paths             # list of all file image_paths
+    i_classes           # list of classs IDs for each image
+    classes             # unique list of class names
+    batchsize           #
+    shuffle             # if true: shuffle for each start
+    i_sequence          # actual sequrence of images to take
+    train               # if true: inlcude y in minibatches
+    aug_pipl            # Augmentor.jl pipeline
+    pre_proc            # function to process one 3d image tensor (RGB)
+    pre_load            # load all images on init
+    i_images            # list of all images; nothing if not predolad.
+    
+    function ImageLoader(dir, i_paths, i_classes, classes,
+                         batchsize, shuffle, train,
+                         aug_pipl, pre_proc, pre_load)
+
+        i_seq = collect(1:length(i_paths))
+        if pre_load
+            i_images = pre_load_images(i_paths)
+        else
+            i_images = nothing
+        end
+        return new(dir, i_paths, i_classes, classes,
+                    batchsize, shuffle, i_seq,
+                    train,
+                    aug_pipl, pre_proc,
+                    pre_load, i_images)
+    end
 end
 
 
@@ -128,12 +152,13 @@ end
 function Base.iterate(il::ImageLoader)
 
     if il.shuffle
-        idx = Random.randperm(length(il.i_paths))
-        il.i_paths .= il.i_paths[idx]   # xv = @view x[idx] ??
-        il.i_classes .= il.i_classes[idx]
-        if il.pre_load
-            il.i_images .= il.i_images[idx]
-        end
+        Random.shuffle!(il.i_sequence)
+        # idx = Random.randperm(length(il.i_paths))
+        # il.i_paths .= il.i_paths[idx]   # xv = @view x[idx] ??
+        # il.i_classes .= il.i_classes[idx]
+        # if il.pre_load
+        #     il.i_images .= il.i_images[idx]
+        # end
         # il.i_paths, il.i_classes = do_shuffle(il.i_paths, il.i_classes)
     end
     state = 1
@@ -144,7 +169,6 @@ end
 #
 function Base.iterate(il::ImageLoader, state)
 
-    # println("State: $state")
     # check if empty:
     #
     if state > length(il.i_paths)
@@ -156,8 +180,9 @@ function Base.iterate(il::ImageLoader, state)
     n = length(il.i_paths)
     mb_start = state
     mb_size = mb_start + il.batchsize > n ? n-mb_start+1 : il.batchsize
+    state = mb_start+il.batchsize
 
-    return mk_image_mb(il, mb_start, mb_size), mb_start+il.batchsize
+    return mk_image_mb(il, mb_start, mb_size), state
 end
 
 
@@ -168,10 +193,17 @@ function mk_image_mb(il, mb_start, mb_size)
     end
 
     # nice way:
-    is = mb_start:mb_start+mb_size-1
-    # mb_i = Float32.(cat(read_one_image.(is, il)..., dims=4))
-    mb_i = cat(read_one_image.(is, il)..., dims=4)
+    image_ns = mb_start:mb_start+mb_size-1
 
+    # make image index form shuffled list entry:
+    #
+    image_ns = il.i_sequence[image_ns]
+
+    # avoid broadcasting of iterator il:
+    #
+    mb_i = cat(read_one_image.(image_ns, Ref(il))..., dims=4)
+
+    # mb_i = Float32.(cat(read_one_image.(is, il)..., dims=4))
     # i = mb_start
     # mb_i = Float32.(read_one_image(i, il))
     # mb_i = reshape(mb_i, size(mb_i)..., 1)
@@ -182,7 +214,7 @@ function mk_image_mb(il, mb_start, mb_size)
     #     i += 1
     # end
 
-    mb_y = UInt8.(il.i_classes[mb_start:mb_start+mb_size-1])
+    mb_y = UInt8.(il.i_classes[image_ns])
 
     if CUDA.functional()
         mb_i = KnetArray(mb_i)
