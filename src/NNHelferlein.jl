@@ -35,6 +35,7 @@ export NeuNet, Classifier, Regressor,           # chains
        iterate, length,
        Dense, Conv, Pool, Flat, PyFlat,         # layers
        Embed, Predictions,
+       Dropout, BatchNorm,
        dataframe_read, dataframe_split,         # import data
        dataframe_minibatches,
        mk_image_minibatch,
