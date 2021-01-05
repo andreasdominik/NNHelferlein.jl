@@ -3,3 +3,5 @@
 # (c) A. Dominik, 2020
 
 # relu(), sigm(), used from Knet!
+
+leaky_sigm(x; l=0.01) = Knet.sigm(x) + l*x
