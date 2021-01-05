@@ -159,7 +159,7 @@ end
 
 
 """
-    struct Embed
+    struct Embed <: Layer
 
 Simple type for an embedding layer to embed a virtual onehot-vector
 into a smaller number of neurons by linear combination.
@@ -179,7 +179,7 @@ the index of the "one" in the vector has to be provided as Integer value
 + `(l::Embed)(x) = l.actf.(w[:,x])` default
   embedding of input vector x.
 """
-struct Embed
+struct Embed <: Layer
     w
     actf
     Embed(i, embed; actf=identity) = new(Knet.param(embed,i), actf)
@@ -188,7 +188,7 @@ end
 (l::Embed)(x) = l.actf.(l.w[:,x])
 
 """
-    struct Predictions
+    struct Predictions <: Layer
 
 Simple wrapper around a Dense layer without activation function
 that can used as output layer (because all loss-functions
@@ -200,7 +200,7 @@ of the package assume raw output activations).
 + `Predictions(h5::HDF5File, group::String; trainable=false)`: with
     an hdf5-object and group name of the output layer.
 """
-struct Predictions
+struct Predictions <: Layer
     Predictions(i::Int,j::Int) = Dense(i, j, actf=identity)
     Predictions(h5::HDF5File, group::String; trainable=false) =
                 Dense(h5, group, trainable=trainable, actf=identity)
@@ -208,7 +208,7 @@ end
 
 
 """
-    struct Softmax
+    struct Softmax <: Layer
 
 Simple softmax layer to compute softmax probabilities as:
 
@@ -219,6 +219,9 @@ p_i = \frac{\exp y_i}{\sum_{c=1}^C \exp y_c}
 ### Constructors:
 + `Softmax()`
 """
-struct Softmax
+struct Softmax <: Layer
 end
 (l::Softmax)(x) = Knet.softmax(x)
+
+
+"""
