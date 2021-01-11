@@ -90,7 +90,7 @@ function tb_train!(mdl, opti, trn, vld; epochs=1,
     #
     start_time = Dates.now()
     tb_log_dir = joinpath(tb_dir, tb_name,
-                    Dates.format(start_time, "yyyy-mm-ddTHH:MM:SS"))
+                    Dates.format(start_time, "yyyy-mm-ddTHH-MM-SS"))
     println("Training $epochs epochs with $n_trn minibatches/epoch (and $n_vld validation mbs).")
     println("Evaluation is performed every $eval_nth minibatches (with $n_eval mbs).")
     println("Watch the progress with TensorBoard at: $tb_log_dir")
