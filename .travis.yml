@@ -11,8 +11,8 @@ jobs:
       before_install:
         - julia -e 'import Pkg; Pkg.add("Documenter")'
       script:
-        # - julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd()));
-        #                                        Pkg.instantiate()'
+        - julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd()));
+                                    Pkg.instantiate()'
         - julia --project=docs/ docs/make.jl
         # - julia docs/make.jl
         # - julia -e 'using Pkg; Pkg.test("HeartRateVariability", coverage=true)'
