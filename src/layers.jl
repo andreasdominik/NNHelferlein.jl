@@ -277,6 +277,24 @@ end
 
 
 
+"""
+    struct RSeqClassifyr <: Layer
+
+One layer RNN sequence classifyer that works with minimatches of (time) series data.
+minibatch can be a 2- or 3-dimensional Array.
+If 2-d, inputs for one step are in one column and the Array has as
+many colums as steps.
+If 3-d, the last dimension iterates the samples of the minibatch.
+
+Result is always a 2-d matrix with the output of the units of the last
+step in each column and one column per sample of the minibatch.
+
+### Constructors:
++ `RSeqClassifyr(n_inputs::Int, n_units::Int; u_type=:lstm)`: with
+    number of inputs, number of units and unit type.
+
+            new(n_inputs, n_units, u_type, Knet.RNN(n_inputs, n_units, rnnType=u_type))
+"""
 struct RSeqClassifyr
     n_inputs
     n_units

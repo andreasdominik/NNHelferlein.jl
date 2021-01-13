@@ -47,6 +47,9 @@ Pool
 
 ## Recurrent
 
+```@docs
+RSeqClassifyr
+```
 
 ## Others
 
