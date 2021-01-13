@@ -1,5 +1,5 @@
 # import Pkg; Pkg.add("Documenter")
-using Documenter, NNHelferlein
+using Documenter, NNHelferlein, HDF5
 
 makedocs(modules = [NNHelferlein],
          clean = false,
