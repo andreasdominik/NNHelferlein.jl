@@ -21,24 +21,10 @@ Regressor
 Layer
 ```
 
+## Fully connected layers
+
 ```@docs
 Dense
-```
-
-```@docs
-Conv
-```
-
-```@docs
-Pool
-```
-
-```@docs
-Flat
-```
-
-```@docs
-PyFlat
 ```
 
 ```@docs
@@ -48,6 +34,30 @@ Embed
 ```@docs
 Predictions
 ```
+
+## Convolutional
+
+```@docs
+Conv
+```
+
+```@docs
+Pool
+```
+
+## Recurrent
+
+
+## Others
+
+```@docs
+Flat
+```
+
+```@docs
+PyFlat
+```
+
 
 ```@docs
 Softmax
