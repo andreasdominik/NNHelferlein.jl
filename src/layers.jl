@@ -33,7 +33,7 @@ struct Dense  <: Layer
     Dense(i::Int, j::Int; actf=Knet.sigm) = new(Knet.param(j,i), Knet.param0(j), actf)
  end
 
-function Dense(h5::HDF5File, group::String; trainable=false, actf=Knet.sigm)
+function Dense(h5::HDF5.HDF5File, group::String; trainable=false, actf=Knet.sigm)
 
     w = read(h5, "$group/$group/kernel:0")
     b = read(h5, "$group/$group/bias:0")
@@ -81,7 +81,7 @@ struct Conv  <: Layer
             new(Knet.param(w1,w2,i,o; init=xavier_normal), Knet.param0(1,1,o,1), (padding,padding), actf)
 end
 
-function Conv(h5::HDF5File, group::String; trainable=false, actf=Knet.relu)
+function Conv(h5::HDF5.HDF5File, group::String; trainable=false, actf=Knet.relu)
 
     w = read(h5, "$group/$group/kernel:0")
     w = permutedims(w, [4,3,2,1])
@@ -202,7 +202,7 @@ of the package assume raw output activations).
 """
 struct Predictions <: Layer
     Predictions(i::Int,j::Int) = Dense(i, j, actf=identity)
-    Predictions(h5::HDF5File, group::String; trainable=false) =
+    Predictions(h5::HDF5.HDF5File, group::String; trainable=false) =
                 Dense(h5, group, trainable=trainable, actf=identity)
 end
 
