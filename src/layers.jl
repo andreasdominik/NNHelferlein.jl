@@ -255,3 +255,43 @@ struct BatchNorm <: Layer
     BatchNorm() = new(Knet.bnmoments())
 end
 (l::BatchNorm)(x) = Knet.batchnorm(x, l.moments)
+
+
+
+struct RSeqTaggr
+    n_inputs
+    n_units
+    unit_type
+    rnn
+    RSeqTaggr(n_inputs::Int, n_units::Int; u_type=:lstm) =
+            new(n_inputs, n_units, u_type, Knet.RNN(n_inputs, n_units, rnnType=u_type))
+end
+
+function (rnn::RSeqTaggr)(x)
+    n_time_steps = size(x)[2]
+    x = reshape(x, rnn.n_inputs, n_time_steps, :)
+    x = permutedims(x, (1,3,2))
+    x = rnn.rnn(x)
+    return permutedims(x, (1,3,2)) # [units, time-steps, samples]
+end
+
+
+
+struct RSeqClassifyr
+    n_inputs
+    n_units
+    unit_type
+    rnn
+    RSeqClassifyr(n_inputs::Int, n_units::Int; u_type=:lstm) =
+            new(n_inputs, n_units, u_type, Knet.RNN(n_inputs, n_units, rnnType=u_type))
+end
+
+
+
+function (rnn::RSeqClassifyr)(x)
+    n_time_steps = size(x)[2]
+    x = reshape(x, rnn.n_inputs, n_time_steps, :)
+    x = permutedims(x, (1,3,2))
+    x = rnn.rnn(x)
+    return x[:,:,end]     # [units, samples]
+end

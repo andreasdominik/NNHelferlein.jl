@@ -36,6 +36,7 @@ export NeuNet, Classifier, Regressor,           # chains
        iterate, length,
        Dense, Conv, Pool, Flat, PyFlat,         # layers
        Embed, Predictions,
+       RSeqClassifyr, RSeqTaggr,
        Softmax, Dropout, BatchNorm,
        leaky_sigm,
        dataframe_read, dataframe_split,         # import data
