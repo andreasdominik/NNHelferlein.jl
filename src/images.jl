@@ -318,3 +318,66 @@ function pre_load_images(i_paths)
     end
     return images
 end
+
+
+
+"""
+    function image2array(img)
+
+Take an image and return a 3d-array for RGB and a 2d-array for grayscale
+images with the colour channels as last dimension.
+"""
+function image2array(img)
+
+    ch = Images.channelview(img)
+
+    if length(size(ch)) == 2
+     ch = reshape(ch, :,size(ch)...)
+    end
+
+    arr = Float32.(permutedims(ch, (3,2,1)))
+
+    if CUDA.functional()
+        arr = KnetArray(arr)
+    end
+
+    return arr
+end
+
+
+"""
+    function array2image(arr)
+
+Take a 3d-array with colour channels as last dimension or a 2d-array
+and return an array of RGB or of Gray as Image.
+"""
+function array2image(arr)
+
+    if length(size(arr)) == 2
+        arr = permutedims(arr, (2,1))
+        itype = Images.Gray
+
+    elseif length(size(arr)) == 3
+        arr = permutedims(arr, (3,2,1))
+        if size(arr)[1] == 1
+            arr = reshape(arr, size(arr)[2], size(arr)[3])
+            itype = Images.Gray
+        else
+            itype = Images.RGB
+        end
+    end
+    return Images.colorview(itype, arr)
+end
+
+
+"""
+    function array2RGB(arr)
+
+Take a 3d-array with colour channels as last dimension or a 2d-array
+and return alwasy an array of RGB as Image.
+"""
+function array2RGB(arr)
+
+    img = array2image(arr)
+    return Images.RGB.(img)
+end

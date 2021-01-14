@@ -145,6 +145,19 @@ mk_image_minibatch
 get_class_labels
 ```
 
+```@docs
+image2array
+```
+
+```@docs
+array2image
+```
+
+```@docs
+array2RGB
+```
+
+
 
 # Training
 
