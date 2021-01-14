@@ -14,6 +14,9 @@ Classifier
 Regressor
 ```
 
+```@docs
+Chain
+```
 
 # Layers
 

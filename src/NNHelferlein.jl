@@ -30,7 +30,7 @@ include("train.jl")
 include("imagenet.jl")
 
 
-export NeuNet, Classifier, Regressor,           # chains
+export NeuNet, Classifier, Regressor, Chain,          # chains
        ImageLoader, DataLoader, preproc_imagenet,
        get_class_labels,
        iterate, length,
@@ -44,6 +44,7 @@ export NeuNet, Classifier, Regressor,           # chains
        mk_image_minibatch,
        tb_train!, predict_top5, predict_imagenet,
        predict,
-       get_imagenet_classes
+       get_imagenet_classes,                    # images
+       image2array, array2image, array2RGB
 
 end # module

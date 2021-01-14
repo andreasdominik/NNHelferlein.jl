@@ -41,8 +41,19 @@ Regression network with square loss.
 ### Signatures:
     (m::Regression)(x,y) = sum(abs2.( m(x) - y))
 """
-struct Regressor
+struct Regressor <: NeuNet
     layers
     Regressor(layers...) = new(layers)
 end
 (m::Regressor)(x,y) = sum(abs2, m(x)-y)
+
+
+"""
+    struct Chain
+
+Simple wrapper tu chain layers afer each other.
+"""
+struct Chain <: NeuNet
+    layers
+    Chain(layers...) = new(layers)
+end
