@@ -203,20 +203,27 @@ end
 #
 function loss_and_acc(mdl, data)
 
-    acc = nll = len = 0.0
+    acc = loss = 0.0
+    len = 0
     for (x,y) in data
         preds = mdl(x)
         len += length(y)
 
-        acc += Knet.accuracy(preds,y, average=false)[1]
-        nll += Knet.nll(preds,y, average=false)[1]
+        # TODO: Classifier vs. Regressor!
+        if mdl isa Regressor
+            acc += sum(abs, y .- preds)
+            loss += sum(sqr,  y .- preds)
+        else
+            acc += Knet.accuracy(preds,y, average=false)[1]
+            loss += Knet.nll(preds,y, average=false)[1]
+        end
     end
     # y = predict(mdl, data, softmax=false)
     # acc = Knet.accuracy(preds,y, average=false)[1]
     # nll = Knet.nll(preds,y, average=false)[1]
 
 
-    return nll/len, acc/len
+    return loss/len, acc/len
 end
 
 
