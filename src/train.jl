@@ -209,10 +209,9 @@ function loss_and_acc(mdl, data)
         preds = mdl(x)
         len += length(y)
 
-        # TODO: Classifier vs. Regressor!
         if mdl isa Regressor
             acc += sum(abs, y .- preds)
-            loss += sum(sqr,  y .- preds)
+            loss += sum(sqrt,  y .- preds)
         else
             acc += Knet.accuracy(preds,y, average=false)[1]
             loss += Knet.nll(preds,y, average=false)[1]
