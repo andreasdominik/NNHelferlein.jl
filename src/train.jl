@@ -207,11 +207,29 @@ function loss_and_acc(mdl, data)
     len = 0
     for (x,y) in data
         preds = mdl(x)
-        len += length(y)
+        len += length(y) #wrong for Regressor?
+
+        # TODO: fix
+ #        Stacktrace:
+ # [1] error() at ./error.jl:42
+ # [2] iterate(::KnetArray{Float32,2}) at /root/.julia/packages/Knet/C0PoK/src/knetarrays/abstractarray.jl:37
+ # [3] _foldl_impl(::Base.MappingRF{typeof(sqrt),Base.BottomRF{typeof(Base.add_sum)}}, ::Base._InitialValue, ::KnetArray{Float32,2}) at ./reduce.jl:56
+ # [4] foldl_impl(::Base.MappingRF{typeof(sqrt),Base.BottomRF{typeof(Base.add_sum)}}, ::NamedTuple{(),Tuple{}}, ::KnetArray{Float32,2}) at ./reduce.jl:48
+ # [5] mapfoldl_impl(::typeof(sqrt), ::typeof(Base.add_sum), ::NamedTuple{(),Tuple{}}, ::KnetArray{Float32,2}) at ./reduce.jl:44
+ # [6] mapfoldl(::Function, ::Function, ::KnetArray{Float32,2}; kw::Base.Iterators.Pairs{Union{},Union{},Tuple{},NamedTuple{(),Tuple{}}}) at ./reduce.jl:160
+ # [7] mapfoldl(::Function, ::Function, ::KnetArray{Float32,2}) at ./reduce.jl:160
+ # [8] mapreduce(::Function, ::Function, ::KnetArray{Float32,2}; kw::Base.Iterators.Pairs{Union{},Union{},Tuple{},NamedTuple{(),Tuple{}}}) at ./reduce.jl:287
+ # [9] mapreduce(::Function, ::Function, ::KnetArray{Float32,2}) at ./reduce.jl:287
+ # [10] sum(::Function, ::KnetArray{Float32,2}) at ./reduce.jl:494
+ # [11] loss_and_acc(::Regressor, ::IterTools.TakeNth{Knet.Train20.Data{Tuple{KnetArray{Float32,N} where N,KnetArray{Float32,N} where N}}}) at /root/.julia/packages/NNHelferlein/esJzg/src/train.jl:214
+ # [12] calc_and_report_loss_acc at /root/.julia/packages/NNHelferlein/esJzg/src/train.jl:232 [inlined]
+ # [13] tb_train!(::Regressor, ::Type{T} where T, ::Knet.Train20.Data{Tuple{KnetArray{Float32,N} where N,KnetArray{Float32,N} where N}}, ::Knet.Train20.Data{Tuple{KnetArray{Float32,N} where N,KnetArray{Float32,N} where N}}; epochs::Int64, lr_decay::Float64, lrd_freq::Int64, l2::Float64, eval_size::Float64, eval_freq::Int64, mb_loss_freq::Int64, cp_freq::Int64, cp_dir::String, tb_dir::String, tb_name::String, tb_text::String, args::Base.Iterators.Pairs{Union{},Union{},Tuple{},NamedTuple{(),Tuple{}}}) at /root/.julia/packages/NNHelferlein/esJzg/src/train.jl:107
+ # [14] top-level scope at In[6]:1
+ # [15] include_string(::Function, ::Module, ::String, ::String) at ./loading.jl:1091
 
         if mdl isa Regressor
             acc += sum(abs, y .- preds)
-            loss += sum(sqrt,  y .- preds)
+            loss += sum(abs2,  y .- preds)
         else
             acc += Knet.accuracy(preds,y, average=false)[1]
             loss += Knet.nll(preds,y, average=false)[1]
