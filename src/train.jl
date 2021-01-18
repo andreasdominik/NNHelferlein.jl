@@ -42,10 +42,10 @@ The model is updated (in-place) and the trained model is returned.
         means that 100 loss-values per epoch will be logged to TensorBoard.
         If mb_loss_freq is greater then the number of minibatches,
         loss is logged for each minibatch.
-+ `cp_freq=1`: frequency of model checkpoints written to disk.
-after all other args.
-        Default is to write the model after each epoch with
-        name `model`.
++ `cp_freq=nothing`: frequency of model checkpoints written to disk.
+        Default is `nothing`, i.e. no checkpoints are written.
+        To write the model after each epoch with
+        name `model` use freq=1; to write every 2 epochs freq=0.5.
 + `cp_dir="checkpoints"`: directory for checkpoints
 
 #### TensorBoard:
@@ -62,7 +62,7 @@ function tb_train!(mdl, opti, trn, vld; epochs=1,
                   lr_decay=1.0, lrd_freq=1, l2=0.0,
                   eval_size=0.2, eval_freq=1,
                   mb_loss_freq=100,
-                  cp_freq=1, cp_dir="checkpoints",
+                  cp_freq=nothing, cp_dir="checkpoints",
                   tb_dir="logs", tb_name="run",
                   tb_text=""""Description of tb_train!() run.""",
                   args...)
@@ -97,7 +97,9 @@ function tb_train!(mdl, opti, trn, vld; epochs=1,
 
     # checkpoints:
     #
-    cp_nth = Int(ceil(n_trn * cp_freq))
+    if cp_freq != nothing
+        cp_nth = Int(ceil(n_trn * cp_freq))
+    end
 
     # Tensorboard logger:
     #
@@ -150,7 +152,7 @@ function tb_train!(mdl, opti, trn, vld; epochs=1,
 
         # checkpoints:
         #
-        if (i % cp_nth) == 0
+        if (cp_freq != nothing) && (i % cp_nth) == 0
             write_cp(mdl, i, tb_log_dir)
         end
 
