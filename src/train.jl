@@ -39,7 +39,7 @@ The model is updated (in-place) and the trained model is returned.
 + `eval_freq=1`: frequency of evaluation; default=1 means evaluation is
         calculated after each epoch. With eval_freq=10 eveluation is
         calculated 10 times per epoch.
-+ `accuracy=nothing`: function to calculate accuracy. The function
++ `acc_fun=nothing`: function to calculate accuracy. The function
         is called with 2 arguments: `fun(predictions, teaching)` where
         `predictions` is the output of a model call and a matrix and
         `teaching` is the teaching input (y).
@@ -68,7 +68,7 @@ TensorBoard log-directory is created from 3 parts:
 """
 function tb_train!(mdl, opti, trn, vld; epochs=1,
                   lr_decay=nothing, lrd_freq=1, l2=0.0,
-                  eval_size=0.2, eval_freq=1, accuracy=nothing,
+                  eval_size=0.2, eval_freq=1, acc_fun=nothing,
                   mb_loss_freq=100,
                   cp_freq=nothing, cp_dir="checkpoints",
                   tb_dir="logs", tb_name="run",
@@ -114,8 +114,16 @@ function tb_train!(mdl, opti, trn, vld; epochs=1,
     tbl = TensorBoardLogger.TBLogger(tb_log_dir,
                     min_level=Logging.Info)
     log_text(tbl, tb_log_dir, tb_name, start_time, tb_text)
-    calc_and_report_loss_acc(mdl, takenth(trn, nth_trn),
-            takenth(vld, nth_vld), tbl, 0)
+    calc_and_report_loss(mdl,
+                         takenth(trn, nth_trn),
+                         takenth(vld, nth_vld), tbl, 0)
+
+    if acc_fun != nothing
+        calc_and_report_acc(mdl, acc_fun,
+                            takenth(trn, nth_trn),
+                            takenth(vld, nth_vld), tbl, 0)
+    end
+
 
     # set optimiser:
     #
@@ -151,7 +159,7 @@ function tb_train!(mdl, opti, trn, vld; epochs=1,
                                  takenth(vld, nth_vld), tbl, eval_nth)
 
             if accuracy != nothing
-                calc_and_report_acc(mdl, accuracy, takenth(trn, nth_trn),
+                calc_and_report_acc(mdl, acc_fun, takenth(trn, nth_trn),
                                     takenth(vld, nth_vld), tbl, eval_nth)
             end
         end
@@ -248,9 +256,9 @@ function calc_and_report_loss(mdl, trn, vld, tbl, step)
     end
 end
 
-function calc_and_report_acc(mdl, accuracy, trn, vld, tbl, step)
-        acc_trn = calc_acc(mdl, accuracy, data=trn)
-        acc_vld = calc_acc(mdl, accuracy, data=vld)
+function calc_and_report_acc(mdl, acc_fun, trn, vld, tbl, step)
+        acc_trn = calc_acc(mdl, acc_fun, data=trn)
+        acc_vld = calc_acc(mdl, acc_fun, data=vld)
 
         with_logger(tbl) do
             @info "Evaluation Accuracy" train=acc_trn valid=acc_vld log_step_increment=step
