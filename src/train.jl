@@ -18,7 +18,7 @@ The model is updated (in-place) and the trained model is returned.
 + `trn`: training data; iterator to provide (x,y)-tuples with
         minibatches
 + `vld`: validation data; iterator to provide (x,y)-tuples with
-        minibatches.
+        minibatches. Set to `nothing`, if not defined.
 
 ### Keyword arguments:
 #### Optimiser:
@@ -66,7 +66,7 @@ TensorBoard log-directory is created from 3 parts:
 + `tb_text`:  description
         to be included in the TensorBoard log as *text* log.
 """
-function tb_train!(mdl, opti, trn, vld; epochs=1,
+function tb_train!(mdl, opti, trn, vld=nothing; epochs=1,
                   lr_decay=nothing, lrd_freq=1, l2=0.0,
                   eval_size=0.2, eval_freq=1, acc_fun=nothing,
                   mb_loss_freq=100,
@@ -78,15 +78,17 @@ function tb_train!(mdl, opti, trn, vld; epochs=1,
     # use every n-th mb for evaluation (based on vld if defined):
     #
     n_trn = length(trn)
-    n_vld = vld != nothing ? length(vld) : 1
 
     if vld == nothing
         n_eval = Int(ceil(n_trn * eval_size))
+        n_vld = 0
+        nth_vld = 1
     else
         n_eval = Int(ceil(n_vld * eval_size))
+        n_vld = length(vld)
+        nth_vld = Int(cld(n_vld, n_eval))
     end
     nth_trn = Int(cld(n_trn, n_eval))
-    nth_vld = Int(cld(n_vld, n_eval))
 
     eval_nth = Int(cld(n_trn, eval_freq))
     mb_loss_nth = Int(cld(n_trn, mb_loss_freq))
@@ -99,7 +101,10 @@ function tb_train!(mdl, opti, trn, vld; epochs=1,
     start_time = Dates.now()
     tb_log_dir = joinpath(tb_dir, tb_name,
                     Dates.format(start_time, "yyyy-mm-ddTHH-MM-SS"))
-    println("Training $epochs epochs with $n_trn minibatches/epoch (and $n_vld validation mbs).")
+    println("Training $epochs epochs with $n_trn minibatches/epoch"
+    if vld != nothing
+        println("    (and $n_vld validation mbs).")
+    end
     println("Evaluation is performed every $eval_nth minibatches (with $n_eval mbs).")
     println("Watch the progress with TensorBoard at: $tb_log_dir")
 
@@ -249,19 +254,32 @@ end
 function calc_and_report_loss(mdl, trn, vld, tbl, step)
 
     loss_trn = calc_loss(mdl, data=trn)
-    loss_vld = calc_loss(mdl, data=vld)
-
-    with_logger(tbl) do
-        @info "Evaluation Loss" train=loss_trn valid=loss_vld log_step_increment=step
+    
+    if vld != nothing
+        loss_vld = calc_loss(mdl, data=vld)
+        with_logger(tbl) do
+            @info "Evaluation Loss" train=loss_trn valid=loss_vld log_step_increment=step
+        end
+    else
+        with_logger(tbl) do
+            @info "Evaluation Loss" train=loss_trn log_step_increment=step
+        end
     end
 end
 
 function calc_and_report_acc(mdl, acc_fun, trn, vld, tbl, step)
-        acc_trn = calc_acc(mdl, acc_fun, data=trn)
-        acc_vld = calc_acc(mdl, acc_fun, data=vld)
 
+    acc_trn = calc_acc(mdl, acc_fun, data=trn)
+
+    if vld != nothing
+        acc_vld = calc_acc(mdl, acc_fun, data=vld)
         with_logger(tbl) do
             @info "Evaluation Accuracy" train=acc_trn valid=acc_vld log_step_increment=step
+        end
+    else
+        with_logger(tbl) do
+            @info "Evaluation Accuracy" train=acc_trn log_step_increment=step
+        end
     end
 end
 
