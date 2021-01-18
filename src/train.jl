@@ -23,8 +23,9 @@ The model is updated (in-place) and the trained model is returned.
 ### Keyword arguments:
 #### Optimiser:
 + `epochs=1`: number of epochs to train
-+ `lr_decay=1.0`: Leraning rate decay: factor (<1) to reduce the
-        lr.
++ `lr_decay=nothing`: Leraning rate decay if not `nothing`:
+        factor (<1) to reduce the
+        lr every epoch as `lr  *= lr_decay`.
 + `lrd_freq=1`: frequency of learning rate decay steps. Default is
         to modify the lr after every epoch
 + `l2=0.0`: L2 regularisation; implemented as weight decay per
@@ -59,7 +60,7 @@ TensorBoard log-directory is created from 3 parts:
         to be included in the TensorBoard log as *text* log.
 """
 function tb_train!(mdl, opti, trn, vld; epochs=1,
-                  lr_decay=1.0, lrd_freq=1, l2=0.0,
+                  lr_decay=nothing, lrd_freq=1, l2=0.0,
                   eval_size=0.2, eval_freq=1,
                   mb_loss_freq=100,
                   cp_freq=nothing, cp_dir="checkpoints",
@@ -158,7 +159,7 @@ function tb_train!(mdl, opti, trn, vld; epochs=1,
 
         # lr decay:
         #
-        if (lr_decay < 1) && (i % lr_nth == 0)
+        if (lr_decay != nothing) && (i % lr_nth == 0)
             lr = first(params(mdl)).opt.lr * lr_decay
             println("Set learning rate to η = $lr")
             for p in params(mdl)
