@@ -39,6 +39,13 @@ The model is updated (in-place) and the trained model is returned.
 + `eval_freq=1`: frequency of evaluation; default=1 means evaluation is
         calculated after each epoch. With eval_freq=10 eveluation is
         calculated 10 times per epoch.
++ `accuracy=nothing`: function to calculate accuracy. The function
+        is called with 2 arguments: `fun(predictions, teaching)` where
+        `predictions` is the output of a model call and a matrix and
+        `teaching` is the teaching input (y).
+        For classification tasks, `accuracy` from the Knet package is
+        a good choice. For regression a correlation or mean error
+        may be used.
 + `mb_loss_freq=100`: frequency of training loss reporting. default=100
         means that 100 loss-values per epoch will be logged to TensorBoard.
         If mb_loss_freq is greater then the number of minibatches,
@@ -61,7 +68,7 @@ TensorBoard log-directory is created from 3 parts:
 """
 function tb_train!(mdl, opti, trn, vld; epochs=1,
                   lr_decay=nothing, lrd_freq=1, l2=0.0,
-                  eval_size=0.2, eval_freq=1,
+                  eval_size=0.2, eval_freq=1, accuracy=nothing,
                   mb_loss_freq=100,
                   cp_freq=nothing, cp_dir="checkpoints",
                   tb_dir="logs", tb_name="run",
@@ -140,9 +147,15 @@ function tb_train!(mdl, opti, trn, vld; epochs=1,
         # println("mb_loss: $mb_loss"); flush(stdout)
         push!(mb_losses, mb_loss)
         if (i % eval_nth) == 0
-            calc_and_report_loss_acc(mdl, takenth(trn, nth_trn),
-                    takenth(vld, nth_vld), tbl, eval_nth)
+            calc_and_report_loss(mdl, takenth(trn, nth_trn),
+                                 takenth(vld, nth_vld), tbl, eval_nth)
+
+            if accuracy != nothing
+                calc_and_report_acc(mdl, accuracy, takenth(trn, nth_trn),
+                                    takenth(vld, nth_vld), tbl, eval_nth)
+            end
         end
+
         if (i % mb_loss_nth) == 0
             TensorBoardLogger.log_value(tbl,
                     "Minibatch loss (epoch = $n_trn steps)",
@@ -204,42 +217,43 @@ end
 
 # Helper to calc loss and acc with only ONE forward run:
 #
-function loss_and_acc(mdl, data)
+function calc_loss(mdl; data)
 
-    acc = loss = 0.0
-    len = 0
+    loss = 0.0
     for (x,y) in data
-        preds = mdl(x)
-        len += length(y) #wrong for Regressor?
-
-        # TODO: fix
-        if mdl isa Regressor
-            acc += sum(abs, y .- preds)
-            loss += sum(abs2,  y .- preds)
-        else
-            acc += Knet.accuracy(preds,y, average=false)[1]
-            loss += Knet.nll(preds,y, average=false)[1]
-        end
+        loss += mdl(x,y)
     end
-    # y = predict(mdl, data, softmax=false)
-    # acc = Knet.accuracy(preds,y, average=false)[1]
-    # nll = Knet.nll(preds,y, average=false)[1]
+    return loss/length(data)
+end
 
+function calc_acc(mdl, fun; data)
 
-    return loss/len, acc/len
+    acc = 0.0
+    for (x,y) in data
+        acc += fun(mdl(x), y)
+    end
+    return acc/length(data)
 end
 
 
 # Helper for TensorBoardLogger:
 #
-function calc_and_report_loss_acc(mdl, trn, vld, tbl, step)
-        loss_trn, acc_trn = loss_and_acc(mdl, trn)
-        loss_vld, acc_vld = loss_and_acc(mdl, vld)
-        #     println("eval at $i: loss = $loss_trn, $loss_vld; acc =  = $acc_trn, $acc_vld")
+function calc_and_report_loss(mdl, trn, vld, tbl, step)
+
+    loss_trn = calc_loss(mdl, data=trn)
+    loss_vld = calc_loss(mdl, data=vld)
+
+    with_logger(tbl) do
+        @info "Evaluation Loss" train=loss_trn valid=loss_vld log_step_increment=step
+    end
+end
+
+function calc_and_report_acc(mdl, accuracy, trn, vld, tbl, step)
+        acc_trn = calc_acc(mdl, accuracy, data=trn)
+        acc_vld = calc_acc(mdl, accuracy, data=vld)
 
         with_logger(tbl) do
-            @info "Evaluation Loss" train=loss_trn valid=loss_vld log_step_increment=step
-            @info "Evaluation Accuracy" train=acc_trn valid=acc_vld log_step_increment=0
+            @info "Evaluation Accuracy" train=acc_trn valid=acc_vld log_step_increment=step
     end
 end
 
