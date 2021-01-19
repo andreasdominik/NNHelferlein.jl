@@ -42,7 +42,8 @@ export NeuNet, Classifier, Regressor, Chain,          # chains
        dataframe_read, dataframe_split,         # import data
        dataframe_minibatches,
        mk_image_minibatch,
-       tb_train!, predict_top5, predict_imagenet,
+       tb_train!,
+       predict_top5, predict_imagenet,
        predict,
        get_imagenet_classes,                    # images
        image2array, array2image, array2RGB

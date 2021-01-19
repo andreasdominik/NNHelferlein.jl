@@ -181,5 +181,5 @@ predict_top5
 preproc_imagenet
 ```
 ```@docs
-precdict_imagenet
+predict_imagenet
 ```
