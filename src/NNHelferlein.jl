@@ -2,22 +2,22 @@ module NNHelferlein
 
 import Base: iterate, length
 # import Knet
-using Knet #: KnetArray, Param, @diff
-import CUDA
+using HDF5
+import JLD2
+using Statistics: mean
+using ProgressMeter, Dates
+using IterTools: ncycle, takenth
 import CSV
 import OdsIO
 import DataFrames
 import Random
+using Printf
+import CUDA
+using Knet #: KnetArray, Param, @diff
 import Images
 import Augmentor
 import MLDataUtils
-using Statistics: mean
-using ProgressMeter, Dates
 using TensorBoardLogger, Logging
-using IterTools: ncycle, takenth
-using HDF5
-import JLD2
-using Printf
 
 include("types.jl")
 include("util.jl")
