@@ -21,7 +21,9 @@ Default Dense layer.
 + `Dense(w, b, actf)`: default constructor
 + `Dense(i::Int, j::Int; actf=sigm)`: layer of j neurons with
         i inputs.
-+ `Dense(h5::HDF5File, group::String; trainable=false, actf=sigm)`: layer
++ `Dense(h5::HDF5.File, group::String; trainable=false, actf=sigm)`:
++ `Dense(h5::HDF5.File, kernel::String, bias::String;
+        trainable=false, actf=sigm)`: layer
         imported from a hdf5-file from tensorflow with the
         hdf-object hdfo and the group name group.
 """
@@ -33,10 +35,13 @@ struct Dense  <: Layer
     Dense(i::Int, j::Int; actf=Knet.sigm) = new(Knet.param(j,i), Knet.param0(j), actf)
  end
 
-function Dense(h5::HDF5.HDF5File, group::String; trainable=false, actf=Knet.sigm)
+Dense(h5::HDF5.File, group::String; trainable=false, actf=Knet.sigm) =
+    Dense(h5, "$group/$group/kernel:0","$group/$group/bias:0", trainable=trainable, actf=actf)
 
-    w = read(h5, "$group/$group/kernel:0")
-    b = read(h5, "$group/$group/bias:0")
+function Dense(h5::HDF5.File, kernel::String, bias::String; trainable=false, actf=Knet.sigm)
+
+    w = read(h5, kernel)
+    b = read(h5, bias)
 
     if CUDA.functional()
         w = KnetArray(w)
@@ -67,7 +72,8 @@ Default Conv layer.
 + `Conv(w, b, padding, actf)`: default constructor
 + `Conv(w1::Int, w2::Int,  i::Int, o::Int; actf=relu, padding=0)`: layer with
     o kernels of size (w1,w2) for an input of i layers.
-+ `Conv(h5::HDF5File, group::String; trainable=false, actf=relu)`: layer
++ `Conv(h5::HDF5.File, group::String; trainable=false, actf=relu)`:
++ `Conv(h5::HDF5.File, group::String; trainable=false, actf=relu)`: layer
         imported from a hdf5-file from tensorflow with the
         hdf-object hdfo and the group name group.
 """
@@ -81,12 +87,15 @@ struct Conv  <: Layer
             new(Knet.param(w1,w2,i,o; init=xavier_normal), Knet.param0(1,1,o,1), (padding,padding), actf)
 end
 
-function Conv(h5::HDF5.HDF5File, group::String; trainable=false, actf=Knet.relu)
+Conv(h5::HDF5.File, group::String; trainable=false, actf=Knet.relu) =
+    Conv(h5, "$group/$group/kernel:0","$group/$group/bias:0", trainable=trainable, actf=actf)
 
-    w = read(h5, "$group/$group/kernel:0")
+function Conv(h5::HDF5.File, kernel::String, bias::String; trainable=false, actf=Knet.relu)
+
+    w = read(h5, kernel)
     w = permutedims(w, [4,3,2,1])
 
-    b = read(h5, "$group/$group/bias:0")
+    b = read(h5, bias)
     b = reshape(b, 1,1,:,1)
 
     if CUDA.functional()
@@ -197,13 +206,19 @@ of the package assume raw output activations).
 ### Constructors:
 + `Predictions(i::Int, j:Int)`: with
     input size i, output size j activation function idendity.
-+ `Predictions(h5::HDF5File, group::String; trainable=false)`: with
++ `Predictions(h5::HDF5.File, group::String; trainable=false)`:
++ `Predictions(h5::HDF5.File, kernel::String, bias::String;
+               trainable=false)`: with
     an hdf5-object and group name of the output layer.
 """
 struct Predictions <: Layer
     Predictions(i::Int,j::Int) = Dense(i, j, actf=identity)
-    Predictions(h5::HDF5.HDF5File, group::String; trainable=false) =
-                Dense(h5, group, trainable=trainable, actf=identity)
+    Predictions(h5::HDF5.File, group::String; trainable=false) =
+                Predictions(h5, "$group/$group/kernel:0","$group/$group/bias:0",
+                            trainable=trainable)
+    Predictions(h5::HDF5.File, kernel::String, bias::String;
+                trainable=false) =
+                Dense(h5, kernel, bias, trainable=trainable, actf=identity)
 end
 
 
