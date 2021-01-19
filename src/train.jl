@@ -163,7 +163,7 @@ function tb_train!(mdl, opti, trn, vld=nothing; epochs=1,
             calc_and_report_loss(mdl, takenth(trn, nth_trn),
                                  takenth(vld, nth_vld), tbl, eval_nth)
 
-            if accuracy != nothing
+            if acc_fun != nothing
                 calc_and_report_acc(mdl, acc_fun, takenth(trn, nth_trn),
                                     takenth(vld, nth_vld), tbl, eval_nth)
             end
