@@ -2,7 +2,7 @@ module NNHelferlein
 
 import Base: iterate, length
 # import Knet
-using HDF5
+import HDF5
 import JLD2
 using Statistics: mean
 using ProgressMeter, Dates
