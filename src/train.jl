@@ -6,7 +6,7 @@
                       cp_freq=1, cp_dir="checkpoints",
                       tb_dir="logs", tb_name="run",
                       tb_text=\"\"\"Description of tb_train!() run.\"\"\",
-                      args...)
+                      opti_args...)
 
 Train function with TensorBoard integration. TB logs are written with
 the TensorBoardLogger.jl package.
@@ -30,7 +30,7 @@ The model is updated (in-place) and the trained model is returned.
         to modify the lr after every epoch
 + `l2=0.0`: L2 regularisation; implemented as weight decay per
         parameter
-+ `args...`: optional keyword arguments for the optimiser can be specified
++ `opti_args...`: optional keyword arguments for the optimiser can be specified
         (i.e. `lr`, `gamma`, ...).
 
 #### Model evaluation:
@@ -73,7 +73,7 @@ function tb_train!(mdl, opti, trn, vld=nothing; epochs=1,
                   cp_freq=nothing, cp_dir="checkpoints",
                   tb_dir="logs", tb_name="run",
                   tb_text=""""Description of tb_train!() run.""",
-                  args...)
+                  opti_args...)
 
     # use every n-th mb for evaluation (based on vld if defined):
     #
@@ -84,8 +84,8 @@ function tb_train!(mdl, opti, trn, vld=nothing; epochs=1,
         n_vld = 0
         nth_vld = 1
     else
-        n_eval = Int(ceil(n_vld * eval_size))
         n_vld = length(vld)
+        n_eval = Int(ceil(n_vld * eval_size))
         nth_vld = Int(cld(n_vld, n_eval))
     end
     nth_trn = Int(cld(n_trn, n_eval))
@@ -101,7 +101,7 @@ function tb_train!(mdl, opti, trn, vld=nothing; epochs=1,
     start_time = Dates.now()
     tb_log_dir = joinpath(tb_dir, tb_name,
                     Dates.format(start_time, "yyyy-mm-ddTHH-MM-SS"))
-    println("Training $epochs epochs with $n_trn minibatches/epoch"
+    println("Training $epochs epochs with $n_trn minibatches/epoch")
     if vld != nothing
         println("    (and $n_vld validation mbs).")
     end
@@ -133,7 +133,7 @@ function tb_train!(mdl, opti, trn, vld=nothing; epochs=1,
     # set optimiser:
     #
     for p in params(mdl)
-        p.opt = opti(;args...)
+        p.opt = opti(;opti_args...)
     end
 
     # Training:
@@ -254,7 +254,7 @@ end
 function calc_and_report_loss(mdl, trn, vld, tbl, step)
 
     loss_trn = calc_loss(mdl, data=trn)
-    
+
     if vld != nothing
         loss_vld = calc_loss(mdl, data=vld)
         with_logger(tbl) do
