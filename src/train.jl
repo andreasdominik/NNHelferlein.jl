@@ -192,6 +192,19 @@ function tb_train!(mdl, opti, trn, vld=nothing; epochs=1,
             end
         end
     end
+
+    Println("Training finished with:")
+    println("    Training loss:       $(calc_loss(mdl, data=trn))"
+    if acc_fun != nothing
+        println("    Training accuracy:   $(calc_acc(mdl, acc_fun, data=trn))"
+    end
+
+    if vld != nothing
+        println("    Validation loss:     $(calc_loss(mdl, data=trn))"
+        if acc_fun != nothing
+            println("    Validation accuracy: $(calc_acc(mdl, acc_fun, data=trn))"
+        end
+    end
     return mdl
 end
 
