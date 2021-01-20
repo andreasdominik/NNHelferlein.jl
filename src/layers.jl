@@ -124,15 +124,19 @@ end
 Pooling layer.
 
 ### Constructors:
-+ `Pool()`: default 2×2 pooling
-+ `Pool(k...)`: user-defined pooling
++ `Pool(;kwargs...)`: user-defined pooling; without kwargs, 2x2-pooling
+        is performed.
+
+### Keyword arguments:
+See the Knet documentation for Details:
+https://denizyuret.github.io/Knet.jl/latest/reference/#Convolution-and-Pooling.
 """
-struct Pool <: Layer
-    kernel
-    Pool(k...) = new(k)
-    Pool() = new((2,2))
+
+struct Pool
+    kwargs
+    Pool(;kwargs...) = new(kwargs)
 end
-(l::Pool)(x) = Knet.pool(x, window=l.kernel)
+(l::Pool)(x) = Knet.pool(x; l.kwargs...)
 
 
 
