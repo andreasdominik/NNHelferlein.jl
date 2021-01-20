@@ -45,13 +45,21 @@ Conv
 ```
 
 ```@docs
+DeConv
+```
+
+```@docs
 Pool
+```
+
+```@docs
+UnPool
 ```
 
 ## Recurrent
 
 ```@docs
-RSeqClassifyr
+RSeqClassifier
 ```
 
 ## Others

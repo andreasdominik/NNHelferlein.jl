@@ -345,16 +345,16 @@ end
 
 
 
-struct RSeqTaggr
+struct RSeqTagger
     n_inputs
     n_units
     unit_type
     rnn
-    RSeqTaggr(n_inputs::Int, n_units::Int; u_type=:lstm) =
+    RSeqTagger(n_inputs::Int, n_units::Int; u_type=:lstm) =
             new(n_inputs, n_units, u_type, Knet.RNN(n_inputs, n_units, rnnType=u_type))
 end
 
-function (rnn::RSeqTaggr)(x)
+function (rnn::RSeqTagger)(x)
     n_time_steps = size(x)[2]
     x = reshape(x, rnn.n_inputs, n_time_steps, :)
     x = permutedims(x, (1,3,2))
@@ -365,7 +365,7 @@ end
 
 
 """
-    struct RSeqClassifyr <: Layer
+    struct RSeqClassifer <: Layer
 
 One layer RNN sequence classifyer that works with minimatches of (time) series data.
 minibatch can be a 2- or 3-dimensional Array.
@@ -377,23 +377,23 @@ Result is always a 2-d matrix with the output of the units of the last
 step in each column and one column per sample of the minibatch.
 
 ### Constructors:
-+ `RSeqClassifyr(n_inputs::Int, n_units::Int; u_type=:lstm)`: with
++ `RSeqClassifer(n_inputs::Int, n_units::Int; u_type=:lstm)`: with
     number of inputs, number of units and unit type.
 
             new(n_inputs, n_units, u_type, Knet.RNN(n_inputs, n_units, rnnType=u_type))
 """
-struct RSeqClassifyr
+struct RSeqClassifer
     n_inputs
     n_units
     unit_type
     rnn
-    RSeqClassifyr(n_inputs::Int, n_units::Int; u_type=:lstm) =
+    RSeqClassifer(n_inputs::Int, n_units::Int; u_type=:lstm) =
             new(n_inputs, n_units, u_type, Knet.RNN(n_inputs, n_units, rnnType=u_type))
 end
 
 
 
-function (rnn::RSeqClassifyr)(x)
+function (rnn::RSeqClassifier)(x)
     n_time_steps = size(x)[2]
     x = reshape(x, rnn.n_inputs, n_time_steps, :)
     x = permutedims(x, (1,3,2))
