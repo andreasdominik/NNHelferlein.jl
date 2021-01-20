@@ -80,19 +80,22 @@ function tb_train!(mdl, opti, trn, vld=nothing; epochs=1,
     n_trn = length(trn)
 
     if vld == nothing
-        n_eval = Int(ceil(n_trn * eval_size))
         n_vld = 0
-        nth_vld = 1
+        eval_vld = nothing
+        n_eval = Int(ceil(n_trn * eval_size))
     else
         n_vld = length(vld)
         n_eval = Int(ceil(n_vld * eval_size))
         nth_vld = Int(cld(n_vld, n_eval))
+        eval_vld = takenth(vld, nth_vld)
     end
     nth_trn = Int(cld(n_trn, n_eval))
+    eval_trn = takenth(trn, nth_trn)
 
+    # frequencies of actions during training:
+    #
     eval_nth = Int(cld(n_trn, eval_freq))
     mb_loss_nth = Int(cld(n_trn, mb_loss_freq))
-
     lr_nth = Int(cld(n_trn, lrd_freq))
 
 
@@ -119,14 +122,10 @@ function tb_train!(mdl, opti, trn, vld=nothing; epochs=1,
     tbl = TensorBoardLogger.TBLogger(tb_log_dir,
                     min_level=Logging.Info)
     log_text(tbl, tb_log_dir, tb_name, start_time, tb_text)
-    calc_and_report_loss(mdl,
-                         takenth(trn, nth_trn),
-                         takenth(vld, nth_vld), tbl, 0)
+    calc_and_report_loss(mdl, eval_trn, eval_vld, tbl, 0)
 
     if acc_fun != nothing
-        calc_and_report_acc(mdl, acc_fun,
-                            takenth(trn, nth_trn),
-                            takenth(vld, nth_vld), tbl, 0)
+        calc_and_report_acc(mdl, acc_fun,eval_trn, eval_vld, tbl, 0)
     end
 
 
@@ -160,12 +159,11 @@ function tb_train!(mdl, opti, trn, vld=nothing; epochs=1,
         # println("mb_loss: $mb_loss"); flush(stdout)
         push!(mb_losses, mb_loss)
         if (i % eval_nth) == 0
-            calc_and_report_loss(mdl, takenth(trn, nth_trn),
-                                 takenth(vld, nth_vld), tbl, eval_nth)
+            calc_and_report_loss(mdl, eval_trn, eval_vld, tbl, eval_nth)
 
             if acc_fun != nothing
-                calc_and_report_acc(mdl, acc_fun, takenth(trn, nth_trn),
-                                    takenth(vld, nth_vld), tbl, eval_nth)
+                calc_and_report_acc(mdl, acc_fun, eval_trn, eval_vld,
+                                    tbl, eval_nth)
             end
         end
 
