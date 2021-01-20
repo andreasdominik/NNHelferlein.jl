@@ -70,22 +70,34 @@ Default Conv layer.
 
 ### Constructors:
 + `Conv(w, b, padding, actf)`: default constructor
-+ `Conv(w1::Int, w2::Int,  i::Int, o::Int; actf=relu, padding=0)`: layer with
++ `Conv(w1::Int, w2::Int,  i::Int, o::Int; actf=relu; kwargs...)`: layer with
     o kernels of size (w1,w2) for an input of i layers.
 + `Conv(h5::HDF5.File, group::String; trainable=false, actf=relu)`:
 + `Conv(h5::HDF5.File, group::String; trainable=false, actf=relu)`: layer
         imported from a hdf5-file from tensorflow with the
         hdf-object hdfo and the group name group.
+
+### Keyword arguments:
++ `padding=0`: the number of extra zeros implicitly concatenated
+        at the start and end of each dimension.
++ `stride=1`: the number of elements to slide to reach the next filtering window.
++ `dilation=1`: dilation factor for each dimension.
++ `...` See the Knet documentation for Details:
+        https://denizyuret.github.io/Knet.jl/latest/reference/#Convolution-and-Pooling.
+        All keywords to the Knet function `conv4()` are supported.
 """
 struct Conv  <: Layer
     w
     b
-    padding
     actf
-    Conv(w, b, padding, actf) = new(w, b, padding, actf)
-    Conv(w1::Int, w2::Int,  i::Int, o::Int; actf=Knet.relu, padding=0) =
-            new(Knet.param(w1,w2,i,o; init=xavier_normal), Knet.param0(1,1,o,1), (padding,padding), actf)
+    kwargs
+    Conv(w, b, actf; kwargs...) = new(w, b, actf, kwargs)
+    Conv(w1::Int, w2::Int,  i::Int, o::Int; actf=Knet.relu, kwargs...) =
+            new(Knet.param(w1,w2,i,o; init=xavier_normal), Knet.param0(1,1,o,1),
+                actf, kwargs)
 end
+
+(c::Conv)(x) = c.actf.(Knet.conv4(c.w, x; c.kwargs...) .+ c.b)
 
 Conv(h5::HDF5.File, group::String; trainable=false, actf=Knet.relu) =
     Conv(h5, "$group/$group/kernel:0","$group/$group/bias:0", trainable=trainable, actf=actf)
@@ -108,13 +120,12 @@ function Conv(h5::HDF5.File, kernel::String, bias::String; trainable=false, actf
     end
 
     (w1, w2, i, o) = size(w)
-    pad = ((w1-1)÷2, (w2-1)÷2)
+    pad = (w1-1)÷2
     println("Generating layer from hdf with kernel ($w1,$w2), $i channels, $o kernels and $pad padding.")
 
-    return Conv(w, b, pad, actf)
+    return Conv(w, b, actf; padding=pad)
 end
 
-(c::Conv)(x) = c.actf.(Knet.conv4(c.w, x, padding=c.padding) .+ c.b)
 
 
 
@@ -124,12 +135,14 @@ end
 Pooling layer.
 
 ### Constructors:
-+ `Pool(;kwargs...)`: user-defined pooling; without kwargs, 2x2-pooling
++ `Pool(;kwargs...)`: max pooling; without kwargs, 2x2-pooling
         is performed.
 
 ### Keyword arguments:
-See the Knet documentation for Details:
-https://denizyuret.github.io/Knet.jl/latest/reference/#Convolution-and-Pooling.
++ `window=2`: pooling window size (same for both directions)
++ `...`: See the Knet documentation for Details:
+        https://denizyuret.github.io/Knet.jl/latest/reference/#Convolution-and-Pooling.
+        All keywords to the Knet function `pool` are supported.
 """
 
 struct Pool
@@ -154,6 +167,15 @@ Default deconvolution layer.
 + `Conv(h5::HDF5.File, group::String; trainable=false, actf=relu)`: layer
         imported from a hdf5-file from tensorflow with the
         hdf-object hdfo and the group name group.
+
+### Keyword arguments:
++ `padding=0`: the number of extra zeros implicitly concatenated
+        at the start and end of each dimension.
++ `stride=1`: the number of elements to slide to reach the next filtering window.
++ `...` See the Knet documentation for Details:
+        https://denizyuret.github.io/Knet.jl/latest/reference/#Convolution-and-Pooling.
+        All keywords to the Knet function `deconv4()` are supported.
+
 """
 struct DeConv  <: Layer
     w
@@ -176,8 +198,7 @@ end
 Unpooling layer.
 
 ### Constructors:
-+ `UnPool()`: default 2×2 unpooling
-+ `UnPool(k...)`: user-defined unpooling
++ `UnPool(;kwargs...)`: user-defined unpooling
 """
 struct UnPool <: Layer
     kwargs
