@@ -45,7 +45,7 @@ The model is updated (in-place) and the trained model is returned.
         `teaching` is the teaching input (y).
         For classification tasks, `accuracy` from the Knet package is
         a good choice. For regression a correlation or mean error
-        may be used.
+        may be used (i.e. `acc_fun=(x,y)->sum(abs, x.-y)`).
 + `mb_loss_freq=100`: frequency of training loss reporting. default=100
         means that 100 loss-values per epoch will be logged to TensorBoard.
         If mb_loss_freq is greater then the number of minibatches,
@@ -193,16 +193,16 @@ function tb_train!(mdl, opti, trn, vld=nothing; epochs=1,
         end
     end
 
-    Println("Training finished with:")
-    println("    Training loss:       $(calc_loss(mdl, data=trn))"
+    println("Training finished with:")
+    println("Training loss:       $(calc_loss(mdl, data=trn))")
     if acc_fun != nothing
-        println("    Training accuracy:   $(calc_acc(mdl, acc_fun, data=trn))"
+        println("Training accuracy:   $(calc_acc(mdl, acc_fun, data=trn))")
     end
 
     if vld != nothing
-        println("    Validation loss:     $(calc_loss(mdl, data=trn))"
+        println("Validation loss:     $(calc_loss(mdl, data=vld))")
         if acc_fun != nothing
-            println("    Validation accuracy: $(calc_acc(mdl, acc_fun, data=trn))"
+            println("Validation accuracy: $(calc_acc(mdl, acc_fun, data=vld))")
         end
     end
     return mdl
