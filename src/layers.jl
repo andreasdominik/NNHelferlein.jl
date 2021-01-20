@@ -135,6 +135,53 @@ end
 (l::Pool)(x) = Knet.pool(x, window=l.kernel)
 
 
+
+
+"""
+    struct DeConv  <: Layer
+
+Default deconvolution layer.
+
+### Constructors:
++ `DeConv(w, b, actf, kwargs...)`: default constructor
++ `Conv(w1::Int, w2::Int,  i::Int, o::Int; actf=relu, kwargs...)`: layer with
+    o kernels of size (w1,w2) for an input of i layers.
++ `Conv(h5::HDF5.File, group::String; trainable=false, actf=relu)`:
++ `Conv(h5::HDF5.File, group::String; trainable=false, actf=relu)`: layer
+        imported from a hdf5-file from tensorflow with the
+        hdf-object hdfo and the group name group.
+"""
+struct DeConv  <: Layer
+    w
+    b
+    actf
+    kwargs
+    DeConv(w, b, actf; kwargs...) = new(w, b, actf, kwargs)
+    DeConv(w1::Int, w2::Int,  i::Int, o::Int; actf=Knet.relu, kwargs...) =
+            new(Knet.param(w1,w2,i,o; init=xavier_normal), Knet.param0(1,1,o,1),
+            actf, kwargs)
+end
+
+(c::DeConv)(x) = c.actf.(Knet.deconv4(c.w, x; kwargs...) .+ c.b)
+
+
+
+"""
+    struct UnPool <: Layer
+
+Unpooling layer.
+
+### Constructors:
++ `UnPool()`: default 2×2 unpooling
++ `UnPool(k...)`: user-defined unpooling
+"""
+struct UnPool <: Layer
+    kwargs
+    UnPool(;kwargs...) = new(kwargs)
+end
+(l::UnPool)(x) = Knet.unpool(x; l.kwargs...)
+
+
 """
     struct Flat <: Layer
 
