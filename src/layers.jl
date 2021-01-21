@@ -188,7 +188,7 @@ struct DeConv  <: Layer
             actf, kwargs)
 end
 
-(c::DeConv)(x) = c.actf.(Knet.deconv4(c.w, x; kwargs...) .+ c.b)
+(c::DeConv)(x) = c.actf.(Knet.deconv4(c.w, x; c.kwargs...) .+ c.b)
 
 
 
