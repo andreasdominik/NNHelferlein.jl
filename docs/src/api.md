@@ -191,3 +191,10 @@ preproc_imagenet
 ```@docs
 predict_imagenet
 ```
+
+
+# Other utils
+
+```@docs
+crop_array
+```

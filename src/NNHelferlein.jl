@@ -47,6 +47,7 @@ export NeuNet, Classifier, Regressor, Chain,          # chains
        predict_top5, predict_imagenet,
        predict,
        get_imagenet_classes,                    # images
-       image2array, array2image, array2RGB
+       image2array, array2image, array2RGB,
+       corp_array                               # utils
 
 end # module
