@@ -184,7 +184,7 @@ struct DeConv  <: Layer
     kwargs
     DeConv(w, b, actf; kwargs...) = new(w, b, actf, kwargs)
     DeConv(w1::Int, w2::Int,  i::Int, o::Int; actf=Knet.relu, kwargs...) =
-            new(Knet.param(w1,w2,i,o; init=xavier_normal), Knet.param0(1,1,o,1),
+            new(Knet.param(w1,w2,o,i; init=xavier_normal), Knet.param0(1,1,o,1),
             actf, kwargs)
 end
 
@@ -382,7 +382,7 @@ step in each column and one column per sample of the minibatch.
 
             new(n_inputs, n_units, u_type, Knet.RNN(n_inputs, n_units, rnnType=u_type))
 """
-struct RSeqClassifer
+struct RSeqClassifier
     n_inputs
     n_units
     unit_type
