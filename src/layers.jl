@@ -162,7 +162,7 @@ Default deconvolution layer.
 ### Constructors:
 + `DeConv(w, b, actf, kwargs...)`: default constructor
 + `Conv(w1::Int, w2::Int,  i::Int, o::Int; actf=relu, kwargs...)`: layer with
-    o kernels of size (w1,w2) for an input of i layers.
+    o kernels of size (w1,w2) for an input of i channels.
 + `Conv(h5::HDF5.File, group::String; trainable=false, actf=relu)`:
 + `Conv(h5::HDF5.File, group::String; trainable=false, actf=relu)`: layer
         imported from a hdf5-file from tensorflow with the
@@ -170,8 +170,9 @@ Default deconvolution layer.
 
 ### Keyword arguments:
 + `padding=0`: the number of extra zeros implicitly concatenated
-        at the start and end of each dimension.
-+ `stride=1`: the number of elements to slide to reach the next filtering window.
+        at the start and end of each dimension (applied to the output).
++ `stride=1`: the number of elements to slide to reach the next filtering window
+        (applied to the output).
 + `...` See the Knet documentation for Details:
         https://denizyuret.github.io/Knet.jl/latest/reference/#Convolution-and-Pooling.
         All keywords to the Knet function `deconv4()` are supported.
