@@ -30,7 +30,7 @@ centered (i.e. a margin is removed).
 + `x`: n-dim AbstractArray
 + `crop_sizes`: Tuple of target sizes to which the array is cropped.
         Allowed values are Int or `:`. If `crop_sizes` defines less
-        dims as x has, the remaining dimes will not be cropped (assuming `:`).
+        dims as x has, the remaining dims will not be cropped (assuming `:`).
         If a demanded crop size is bigger as the actual size of x,
         it is ignored.
 """
