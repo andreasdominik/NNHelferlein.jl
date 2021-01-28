@@ -1,9 +1,10 @@
 """
-    function tb_train!(mdl, opti, trn, vld; epochs=1,
-                      lr_decay=1.0, lrd_freq=1, l2=0.0,
+    function tb_train!(mdl, opti, trn, vld=nothing; epochs=1,
+                      lr_decay=nothing, lrd_freq=1, l2=0.0,
                       eval_size=0.2, eval_freq=1,
+                      acc_fun=nothing,
                       mb_loss_freq=100,
-                      cp_freq=1, cp_dir="checkpoints",
+                      cp_freq=nothing, cp_dir="checkpoints",
                       tb_dir="logs", tb_name="run",
                       tb_text=\"\"\"Description of tb_train!() run.\"\"\",
                       opti_args...)
