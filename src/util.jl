@@ -54,3 +54,23 @@ function crop_array(x, crop_size)
     end
     return x[ranges...]
 end
+
+
+
+
+"""
+    function init0(siz)
+
+Initialise a vector or array of size `siz` with zeros.
+If a GPU is detected type of the returned value is `KnetArray{Float32}`,
+otherwise `Array{Float32}`.
+"""
+function init0(siz)
+    x = zeros(Float32, siz)
+
+    if CUDA.functional()
+        return KnetArray(x)
+    else
+        return x
+    end
+end

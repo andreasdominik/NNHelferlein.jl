@@ -198,3 +198,7 @@ predict_imagenet
 ```@docs
 crop_array
 ```
+
+```@docs
+init0
+```
