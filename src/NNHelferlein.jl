@@ -8,7 +8,7 @@ using Statistics: mean
 using ProgressMeter, Dates
 using IterTools: ncycle, takenth
 import CSV
-import OdsIO
+# import OdsIO    # removed because of PyCall incompatibilities!
 import DataFrames
 import Random
 using Printf

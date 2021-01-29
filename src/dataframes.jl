@@ -5,13 +5,17 @@
 """
     dataframe_read(fname)
 
-Read a data table from an ODS- or CSV-file with one sample
+Read a data table from an CSV-file with one sample
 per row and return a DataFrame with the data.
+(ODS-support is removed because of frequent PyCall compatibility issues
+of the OdsIO package).
 """
 function dataframe_read(fName)
 
     if occursin(r".*\.ods$", fname)
-        return readODS(fname)
+        println("Reading ODS-files is no longer supported!")
+        return nothing
+        # return readODS(fname)
     elseif occursin(r".*\.csv$", fname)
         return readCSV(fname)
     else
@@ -21,11 +25,11 @@ function dataframe_read(fName)
     end
 end
 
-function readODS(fname)
-
-    printf("Reading data from ODS: $fname")
-    return OdsIO.ods_read(fname, retType="DataFrame")
-end
+# function readODS(fname)
+#
+#     printf("Reading data from ODS: $fname")
+#     return OdsIO.ods_read(fname, retType="DataFrame")
+# end
 
 function readCSV(fname)
 
