@@ -122,7 +122,10 @@ function tb_train!(mdl, opti, trn, vld=nothing; epochs=1,
     #
     tbl = TensorBoardLogger.TBLogger(tb_log_dir,
                     min_level=Logging.Info)
-    log_text(tbl, tb_log_dir, tb_name, start_time, tb_text)
+    log_text(tbl, tb_log_dir, tb_name, start_time, tb_text,
+             opti, trn, vld, epochs,
+             lr_decay, lrd_freq, l2,
+             cp_freq, opti_args)
     calc_and_report_loss(mdl, eval_trn, eval_vld, tbl, 0)
 
     if acc_fun != nothing
@@ -210,7 +213,14 @@ function tb_train!(mdl, opti, trn, vld=nothing; epochs=1,
 end
 
 
-function log_text(tbl, tb_log_dir, tb_name, start_time, tb_text)
+function log_text(tbl, tb_log_dir, tb_name, start_time, tb_text,
+                  opti, trn, vld, epochs,
+                  lr_decay, lrd_freq, l2,
+                  cp_freq, opti_args)
+
+    if vld == nothing
+        vld = []
+    end
 
     tb_log_text =
     "<h2>NNHelferlein.jl tb_train!() log</h2>" *
@@ -221,8 +231,28 @@ function log_text(tbl, tb_log_dir, tb_name, start_time, tb_text)
     "   </ul> " *
     "   <p> " *
     "   $tb_text " *
-    "   </p> "
+    "   </p> " *
+    "<h3>Training parameters:</h3>" *
+    "   <ul>" *
+    "   <li>Training minibatches: $(length(trn))</li>" *
+    "   <li>Validation minibatches: $(length(vld))</li>" *
+    "   <li>Optimiser: $opti</li>" *
+    "   <li>Epochs: $epochs</li>"
 
+    if lr_decay != nothing
+        tb_log_text *= "   <li>lr-decay: $lr_decay with frequency $lrd_freq</li>"
+    end
+    if l2 > 0
+        tb_log_text *= "   <li>L2 regularisation: $l2</li>"
+    end
+    if cp_freq != nothing
+        tb_log_text *= "   <li>Checkpoints are saved $cp_freq times per epoch</li>"
+    end
+
+    for arg in keys(opti_args)
+        tb_log_text *= "   <li>$arg: $(opti_args[arg])</li>"
+    end
+    tb_log_text *= "   </ul>"
 
     TensorBoardLogger.log_text(tbl, "Description", tb_log_text, step=0)
     # with_logger(tbl) do
