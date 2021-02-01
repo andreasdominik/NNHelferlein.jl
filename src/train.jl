@@ -209,6 +209,12 @@ function tb_train!(mdl, opti, trn, vld=nothing; epochs=1,
             println("Validation accuracy: $(calc_acc(mdl, acc_fun, data=vld))")
         end
     end
+
+    # save final model:
+    #
+    if (cp_freq != nothing)
+        write_cp(mdl, n_trn*epochs+1, tb_log_dir)
+    end
     return mdl
 end
 
