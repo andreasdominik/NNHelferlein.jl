@@ -87,17 +87,20 @@ function tb_train!(mdl, opti, trn, vld=nothing; epochs=1,
     else
         n_vld = length(vld)
         n_eval = Int(ceil(n_vld * eval_size))
-        nth_vld = Int(cld(n_vld, n_eval))
+        nth_vld = cld(n_vld, n_eval)
         eval_vld = takenth(vld, nth_vld)
     end
-    nth_trn = Int(cld(n_trn, n_eval))
+    nth_trn = cld(n_trn, n_eval)
     eval_trn = takenth(trn, nth_trn)
 
     # frequencies of actions during training:
     #
-    eval_nth = Int(cld(n_trn, eval_freq))
-    mb_loss_nth = Int(cld(n_trn, mb_loss_freq))
-    lr_nth = Int(cld(n_trn, lrd_freq))
+    eval_nth = cld(n_trn, eval_freq)
+    mb_loss_nth = cld(n_trn, mb_loss_freq)
+    lr_nth = cld(n_trn, lrd_freq)
+    if cp_freq != nothing
+        cp_nth = cld(n_trn, cp_freq)
+    end
 
 
     # mk log directory:
@@ -112,11 +115,6 @@ function tb_train!(mdl, opti, trn, vld=nothing; epochs=1,
     println("Evaluation is performed every $eval_nth minibatches (with $n_eval mbs).")
     println("Watch the progress with TensorBoard at: $tb_log_dir")
 
-    # checkpoints:
-    #
-    if cp_freq != nothing
-        cp_nth = Int(ceil(n_trn * cp_freq))
-    end
 
     # Tensorboard logger:
     #
