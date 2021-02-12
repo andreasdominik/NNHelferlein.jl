@@ -91,3 +91,40 @@ function init0(siz...)
         return x
     end
 end
+
+
+"""
+function blowup_array(x, n)
+
+Blow up an array `x` with an additional dimension
+and repeat the content of the array `n` times.
+
+### Examples:
+```
+julia> x = [1,2,3,4]; blowup_array(x, 3)
+4×3 Array{Int64,2}:
+ 1  1  1
+ 2  2  2
+ 3  3  3
+ 4  4  4
+
+julia> x = [1 2; 3 4]; blowup_array(x, 3)
+2×2×3 Array{Int64,3}:
+[:, :, 1] =
+ 1  2
+ 3  4
+
+[:, :, 2] =
+ 1  2
+ 3  4
+
+[:, :, 3] =
+ 1  2
+ 3  4
+ ```
+"""
+function blowup_array(x, n)
+
+    siz = size(x)
+    return reshape(repeat(vec(x), n), siz...,:)
+end
