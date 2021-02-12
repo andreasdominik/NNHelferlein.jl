@@ -59,14 +59,31 @@ end
 
 
 """
-    function init0(siz)
+    function init0(siz...)
 
 Initialise a vector or array of size `siz` with zeros.
 If a GPU is detected type of the returned value is `KnetArray{Float32}`,
 otherwise `Array{Float32}`.
+
+### Examples:
+```
+julia> init0(2,10)
+2×10 Array{Float32,2}:
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+
+ julia> init0(0,10)
+ 0×10 Array{Float32,2}
+
+ julia> init0((2,10))
+2×10 Array{Float32,2}:
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+```
 """
-function init0(siz)
-    x = zeros(Float32, siz)
+function init0(siz...)
+
+    x = zeros(Float32, siz...)
 
     if CUDA.functional()
         return KnetArray(x)
