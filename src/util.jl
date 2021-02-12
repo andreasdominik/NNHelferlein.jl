@@ -126,5 +126,15 @@ julia> x = [1 2; 3 4]; blowup_array(x, 3)
 function blowup_array(x, n)
 
     siz = size(x)
-    return reshape(repeat(vec(x), n), siz...,:)
+    out = deepcopy(x)
+    i = 1
+    while i < n
+        out = cat1d(out,x)
+        i += 1
+    end
+
+    return reshape(out, siz...,:)
+
+    # return reshape(repeat(vec(x), n), siz...,:)
+
 end
