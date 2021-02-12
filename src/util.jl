@@ -126,7 +126,7 @@ julia> x = [1 2; 3 4]; blowup_array(x, 3)
 function blowup_array(x, n)
 
     siz = size(x)
-    out = deepcopy(x)
+    out = x
     i = 1
     while i < n
         out = cat1d(out,x)
