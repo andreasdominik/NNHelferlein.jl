@@ -205,5 +205,9 @@ blowup_array
 ```
 
 ```@docs
+recycle_array
+```
+
+```@docs
 init0
 ```

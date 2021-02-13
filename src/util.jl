@@ -132,9 +132,44 @@ function blowup_array(x, n)
         out = cat1d(out,x)
         i += 1
     end
-
     return reshape(out, siz...,:)
+end
 
-    # return reshape(repeat(vec(x), n), siz...,:)
 
+"""
+function recycle_array(x, n)
+
+Recycle an array `x` along the last dimension
+and repeat the content of the array `n` times.
+
+### Examples:
+julia> recycle_array([1,2],3)
+6-element Array{Int64,1}:
+ 1
+ 2
+ 1
+ 2
+ 1
+ 2
+
+julia> x = [1 2; 3 4]
+2×2 Array{Int64,2}:
+ 1  2
+ 3  4
+
+julia> recycle_array(x,3)
+2×6 Array{Int64,2}:
+ 1  2  1  2  1  2
+ 3  4  3  4  3  4
+"""
+function recycle_array(x, n)
+
+    dim = ndims(x)
+    out = x
+    i = 1
+    while i < n
+        out = cat(out,x, dims=dim)
+        i += 1
+    end
+    return out
 end
