@@ -39,6 +39,7 @@ export NeuNet, Classifier, Regressor, Chain,          # chains
        Embed, Predictions,
        RSeqClassifer, RSeqTagger,
        Softmax, Dropout, BatchNorm,
+       TensorDense,
        leaky_sigm,
        dataframe_read, dataframe_split,         # import data
        dataframe_minibatches,

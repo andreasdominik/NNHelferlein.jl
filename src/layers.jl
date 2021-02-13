@@ -60,6 +60,30 @@ end
 (l::Dense)(x) = l.actf.(l.w * x .+ l.b)
 
 
+"""
+    struct TensorDens  <: Layer
+
+Almost standard dense layer, but capable to work with input tensors of
+any number of dimensions.
+The size of the first dim is changed from in to out.
+"""
+struct TensorDens  <: Layer
+    w
+    b
+    actf
+    TensorDense(w, b, actf) = new(w, b, actf)
+    TensorTensor(i::Int, j::Int; actf=Knet.sigm) = new(Knet.param(j,i), Knet.param0(j), actf)
+ end
+
+ function (l::TensorDense)(x)
+     j,i = size(l.w)   # get fan-in and out
+     siz = vcat(j, collect(size(x)[2:end]))
+     x = reshape(x, i,:)
+     y = l.actf.(l.w * x .+ l.b)
+     return reshape(y, siz...)
+ end
+
+
 
 
 
@@ -380,8 +404,6 @@ step in each column and one column per sample of the minibatch.
 ### Constructors:
 + `RSeqClassifer(n_inputs::Int, n_units::Int; u_type=:lstm)`: with
     number of inputs, number of units and unit type.
-
-            new(n_inputs, n_units, u_type, Knet.RNN(n_inputs, n_units, rnnType=u_type))
 """
 struct RSeqClassifier
     n_inputs
@@ -400,4 +422,16 @@ function (rnn::RSeqClassifier)(x)
     x = permutedims(x, (1,3,2))
     x = rnn.rnn(x)
     return x[:,:,end]     # [units, samples]
+end
+
+function hidden_states(l::RSeqClassifier)
+    return l.rnn.h
+end
+
+function cell_states(l::RSeqClassifier)
+    if l.unit_type == :lstm
+        return l.rnn.c
+    else
+        return nothing
+    end
 end
