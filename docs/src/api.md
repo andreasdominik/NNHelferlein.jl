@@ -31,6 +31,10 @@ Dense
 ```
 
 ```@docs
+Linear
+```
+
+```@docs
 Embed
 ```
 

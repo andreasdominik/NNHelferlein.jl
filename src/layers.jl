@@ -61,21 +61,62 @@ end
 
 
 """
-    struct TensorDens  <: Layer
+    struct TensorDense  <: Layer
 
+** `TensorDense` is deprecated! Use `Dense` or `Linear` instead! **
 Almost standard dense layer, but capable to work with input tensors of
 any number of dimensions.
 The size of the first dim is changed from in to out.
+
+### Keyword arguments:
++ `bias=true`: if false biases are fixed to 0.0
++ `actf=Knet.sigm`: activation function.
 """
-struct TensorDens  <: Layer
+struct TensorDense  <: Layer
     w
     b
     actf
     TensorDense(w, b, actf) = new(w, b, actf)
-    TensorTensor(i::Int, j::Int; actf=Knet.sigm) = new(Knet.param(j,i), Knet.param0(j), actf)
+    TensorDense(i::Int, j::Int; bias=true, actf=Knet.sigm) = new(Knet.param(j,i),
+            bias ? Knet.param0(j) : init0(j), actf)
  end
 
  function (l::TensorDense)(x)
+     j,i = size(l.w)   # get fan-in and out
+     siz = vcat(j, collect(size(x)[2:end]))
+     x = reshape(x, i,:)
+     y = l.actf.(l.w * x .+ l.b)
+     return reshape(y, siz...)
+ end
+
+
+"""
+    struct Linear  <: Layer
+
+Almost standard dense layer, but functionality inspired by
+the TensorFlow-layer:
++ capable to work with input tensors of
+  any number of dimensions
++ default activation function `indetity`
++ optionally without biases.
+
+The shape of the input tensor is preserved; only the size of the
+first dim is changed from in to out.
+
+### Keyword arguments:
++ `bias=true`: if false biases are fixed to 0.0
++ `actf=Knet.sigm`: activation function.
+"""
+struct Linear  <: Layer
+    w
+    b
+    actf
+    Linear(w, b, actf) = new(w, b, actf)
+    Linear(i::Int, j::Int; bias=true, actf=Knet.sigm) = new(Knet.param(j,i),
+            bias ? Knet.param0(j) : init0(j), actf=identity)
+ end
+
+ function (l::Linear)(x)
      j,i = size(l.w)   # get fan-in and out
      siz = vcat(j, collect(size(x)[2:end]))
      x = reshape(x, i,:)
