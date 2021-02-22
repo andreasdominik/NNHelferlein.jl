@@ -42,6 +42,7 @@ export NeuNet, Classifier, Regressor, Chain,          # chains
        Softmax, Dropout, BatchNorm,
        TensorDense, Linear,
        AttentionMechanism, AttnBahdanau,
+       AttnLuong,
        leaky_sigm,
        dataframe_read, dataframe_split,         # import data
        dataframe_minibatches,

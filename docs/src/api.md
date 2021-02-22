@@ -96,6 +96,14 @@ BatchNorm
 AttentionMechanism
 ```
 
+```@docs
+AttnBahdanau
+```
+
+```@docs
+AttnLuong
+```
+
 # Data providers
 
 ```@docs
