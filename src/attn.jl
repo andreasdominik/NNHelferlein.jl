@@ -50,7 +50,7 @@ the precomputed projections.
 All attention mechanisms calculate attention factors α from scores
 derived from projections of the encoder hidden states:
 ```math
-\\alpha = \\mathrm{softmax}(\\mathrm{score}(h_{enc},h_{t}) \\cdot 1/\sqrt{n}))
+\\alpha = \\mathrm{softmax}(\\mathrm{score}(h_{enc},h_{t}) \\cdot 1/\\sqrt{n}))
 ```
 
 or scaled:
