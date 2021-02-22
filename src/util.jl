@@ -99,6 +99,12 @@ function blowup_array(x, n)
 Blow up an array `x` with an additional dimension
 and repeat the content of the array `n` times.
 
+### Arguments:
++ `x`: Array of any dimension
++ `n`: number of repeats. ´n == 1´ will return an
+array with an addritional dimension of size 1.
+
+
 ### Examples:
 ```
 julia> x = [1,2,3,4]; blowup_array(x, 3)
@@ -141,6 +147,13 @@ function recycle_array(x, n)
 
 Recycle an array `x` along the last dimension
 and repeat the content of the array `n` times.
+The number of dims stays unchanged, but the array
+valueas are repeated `n` times.
+
+### Arguments:
++ `x`: Array of any dimension
++ `n`: number of repeats. ´n == 1´ will return an unchanged
+array.
 
 ### Examples:
 julia> recycle_array([1,2],3)
@@ -172,4 +185,16 @@ function recycle_array(x, n)
         i += 1
     end
     return out
+end
+
+
+
+# split the iterator in 2 parts at at
+# and return the first and the second part as separate iterators.
+#
+function split_iterator(itr, at)
+
+    len = length(itr)
+    last_trn = Int(round(len * at))
+    return Iterators.take(itr, last_trn), Iterators.drop(itr, last_trn)
 end

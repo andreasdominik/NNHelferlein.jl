@@ -90,6 +90,12 @@ Dropout
 BatchNorm
 ```
 
+## Attention Mechanisms
+
+```@docs
+AttentionMechanism
+```
+
 # Data providers
 
 ```@docs

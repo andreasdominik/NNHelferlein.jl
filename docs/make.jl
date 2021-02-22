@@ -8,6 +8,7 @@ makedocs(modules = [NNHelferlein],
          authors = "Andreas Dominik",
          pages = [
                   "Introduction" => "index.md",
+                  "Overview" => "overview.md",
                   "Examples" => "examples.md",
                   "API" => "api.md",
                   "License" => "license.md"

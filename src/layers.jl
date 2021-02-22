@@ -112,8 +112,8 @@ struct Linear  <: Layer
     b
     actf
     Linear(w, b, actf) = new(w, b, actf)
-    Linear(i::Int, j::Int; bias=true, actf=Knet.sigm) = new(Knet.param(j,i),
-            bias ? Knet.param0(j) : init0(j), actf=identity)
+    Linear(i::Int, j::Int; bias=true, actf=identity) = new(Knet.param(j,i),
+            bias ? Knet.param0(j) : init0(j), actf)
  end
 
  function (l::Linear)(x)

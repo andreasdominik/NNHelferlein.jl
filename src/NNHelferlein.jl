@@ -23,6 +23,7 @@ include("types.jl")
 include("util.jl")
 include("nets.jl")
 include("layers.jl")
+include("attn.jl")
 include("funs.jl")
 include("images.jl")
 include("dataframes.jl")
@@ -39,7 +40,8 @@ export NeuNet, Classifier, Regressor, Chain,          # chains
        Embed, Predictions,
        RSeqClassifer, RSeqTagger,
        Softmax, Dropout, BatchNorm,
-       TensorDense,
+       TensorDense, Linear,
+       AttentionMechanism, AttnBahdanau,
        leaky_sigm,
        dataframe_read, dataframe_split,         # import data
        dataframe_minibatches,
