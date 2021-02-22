@@ -85,6 +85,10 @@ ICLR, 2015*.
 ```math
 \\mathrm{score}(h_{t},h_{enc}) = v_{a}^{\\top}\\cdot\\tanh(W[h_{t},h_{enc}])
 ```
+
+### Constructors:
+    AttnBahdanau(dec_units, enc_units; scale=true)
+    AttnBahdanau(units; scale=true)
 """
 mutable struct AttnBahdanau <: AttentionMechanism
     enc
@@ -141,6 +145,10 @@ CoRR, 2015*.
 ```math
 \\mathrm{score}(h_{t},h_{enc}) = h_{t}^{\\top} W h_{enc}
 ```
+
+### Constructors:
+    AttnLuong(dec_units, enc_units; scale=true)
+    AttnLuong(units; scale=true)
 """
 mutable struct AttnLuong <: AttentionMechanism
     enc
@@ -179,20 +187,46 @@ function (attn::AttnLuong)(h_t, h_enc; reset=false)
     return c, α
 end
 
-# + `AttnLuong`: Luong-style (multiplicative) attention mechanism according to
-#         the paper (referred as *General*-type attention):
-#         *M.-T. Luong, H. Pham, C.D. Manning,
-#         Effective Approaches to Attention-based Neural Machine Translation,
-#         CoRR, 2015*.
-#         ```math
-#         \\mathrm{score}(h_{t},h_{enc}) = h_{t}^{\\top} W h_{enc}
-#         ```
-#
-# + `AttnDot`: Dot-product attention (without trainable parameters)
-#         according to the Luong, et al. (2015) paper.
-#         ```math
-#         \\mathrm{score}(h_{t},h_{enc}) = h_{t}^{\\top} h_{enc}
-#         ```
+
+
+"""
+    mutable struct AttnDot <: AttentionMechanism
+
+Dot-product attention (without trainable parameters)
+according to the Luong, et al. (2015) paper.
+
+``\\mathrm{score}(h_{t},h_{enc}) = h_{t}^{\\top} h_{enc}``
+
+### Constructors:
+    AttnDot(; scale=true)
+"""
+mutable struct AttnDot <: AttentionMechanism
+    scale
+    AttnDot(;scale=true) = new(scale ? 1/sqrt(enc_units) : 1.0)
+end
+
+function (attn::AttnDot)(h_t, h_enc; reset=false)
+    # make all 3d:
+    #
+    h_encR = reshape(h_enc, size(h_enc)[1], :, size(h_enc)[ndims(h_enc)])
+    units, mb, steps = size(h_encR)
+    h_tR = reshape(h_t, size(h_t)[1], :)
+
+    score = sum(h_encR .* h_tR, dims=1)
+    score *= attn.scale
+    α = softmax(score, dims=3)
+
+    # calc. context from encoder states:
+    #
+    c = sum(α .* h_encR, dims=3)
+
+    # remove unneeded dims:
+    #
+    c = reshape(c, units, mb)
+    α = reshape(α, mb, steps)
+    return c, α
+end
+
 #
 # + `AttnLocation`: Location-based attention
 #         according to the Luong, et al. (2015) paper.

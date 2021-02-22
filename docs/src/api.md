@@ -104,6 +104,10 @@ AttnBahdanau
 AttnLuong
 ```
 
+```@docs
+AttnDot
+```
+
 # Data providers
 
 ```@docs
