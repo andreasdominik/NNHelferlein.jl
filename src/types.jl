@@ -2,6 +2,6 @@
 """
     abstract type DataLoader
 
-Mother type for minimatch iterators.
+Mother type for minibatch iterators.
 """
 abstract type DataLoader end

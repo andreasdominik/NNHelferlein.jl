@@ -93,55 +93,5 @@ function dataframe_split(df::DataFrames.DataFrame; teaching=:y,
         (vld,yvld) = do_balance(vld, yvld)
     end
 
-    # classes = unique(df[teaching])
-    # n_classes = length(classes)
-    # classCounts = [nrow(filter(r -> r[teaching] == c, df)) for c in classes]
-    #
-    # validCounts = Int.(round.(classCounts .* fr))
-    # balancedValid = maximum(validCounts)
-    # trainCounts = classCounts .- validCounts
-    # balancedTrain = maximum(trainCounts)
-    #
-    # train = similar(df, 0)
-    # valid = similar(df, 0)
-    # for i in 1:n_classes
-    #     class_idx = findall(c -> c == classes[i], df[teaching])
-    #     valid_idx = sample(class_idx, validCounts[i], replace=false)
-    #     classValid = df[valid_idx, :]
-    #     train_idx = filter(x -> !(x ∈ valid_idx), class_idx)
-    #     classTrain = df[train_idx,:]
-    #
-    #     # expand if balanced:
-    #     #
-    #     if balanced
-    #         n_missing = balancedValid - validCounts[i]
-    #         fillup = sample(1:nrow(classValid), n_missing, replace=true)
-    #         append!(classValid, classValid[fillup,:])
-    #
-    #         n_missing = balancedTrain - trainCounts[i]
-    #         fillup = sample(1:nrow(classTrain), n_missing, replace=true)
-    #         append!(classTrain, classTrain[fillup,:])
-    #     end
-    #
-    #     append!(train, classTrain)
-    #     append!(valid, classValid)
-    # end
-    #
-    # train = train[sample(1:nrow(train), nrow(train), replace=false),:]
-    # valid = valid[sample(1:nrow(valid), nrow(valid), replace=false),:]
-
-
-    # println(" ")
-    # println("Split dataset to training and validation data with classes:")
-    # if balanced
-    #     for c in classes
-    #         println("$c, training: $balancedTrain, validation: $balancedValid")
-    #     end
-    # else
-    #     for i in 1:n_classes
-    #         println("$(classes[i]), training: $(trainCounts[i]), validation: $(validCounts[i])")
-    #     end
-    # end
-
     return trn, vld
 end
