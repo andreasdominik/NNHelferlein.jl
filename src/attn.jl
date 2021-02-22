@@ -48,12 +48,13 @@ the precomputed projections.
 All attention mechanisms calculate attention factors α from scores
 derived from projections of the encoder hidden states:
 ```math
-\alpha = \mathrm{softmax}(\mathrm{score}(h_{enc},h_{t}))
+\\alpha = \\mathrm{softmax}(\\mathrm{score}(h_{enc},h_{t}))
 ```
 
 or scaled:
 ```math
-\alpha = \mathrm{softmax}(\mathrm{score}(h_{enc},h_{t}) \cdot \nicefrac{1}{\sqrt{n}})
+\\alpha = \\mathrm{softmax}(\\mathrm{score}(h_{enc},h_{t}) \\cdot
+         \\nicefrac{1}{\\sqrt{n}})
 ```
 
 + `AttnBahdanau`: Bahdanau-style (additive, concat) attention mechanism according
@@ -62,7 +63,7 @@ or scaled:
         Neural Machine Translation by jointlylearning to align and translate,
         ICLR, 2015*.
         ```math
-        \mathrm{score}(h_{t},h_{enc}) = v_{a}^{\top}\cdot\tanh(W[h_{t},h_{enc}])
+        \\mathrm{score}(h_{t},h_{enc}) = v_{a}^{\\top}\\cdot\\tanh(W[h_{t},h_{enc}])
         ```
 
 + `AttnLuong`: Luong-style (multiplicative) attention mechanism according to
@@ -71,19 +72,19 @@ or scaled:
         Effective Approaches to Attention-based Neural Machine Translation,
         CoRR, 2015*.
         ```math
-        \mathrm{score}(h_{t},h_{enc}) = h_{t}^{\top} W h_{enc}
+        \\mathrm{score}(h_{t},h_{enc}) = h_{t}^{\\top} W h_{enc}
         ```
 
 + `AttnDot`: Dot-product attention (without trainable parameters)
         according to the Luong, et al. (2015) paper.
         ```math
-        \mathrm{score}(h_{t},h_{enc}) = h_{t}^{\top} h_{enc}
+        \\mathrm{score}(h_{t},h_{enc}) = h_{t}^{\\top} h_{enc}
         ```
 
 + `AttnLocation`: Location-based attention
         according to the Luong, et al. (2015) paper.
         ```math
-        \mathrm{score}(h_{t}) = W h_{t}
+        \\mathrm{score}(h_{t}) = W h_{t}
         ```
 """
 abstract type AttentionMechanism
