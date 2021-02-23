@@ -31,7 +31,7 @@ dimensions are the same.
 + `h_t`:    decoder hidden state. If ``h_t`` is a vector, its length
             equals the number of decoder units. If it is a matrix,
             ``h_t`` includes the states for a minibatch of samples and has
-            tha size [units, mb].
+            the size [units, mb].
 + `h_enc`:  encoder hidden states, 2d or 3d. If ``h_{enc}`` is a
             matrix [units, steps] with the hidden states of all encoder steps.
             If 3d [units, mb, steps] encoder states for a minibatch is
@@ -44,6 +44,14 @@ dimensions are the same.
 
 The short form `(::AttentionMechanism)(reset=true)` can be used to reset
 the precomputed projections.
+
+### Return values
+All functions return `c` and `α` where α is a matrix of size [mb,steps]
+with the attention factors for each step and minibatch.
+`c` is a matrix of size [units, mb] with the context vector for
+each sample of the minibatch, calculated as the α-weighted sum of
+all encoder hidden states ``h_{enc}`` for each minibatch.
+
 
 ## Attention Mechanisms:
 
@@ -315,9 +323,9 @@ next input token.
 + `h_t`:    decoder hidden state. If ``h_t`` is a vector, its length
             equals the number of decoder units. If it is a matrix,
             ``h_t`` includes the states for a minibatch of samples and has
-            tha size [units, mb].
+            the size [units, mb].
 + `inp`: next decoder input ``i_{t+1}``
-            (e.g. next embedded tolen of sequence)
+            (e.g. next embedded token of sequence)
 + `h_enc`:  encoder hidden states, 2d or 3d. If ``h_{enc}`` is a
             matrix [units, steps] with the hidden states of all encoder steps.
             If 3d [units, mb, steps] encoder states for a minibatch is
