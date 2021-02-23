@@ -28,11 +28,11 @@ dimensions are the same.
     function (attn::AttentionMechanism)(; reset=false)
 
 ### Arguments:
-+ `h_t`:    decoder hidden state. If `h_t` is a vector, its length
++ `h_t`:    decoder hidden state. If ``h_t`` is a vector, its length
             equals the number of decoder units. If it is a matrix,
-            `h_t` includes the states for a minibatch of samples and has
+            ``h_t`` includes the states for a minibatch of samples and has
             tha size [units, mb].
-+ `h_enc`:  encoder hidden states, 2d or 3d. If `h_enc` is a
++ `h_enc`:  encoder hidden states, 2d or 3d. If ``h_{enc}`` is a
             matrix [units, steps] with the hidden states of all encoder steps.
             If 3d [units, mb, steps] encoder states for a minibatch is
             included.
@@ -225,7 +225,7 @@ end
     mutable struct AttnLocation <: AttentionMechanism
 
 Location-based attention that only depends on the current
-decoder state `h_t` and not on the encoder states,
+decoder state ``h_t`` and not on the encoder states,
 according to the Luong, et al. (2015) paper.
 
 ``\\mathrm{score}(h_{t}) = W h_{t}``
