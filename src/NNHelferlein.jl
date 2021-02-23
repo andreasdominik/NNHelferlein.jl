@@ -43,6 +43,7 @@ export NeuNet, Classifier, Regressor, Chain,          # chains
        TensorDense, Linear,
        AttentionMechanism, AttnBahdanau,
        AttnLuong, AttnDot, AttnLocation,
+       AttnInFeed,
        leaky_sigm,
        dataframe_read, dataframe_split,         # import data
        dataframe_minibatches,

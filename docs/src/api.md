@@ -112,6 +112,10 @@ AttnDot
 AttnLocation
 ```
 
+```@docs
+AttnInFeed
+```
+
 # Data providers
 
 ```@docs

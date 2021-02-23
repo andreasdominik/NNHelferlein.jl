@@ -23,7 +23,7 @@ All algorithms use soft attention.
 The one-argument version can be used, if encoder dimensions and decoder
 dimensions are the same.
 
-## Signatures:
+## Common Signatures:
     function (attn::AttentionMechanism)(h_t, h_enc; reset=false)
     function (attn::AttentionMechanism)(; reset=false)
 
@@ -257,6 +257,91 @@ function (attn::AttnLocation)(h_t, h_enc)
     h_tR = reshape(h_t, size(h_t)[1], :)
 
     score = attn.dec(h_tR)
+    if attn.scale
+        score = score ./ sqrt(units)
+    end
+    α = softmax(score, dims=1)
+
+    if attn.len > steps
+        α = α[1:steps,:]
+    elseif attn.len < steps
+        α = vcat(init0(steps-attn.len, mb), α)
+    end
+
+    α = permutedims(α, (2,1))
+    α = reshape(α, :, mb, steps)
+
+    # calc. context from encoder states:
+    #
+    c = sum(α .* h_encR, dims=3)
+
+    # remove unneeded dims:
+    #
+    c = reshape(c, units, mb)
+    α = reshape(α, mb, steps)
+    return c, α
+end
+
+
+
+
+"""
+    mutable struct AttnInFeed <: AttentionMechanism
+
+Input-feeding attention that depends on the current
+decoder state ``h_t`` and the next input to the decoder ``i_{t+1}``,
+according to the Luong, et al. (2015) paper.
+
+Infeed attention provides a semantic attention that depends on the
+next input token.
+
+``\\mathrm{score}(h_{t}, i_{t+1}) = W_h h_{t} + W_i i_{t+1}``
+
+### Constructors:
+    AttnInFeed(len, dec_units, fan_in; scale=true)
+
++ `len`: maximum sequence length of the encoder to be considered
+        for attention. If the actual length of ``h_{enc}`` is bigger as the
+        length of α, attention factors for the remaining states are set to
+        0.0. If the actual length of h_enc is smaller than α, only the matching
+        attention factors are applied.
++ `dec_units`: number of decoder units.
++ `fan_in`: size of the decoder input.
+
+
+### Signature:
+    function (attn::AttnInFeed)(h_t, inp, h_enc)
+
++ `h_t`:    decoder hidden state. If ``h_t`` is a vector, its length
+            equals the number of decoder units. If it is a matrix,
+            ``h_t`` includes the states for a minibatch of samples and has
+            tha size [units, mb].
++ `inp`: next decoder input ``i_{t+1}``
+            (e.g. next embedded tolen of sequence)
++ `h_enc`:  encoder hidden states, 2d or 3d. If ``h_{enc}`` is a
+            matrix [units, steps] with the hidden states of all encoder steps.
+            If 3d [units, mb, steps] encoder states for a minibatch is
+            included.
+"""
+mutable struct AttnInFeed <: AttentionMechanism
+    dec
+    emb
+    len
+    scale
+    AttnInFeed(len, dec_units, fan_in; scale=true) =
+                    new(Linear(dec_units, len, bias=false),
+                        Linear(fan_in, len, bias=false),
+                        len, scale)
+end
+
+function (attn::AttnInFeed)(h_t, inp, h_enc)
+    # make all 3d:
+    #
+    h_encR = reshape(h_enc, size(h_enc)[1], :, size(h_enc)[ndims(h_enc)])
+    units, mb, steps = size(h_encR)
+    h_tR = reshape(h_t, size(h_t)[1], :)
+
+    score = attn.dec(h_tR) .+ attn.emb(inp)
     if attn.scale
         score = score ./ sqrt(units)
     end
