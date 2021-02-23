@@ -302,7 +302,7 @@ according to the Luong, et al. (2015) paper.
 Infeed attention provides a semantic attention that depends on the
 next input token.
 
-``\\mathrm{score}(h_{t}, i_{t+1}) = W_h h_{t} + W_i i_{t+1}``
+``\\mathrm{score}(h_{t}, i_{t+1}) = W_h h_{t} + W_i i_{t+1} = W [h_t, i_{t+1}]``
 
 ### Constructors:
     AttnInFeed(len, dec_units, fan_in; scale=true)
