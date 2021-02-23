@@ -5,3 +5,4 @@
 # relu(), sigm(), used from Knet!
 
 leaky_sigm(x; l=0.01) = Knet.sigm(x) + l*x
+leaky_relu(x; l=0.01) = Knet.relu(x) + l*x
