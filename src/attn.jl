@@ -24,7 +24,7 @@ The one-argument version can be used, if encoder dimensions and decoder
 dimensions are the same.
 
 ## Signatures:
-    function (attn::AttentionMechnism)(h_t, h_enc; reset=false)
+    function (attn::AttentionMechanism)(h_t, h_enc; reset=false)
     function (attn::AttentionMechanism)(; reset=false)
 
 ### Arguments:
@@ -53,13 +53,7 @@ derived from projections of the encoder hidden states:
 \\alpha = \\mathrm{softmax}(\\mathrm{score}(h_{enc},h_{t}) \\cdot 1/\\sqrt{n}))
 ```
 
-or scaled:
-
-```math
-\\alpha = \\mathrm{softmax}(\\mathrm{score}(h_{enc},h_{t}) \\cdot \\nicefrac{1}{\\sqrt{n}})
-```
-
-The following attention mechanisms are implemented:
+Attention mechanisms implemented:
 """
 abstract type AttentionMechanism
 end
@@ -227,10 +221,63 @@ function (attn::AttnDot)(h_t, h_enc; reset=false)
     return c, α
 end
 
-#
-# + `AttnLocation`: Location-based attention
-#         according to the Luong, et al. (2015) paper.
-#         ```math
-#         \\mathrm{score}(h_{t}) = W h_{t}
-#         ```
-#
+"""
+    mutable struct AttnLocation <: AttentionMechanism
+
+Location-based attention that only depends on the current
+decoder state `h_t` and not on the encoder states,
+according to the Luong, et al. (2015) paper.
+
+``\\mathrm{score}(h_{t}) = W h_{t}``
+
+### Constructors:
+    AttnLocation(len, dec_units; scale=true)
+
++ `len`: maximum sequence length of the encoder to be considered
+        for attention. If the actual length of ``h_{enc}`` is bigger as the
+        length of α, attention factors for the remaining states are set to
+        0.0. If the actual length of h_enc is smaller than α, only the matching
+        attention factors are applied.
++ `dec_units`: number of decoder units.
+"""
+mutable struct AttnLocation <: AttentionMechanism
+    dec
+    len
+    scale
+    AttnLocation(len, dec_units; scale=true) = new(Linear(
+                                                    dec_units, len, bias=false),
+                                                len, scale)
+end
+
+function (attn::AttnLocation)(h_t, h_enc)
+    # make all 3d:
+    #
+    h_encR = reshape(h_enc, size(h_enc)[1], :, size(h_enc)[ndims(h_enc)])
+    units, mb, steps = size(h_encR)
+    h_tR = reshape(h_t, size(h_t)[1], :)
+
+    score = attn.dec(h_tR)
+    if attn.scale
+        score = score ./ sqrt(units)
+    end
+    α = softmax(score, dims=1)
+
+    if attn.len > steps
+        α = α[1:steps,:]
+    elseif attn.len < steps
+        α = vcat(init0(steps-attn.len, mb), α)
+    end
+
+    α = permutedims(α, (2,1))
+    α = reshape(α, :, mb, steps)
+
+    # calc. context from encoder states:
+    #
+    c = sum(α .* h_encR, dims=3)
+
+    # remove unneeded dims:
+    #
+    c = reshape(c, units, mb)
+    α = reshape(α, mb, steps)
+    return c, α
+end

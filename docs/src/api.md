@@ -108,6 +108,10 @@ AttnLuong
 AttnDot
 ```
 
+```@docs
+AttnLocation
+```
+
 # Data providers
 
 ```@docs
