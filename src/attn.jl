@@ -34,8 +34,7 @@ dimensions are the same.
             the size [units, mb].
 + `h_enc`:  encoder hidden states, 2d or 3d. If ``h_{enc}`` is a
             matrix [units, steps] with the hidden states of all encoder steps.
-            If 3d [units, mb, steps] encoder states for a minibatch is
-            included.
+            If 3d: [units, mb, steps] encoder states for all minibatches.
 + `reset=false`: If the keyword argument is set to `true`, projections of
             the encoder states are computed. By default projections are
             stored in the object and reused until the object is resetted.
@@ -328,8 +327,7 @@ next input token.
             (e.g. next embedded token of sequence)
 + `h_enc`:  encoder hidden states, 2d or 3d. If ``h_{enc}`` is a
             matrix [units, steps] with the hidden states of all encoder steps.
-            If 3d [units, mb, steps] encoder states for a minibatch is
-            included.
+            If 3d: [units, mb, steps] encoder states for all minibatches.
 """
 mutable struct AttnInFeed <: AttentionMechanism
     dec
