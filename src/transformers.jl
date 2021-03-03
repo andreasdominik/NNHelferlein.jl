@@ -18,10 +18,7 @@ function positional_encoding_sincos(n_embed, n_seq)
 
     angl = [1/(10000^(2*i/n_embed)) for i in 1:n_embed/2]
     angl = angl * permutedims(1:n_seq)
-    sins = sin.(angl)
-    coss = cos.(angl)
-    pe = vcat(sins, coss)
-    return pe
+    return vcat(sin.(angl), cos.(angl))
 end
 
 
