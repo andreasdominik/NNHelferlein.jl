@@ -255,3 +255,6 @@ convert2KnetArray
 ```@docs
 positional_encoding_sincos
 ```
+```@docs
+mk_padding_mask
+```

@@ -49,3 +49,20 @@ function (l::PositionalEncoding)(x)
         return x
     end
 end
+
+
+
+"""
+    function mk_padding_mask(x; pad=0)
+
+Make a padding mask; i.e. return an Array of type
+`KnetArray{Float32}` (or `Array{Float32}`) similar to `x` and the
+value `1.0` at each position where `x` is `pad` and `0.0` otherwise.
+
+The function can be used for creating padding masks for attention
+mechanism.
+"""
+function mk_padding_mask(x; pad=0)
+
+    return convert2KnetArray(x .== pad)
+end

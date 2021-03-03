@@ -47,6 +47,7 @@ export NeuNet, Classifier, Regressor, Chain,          # chains
        AttnInFeed,
        leaky_sigm,
        PositionalEncoding, positional_encoding_sincos,  # transformers
+       mk_padding_mask,
        dataframe_read, dataframe_split,         # import data
        dataframe_minibatches,
        mk_image_minibatch,
