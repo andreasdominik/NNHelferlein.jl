@@ -55,7 +55,7 @@ export NeuNet, Classifier, Regressor, Chain,          # chains
        predict,
        get_imagenet_classes,                    # images
        image2array, array2image, array2RGB,
-       crop_array, init0,                       # utils
+       crop_array, init0, convert2KnetArray,             # utils
        blowup_array, recycle_array
 
 end # module

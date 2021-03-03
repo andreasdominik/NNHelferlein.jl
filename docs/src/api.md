@@ -249,5 +249,9 @@ init0
 ```
 
 ```@docs
+convert2KnetArray
+```
+
+```@docs
 positional_encoding_sincos
 ```

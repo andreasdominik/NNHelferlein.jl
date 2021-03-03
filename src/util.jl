@@ -93,6 +93,25 @@ function init0(siz...)
 end
 
 
+
+
+"""
+    function convert2KnetArray(x)
+
+Convert an array `x` to a `KnetArray{Float32}` only in GPU context
+(if `CUDA.functional()`) or to an `Array{Float32}` otherwise.
+"""
+function convert2KnetArray(x)
+
+    if CUDA.functional()
+        return Knet.KnetArray{Float32}(x)
+    else
+        return Array{Float32}(x)
+    end
+end
+
+
+
 """
 function blowup_array(x, n)
 
