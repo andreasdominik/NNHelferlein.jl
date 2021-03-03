@@ -43,11 +43,8 @@ end
 
 function (l::PositionalEncoding)(x)
     # only one style implemented yet:
-    if l.stype == sincos
-        return x .+= positional_encoding_sincos(size(x)[1], size(x)[2])
-    else
-        return x
-    end
+    # if l.style == sincos
+        return x = x .+ positional_encoding_sincos(size(x)[1], size(x)[2])
 end
 
 
