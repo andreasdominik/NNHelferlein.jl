@@ -90,6 +90,12 @@ Dropout
 BatchNorm
 ```
 
+## Layers for transformers
+
+```@docs
+PositionalEncoding
+```
+
 ## Attention Mechanisms
 
 ```@docs
@@ -240,4 +246,8 @@ recycle_array
 
 ```@docs
 init0
+```
+
+```@docs
+positional_encoding_sincos
 ```

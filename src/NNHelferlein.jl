@@ -25,6 +25,7 @@ include("nets.jl")
 include("layers.jl")
 include("attn.jl")
 include("funs.jl")
+include("transformer.jl")
 include("images.jl")
 include("dataframes.jl")
 include("train.jl")
@@ -45,6 +46,7 @@ export NeuNet, Classifier, Regressor, Chain,          # chains
        AttnLuong, AttnDot, AttnLocation,
        AttnInFeed,
        leaky_sigm,
+       PositionalEncoding, positional_encoding_sincos,  # transformers
        dataframe_read, dataframe_split,         # import data
        dataframe_minibatches,
        mk_image_minibatch,
