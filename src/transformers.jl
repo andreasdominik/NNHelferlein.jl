@@ -75,3 +75,41 @@ function mk_peek_ahead_mask(n_seq)
 
     return convert2KnetArray(1 .- LowerTriangular(ones(n_seq, n_seq)))
 end
+
+
+
+"""
+    function dot_prod_attn(q, k, v; mask=nothing)
+
+Generic scaled dot product attention following the paper of
+Vaswani et al., (2017), *Attention Is All You Need*.
+
+### Arguments:
++ `q`: query of size [depth, n_seq_q, ...]
++ `k`: key of size [depth, n_seq_v, ...]
++ `v`: value of size [depth, n_seq_v, ...]
++ `mask`: mask for attention factors may have different shapes but must be
+        broadcastable for addition to the scores tensor (which as the same size as
+        alpha [n_seq_v, n_seq_q, ...]). In transformer context typical masks are one of:
+        padding mask of size [n_seq_v, ...] or a peek-ahead mask of size [n_seq_v, n_seq_v]
+        (which is only possible in case of self-attention when all seqencee lengths
+        are identical).
+
+`q, k, v` must have matching leading dimensions (i.e. same depth or embedding).
+`k` and `v` must have the same sequence length.
+
+### Return values:
++ `c`: context as alpha-weighted sum of values with size [depth, n_seq_v, ...]
++ `alpha`: attention factors of size [n_seq_v, n_seq_q, ...]
+"""
+function dot_prod_attn(q, k, v; mask=nothing)
+
+    score = bmm(k, q, transA=true) ./ Float32(sqrt(size(q)[1]))  # [s_v x s_k x mb] 
+    if mask != nothing
+        score = score .+ mask * Float32(-1e9)
+    end
+    α = softmax(score, dims=2)
+
+    c = bmm(v, α)
+    return c, α
+end
