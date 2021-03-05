@@ -203,7 +203,7 @@ according to the Luong, et al. (2015) paper.
 """
 mutable struct AttnDot <: AttentionMechanism
     scale
-    AttnDot(;scale=true) = new(scale ? 1/sqrt(enc_units) : 1.0)
+    AttnDot(;scale=true) = new(scale)
 end
 
 function (attn::AttnDot)(h_t, h_enc; reset=false)
@@ -214,7 +214,9 @@ function (attn::AttnDot)(h_t, h_enc; reset=false)
     h_tR = reshape(h_t, size(h_t)[1], :)
 
     score = sum(h_encR .* h_tR, dims=1)
-    score *= attn.scale
+    if scale
+        score = score ./ Float32(sqrt(units))
+    end
     α = softmax(score, dims=3)
 
     # calc. context from encoder states:
