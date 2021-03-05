@@ -7,7 +7,7 @@
 """
     function positional_encoding_sincos(n_embed, n_seq)
 
-Calculate and return a matrix of size [n_embed, n_seq] of
+Calculate and return a matrix of size `[n_embed, n_seq]` of
 positional encoding values
 following the sin and cos style in the paper
 *Vaswani, A. et al.; Attention Is All You Need;
@@ -50,7 +50,8 @@ end
     function mk_padding_mask(x; pad=0)
 
 Make a padding mask; i.e. return an Array of type
-`KnetArray{Float32}` (or `Array{Float32}`) similar to `x` and the
+`KnetArray{Float32}` (or `Array{Float32}`) similar to `x`.
+and the
 value `1.0` at each position where `x` is `pad` and `0.0` otherwise.
 
 The function can be used for creating padding masks for attention
@@ -59,4 +60,18 @@ mechanism.
 function mk_padding_mask(x; pad=0)
 
     return convert2KnetArray(x .== pad)
+end
+
+
+"""
+    function mk_peek_ahead_mask(n_seq)
+
+Return a matrix of size `[n_seq, n_seq]` filled with 1.0 and the *lower triangle*
+set to 0.0.
+Type is `KnetArray{Float32}` in GPU context, `Array{Float32}` otherwise.
+The matrix can be used as peek-ahead mask in transformers.
+"""
+function mk_peek_ahead_mask(n_seq)
+
+    return convert2KnetArray(1 .- LowerTriangular(ones(n_seq, n_seq)))
 end
