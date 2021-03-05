@@ -90,11 +90,6 @@ Dropout
 BatchNorm
 ```
 
-## Layers for transformers
-
-```@docs
-PositionalEncoding
-```
 
 ## Attention Mechanisms
 
@@ -120,6 +115,13 @@ AttnLocation
 
 ```@docs
 AttnInFeed
+```
+
+
+## Layers for transformers
+
+```@docs
+PositionalEncoding
 ```
 
 # Data providers
@@ -231,10 +233,30 @@ predict_imagenet
 
 # Other utils
 
+## Utils for transformers
+
+```@docs
+positional_encoding_sincos
+```
+
+```@docs
+mk_padding_mask
+```
+
+```@docs
+mk_peek_ahead_mask
+```
+
+```@docs
+dot_prod_attn
+```
+
+
+## Utils for array manipulation
+
 ```@docs
 crop_array
 ```
-
 
 ```@docs
 blowup_array
@@ -244,17 +266,12 @@ blowup_array
 recycle_array
 ```
 
+## Utils for fixing types in GPU context
+
 ```@docs
 init0
 ```
 
 ```@docs
 convert2KnetArray
-```
-
-```@docs
-positional_encoding_sincos
-```
-```@docs
-mk_padding_mask
 ```
