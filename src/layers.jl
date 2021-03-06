@@ -60,35 +60,6 @@ end
 (l::Dense)(x) = l.actf.(l.w * x .+ l.b)
 
 
-"""
-    struct TensorDense  <: Layer
-
-** `TensorDense` is deprecated! Use `Dense` or `Linear` instead! **
-Almost standard dense layer, but capable to work with input tensors of
-any number of dimensions.
-The size of the first dim is changed from in to out.
-
-### Keyword arguments:
-+ `bias=true`: if false biases are fixed to 0.0
-+ `actf=Knet.sigm`: activation function.
-"""
-struct TensorDense  <: Layer
-    w
-    b
-    actf
-    TensorDense(w, b, actf) = new(w, b, actf)
-    TensorDense(i::Int, j::Int; bias=true, actf=Knet.sigm) = new(Knet.param(j,i),
-            bias ? Knet.param0(j) : init0(j), actf)
- end
-
- function (l::TensorDense)(x)
-     j,i = size(l.w)   # get fan-in and out
-     siz = vcat(j, collect(size(x)[2:end]))
-     x = reshape(x, i,:)
-     y = l.actf.(l.w * x .+ l.b)
-     return reshape(y, siz...)
- end
-
 
 """
     struct Linear  <: Layer
