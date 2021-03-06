@@ -1,6 +1,7 @@
 module NNHelferlein
 
 import Base: iterate, length
+using LinearAlgebra
 # import Knet
 import HDF5
 import JLD2

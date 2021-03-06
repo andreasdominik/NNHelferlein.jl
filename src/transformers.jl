@@ -50,7 +50,9 @@ end
     function mk_padding_mask(x; pad=0)
 
 Make a padding mask; i.e. return an Array of type
-`KnetArray{Float32}` (or `Array{Float32}`) similar to `x`.
+`KnetArray{Float32}` (or `Array{Float32}`) similar to `x` but with
+an additional 1st dimension of size 1 (this will represent the
+embedding or depth) after embedding,
 and the
 value `1.0` at each position where `x` is `pad` and `0.0` otherwise.
 
@@ -59,7 +61,7 @@ mechanism.
 """
 function mk_padding_mask(x; pad=0)
 
-    return convert2KnetArray(x .== pad)
+    return reshape(convert2KnetArray(x .== pad), 1,size(x)...)
 end
 
 
@@ -104,11 +106,11 @@ Vaswani et al., (2017), *Attention Is All You Need*.
 """
 function dot_prod_attn(q, k, v; mask=nothing)
 
-    score = bmm(k, q, transA=true) ./ Float32(sqrt(size(q)[1]))  # [s_v x s_k x mb] 
+    score = bmm(k, q, transA=true) ./ Float32(sqrt(size(q)[1]))  # [s_v x s_k x mb]
     if mask != nothing
         score = score .+ mask * Float32(-1e9)
     end
-    α = softmax(score, dims=2)
+    α = softmax(score, dims=1)
 
     c = bmm(v, α)
     return c, α
