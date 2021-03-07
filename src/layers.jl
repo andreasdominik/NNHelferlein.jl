@@ -381,6 +381,43 @@ end
 (l::BatchNorm)(x) = Knet.batchnorm(x, l.moments)
 
 
+"""
+    struct LayerNorm  <: Layer
+
+Simple layer normalisation (inspired by TFs LayerNoramization).
+Implementation is taken from Deniz Yuret's answer to feature request
+429 (https://github.com/denizyuret/Knet.jl/issues/492).
+
+The layer performs a normalisation within each sample *not* batchwise.
+Normalisation is modified by two trainable parameters `a` and `b`
+added to every value of the sample vector.
+
+### Constructors:
++ `LayertNorm(depth; eps=1e-6)`:  `depth` is the number
+        of activations for one sample of the layer.
+
+### Signatures:
++ `function (l::LayerNorm)(x; dims=1)`: normalise x along the given dimensions.
+        The size of the specified dimension must fit with the initialised `depth`.
+"""
+struct LayerNorm
+    a
+    b
+    ϵ
+end
+
+function LayerNorm(depth; eps=1e-6)
+        a = param(depth; init=ones)
+        b = param(depth; init=zeros)
+        LayerNorm(a, b, eps)
+end
+
+function (l::LayerNorm)(x; dims=(1))
+    μ = mean(x, dims=dims)
+    σ = std(x, mean=μ, dims=dims)
+    return l.a .* (x .- μ) ./ (σ .+ l.ϵ) .+ l.b
+end
+
 
 struct RSeqTagger
     n_inputs

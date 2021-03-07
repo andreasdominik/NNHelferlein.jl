@@ -90,6 +90,10 @@ Dropout
 BatchNorm
 ```
 
+```@docs
+LayerNorm
+```
+
 
 ## Attention Mechanisms
 

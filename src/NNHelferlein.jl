@@ -5,7 +5,7 @@ using LinearAlgebra
 # import Knet
 import HDF5
 import JLD2
-using Statistics: mean
+using Statistics: mean, std
 using ProgressMeter, Dates
 using IterTools: ncycle, takenth
 import CSV
@@ -41,8 +41,8 @@ export NeuNet, Classifier, Regressor, Chain,          # chains
        DeConv, UnPool,
        Embed, Predictions,
        RSeqClassifer, RSeqTagger,
-       Softmax, Dropout, BatchNorm,
-       TensorDense, Linear,
+       Softmax, Dropout, BatchNorm,LayerNorm,
+       Linear,
        AttentionMechanism, AttnBahdanau,
        AttnLuong, AttnDot, AttnLocation,
        AttnInFeed,
