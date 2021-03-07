@@ -384,12 +384,13 @@ end
 """
     struct LayerNorm  <: Layer
 
-Simple layer normalisation (inspired by TFs LayerNoramization).
-Implementation is taken from Deniz Yuret's answer to feature request
+Simple layer normalisation (inspired by TFs LayerNormalization).
+Implementation is from Deniz Yuret's answer to feature request
 429 (https://github.com/denizyuret/Knet.jl/issues/492).
 
-The layer performs a normalisation within each sample *not* batchwise.
+The layer performs a normalisation within each sample, *not* batchwise.
 Normalisation is modified by two trainable parameters `a` and `b`
+(variance and mean)
 added to every value of the sample vector.
 
 ### Constructors:
@@ -412,7 +413,7 @@ function LayerNorm(depth; eps=1e-6)
         LayerNorm(a, b, eps)
 end
 
-function (l::LayerNorm)(x; dims=(1))
+function (l::LayerNorm)(x; dims=1)
     μ = mean(x, dims=dims)
     σ = std(x, mean=μ, dims=dims)
     return l.a .* (x .- μ) ./ (σ .+ l.ϵ) .+ l.b
