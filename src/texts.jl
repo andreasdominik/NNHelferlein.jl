@@ -10,8 +10,8 @@
     end
 
 Create a word-based vocabulary: every unique word of a String or
-a list of Strings is aassigned to a unique number.
-The created object includes a list of words (`i2w`)(ordered by their numbers) and
+a list of Strings is assigned to a unique number.
+The created object includes a list of words (`i2w`, ordered by their numbers) and
 a dictionary `w2i` with the words as keys.
 
 ### Constructor:
@@ -40,42 +40,40 @@ the highest number (i.e. `"<unknown>"`) if the word is not in the vocabulary.
     function (t::WordTokenizer)(i::Int)
 
 Decode a word by returning the word corresponding to `i` or
-"unknown" if the number is out of range of the vocabulary.
+"<unknown>" if the number is out of range of the vocabulary.
 
 ### Examples:
 
-```Julia
-julia> vocab = WordTokenizer(["I love Julia", "They love Python"]);
-Julia> vocab(4)
-"Julia"
+    julia> vocab = WordTokenizer(["I love Julia", "They love Python"]);
+    Julia> vocab(4)
+    "Julia"
 
-julia> vocab("love")
-1
+    julia> vocab("love")
+    1
 
-julia> vocab.(split("I love Julia"))
-3-element Array{Int64,1}:
- 2
- 1
- 4
+    julia> vocab.(split("I love Julia"))
+    3-element Array{Int64,1}:
+     2
+     1
+     4
 
-julia> vocab.([3,1,4])
-3-element Array{String,1}:
- "They"
- "love"
- "Julia
+    julia> vocab.([3,1,4])
+    3-element Array{String,1}:
+     "They"
+     "love"
+     "Julia
 
- julia> vocab.(split("I love Scala"))
-3-element Array{Int64,1}:
- 2
- 1
- 9
+     julia> vocab.(split("I love Scala"))
+    3-element Array{Int64,1}:
+     2
+     1
+     9
 
-julia> vocab.([2,1,9])
-3-element Array{String,1}:
- "I"
- "love"
- "<unknown>"
- ```
+    julia> vocab.([2,1,9])
+    3-element Array{String,1}:
+     "I"
+     "love"
+     "<unknown>"
 """
 mutable struct WordTokenizer
     len
