@@ -290,12 +290,12 @@ the index of the "one" in the vector has to be provided as Integer value
 + actf
 
 ### Constructors:
-+ `Embed(i,j; actf=identity) = new(param(j,i), actf):` with
-    input size i, output size j and default activation function idendity.
++ `Embed(v,d; actf=identity):` with
+    vocab size v, embedding depth d and default activation function idendity.
 
 ### Signatures:
 + `(l::Embed)(x) = l.actf.(w[:,x])` default
-  embedding of input vector x.
+  embedding of input tensor x.
 """
 struct Embed <: Layer
     w
