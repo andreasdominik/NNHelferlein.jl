@@ -63,6 +63,18 @@ julia> vocab.([3,1,4])
  "They"
  "love"
  "Julia
+
+ julia> vocab.(split("I love Scala"))
+3-element Array{Int64,1}:
+ 2
+ 1
+ 9
+
+julia> vocab.([2,1,9])
+3-element Array{String,1}:
+ "I"
+ "love"
+ "<unknown>"
  ```
 """
 mutable struct WordTokenizer
