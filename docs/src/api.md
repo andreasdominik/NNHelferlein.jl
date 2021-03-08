@@ -207,6 +207,12 @@ array2image
 array2RGB
 ```
 
+## Text data
+
+```@docs
+WordTokenizer
+```
+
 
 
 # Training

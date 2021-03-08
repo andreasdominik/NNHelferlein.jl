@@ -2,7 +2,7 @@ module NNHelferlein
 
 import Base: iterate, length
 using LinearAlgebra
-# import Knet
+using Unicode
 import HDF5
 import JLD2
 using Statistics: mean, std
@@ -29,6 +29,7 @@ include("funs.jl")
 include("transformers.jl")
 include("images.jl")
 include("dataframes.jl")
+include("texts.jl")
 include("train.jl")
 include("imagenet.jl")
 
@@ -58,6 +59,7 @@ export NeuNet, Classifier, Regressor, Chain,          # chains
        predict,
        get_imagenet_classes,                    # images
        image2array, array2image, array2RGB,
+       WordTokenizer,                           # texts
        crop_array, init0, convert2KnetArray,             # utils
        blowup_array, recycle_array
 
