@@ -36,6 +36,12 @@ With arguments:
 Encode a word and return the corresponding number in the vocabulary or
 the highest number (i.e. `"<unknown>"`) if the word is not in the vocabulary.
 
+The encode-signature accepts the keyword arguments `split_words` and
+`add_ctl`. If `split_words==true`, the input is treated as a sentence
+and splitted into single words and an array of integer with the encoded
+sequence is returned. If `add_ctl==true` the sequence will be framed
+by `<start>` and `<end>` tokens.
+
 
     function (t::WordTokenizer)(i::Int)
 
@@ -74,12 +80,38 @@ Decode a word by returning the word corresponding to `i` or
      "I"
      "love"
      "<unknown>"
+
+     julia> vocab("Ich liebe Python", split_words=true, add_ctl=true)
+    5-element Array{Int64,1}:
+     6
+     9
+     9
+     5
+     7
 """
 mutable struct WordTokenizer
     len
     w2i
     i2w
 end
+
+# QnD cleaning of a sentence before creating tokens.
+# + normalise
+# + remove punctuation
+# + remove duplicate spaces
+# + trim
+#
+function clean_sentence(s)
+
+    s = Unicode.normalize(s)
+    s = replace(s, Regex("[.!?,;:\"\']") => " ")
+    s = replace(s, Regex(" {2,}") => " ")
+    s = replace(s, Regex("^ ") => "")
+    s = replace(s, Regex(" \$") => "")
+    return s
+end
+
+
 
 function WordTokenizer(texts; len=nothing, add_ctls=true)
 
@@ -89,16 +121,7 @@ function WordTokenizer(texts; len=nothing, add_ctls=true)
 
     words = []
     for t in texts
-        # clean:
-        #
-        t = Unicode.normalize(t)
-        t = replace(t, Regex("[.!?,;:\"\']") => " ")
-        t = replace(t, Regex(" {2,}") => " ")
-        t = replace(t, Regex("^ ") => "")
-        t = replace(t, Regex(" \$") => "")
-
-        # split:
-        #
+        t = clean_sentence(t)
         append!(words, split(t, " "))
     end
 
@@ -150,13 +173,134 @@ function (t::WordTokenizer)(i::Int)
     end
 end
 
-function (t::WordTokenizer)(w::AbstractString)
-    if haskey(t.w2i, w)
-        return t.w2i[w]
+function (t::WordTokenizer)(w::AbstractString; split_words=false, add_ctl=false)
+
+    # tokenize a word or a complete string:
+    #
+    if !split_words
+        if haskey(t.w2i, w)
+            return t.w2i[w]
+        else
+            return t("<unknown>")
+        end
     else
-        return t.len
+        s = clean_sentence(w)
+        s = split(w, " ")
+        st = t.(s)
+        if add_ctl
+            st = vcat(t("<start>"), st, t("<end>"))
+        end
+        return st
     end
 end
+
+"""
+    function get_tatoeba_corpus(lang; force=false,
+                url="https://www.manythings.org/anki/")
+
+Download and read a bilingual text corpus from Tatoeba (privided)
+by ManyThings (https://www.manythings.org).
+All corpi are English-*Language*-pairs with different size and
+quality. Considerable languages include:
++ `fra`: French-English, 180 000 sentences
++ `deu`: German-English, 227 000 sentences
++ `heb`: Hebrew-English, 126 000 sentences
++ `por`: Portuguese-English, 170 000 sentences
++ `tur`: Turkish-English, 514 000 sentences
+
+The function returns two lists with corresponding sentences in both
+languages. Sentences are are *not* processed/normalised/cleaned, but
+exactly as provided by Tatoeba.
+
+The data is stored in the package directory and only downloaded once.
+
+### Arguments:
++ `lang`: languagecode
++ `force=false`: if `true`, the corpus is downloaded even if
+        a data file is already saved.
++ `url`: base url of ManyThings.
+"""
+function get_tatoeba_corpus(lang; force=false,
+                url="https://www.manythings.org/anki/")
+
+
+    @show dir = normpath(joinpath(dirname(pathof(@__MODULE__)),
+                "..", "data", "Tatoeba"))
+    if !ispath(dir)
+        mkpath(dir)
+    end
+    fname = join([lang, "-eng.zip"])
+    @show pathname = joinpath(dir, fname)
+
+    # download if necessary:
+    #
+    if !isfile(pathname) || force
+        url = join([url, fname])
+        println("Downloading Tatoeba corpus for language $lang")
+        println("from $url")
+        download(url, pathname)
+    else
+        println("Corpus for language $lang is already downloaded.")
+    end
+
+    if !isfile(pathname)
+        println("File $pathname not found!")
+    end
+
+    # read zipped file:
+    #
+    println("Reading Tatoeba corpus for languages en-$lang")
+    z = ZipFile.Reader(pathname)
+    en, lang = [], []
+
+    for f in z.files
+        for (i,line) in enumerate(eachline(f))
+            if i % 1000 == 0
+                print("\rimporting sentences: $i")
+            end
+            splits = split(line, "\t")
+            if length(splits) > 1
+                enl, langl = splits[1:2]
+                push!(en, enl)
+                push!(lang, langl)
+            end
+        end
+    end
+    close(z)
+
+    return en, lang
+end
+
+
+function sequence_minibatch(x, y=nothing; size=16, seq_len=nothing, pad=0)
+
+    if seq_len != nothing
+        return seq_mb_padded(x, y, size, seq_len, pad)
+    else
+        return seq_mb_optimised(x, y, size, pad)
+    end
+end
+
+function seq_mb_padded(x, y, size, seq_len, pad)
+
+    len = length(x)
+    permu = randperm(len)
+    x = x[permu]
+    y = y[permu]
+
+    # for mb in Iterators.partition(x, size)
+
+
+    return nothing, nothing
+end
+
+
+function seq_mb_optimised(x, y, size, seq_len, pad)
+
+    return nothing, nothing
+end
+
+
 
 # """
 #     function mk_lines_minibatch(dir, batchsize; split=false, fr=0.2,
