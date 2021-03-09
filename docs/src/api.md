@@ -276,6 +276,10 @@ blowup_array
 recycle_array
 ```
 
+```@docs
+de_embed
+```
+
 ## Utils for fixing types in GPU context
 
 ```@docs

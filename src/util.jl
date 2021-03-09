@@ -217,3 +217,27 @@ function split_iterator(itr, at)
     last_trn = Int(round(len * at))
     return Iterators.take(itr, last_trn), Iterators.drop(itr, last_trn)
 end
+
+
+"""
+    function de_embed(x; remove_dim=true)
+
+Replace the maximum of the first dimension of an n-dimensional array
+by its index (aka argmax()).
+If `remove_dim=false` the first dim is preserved with size=1; otherwise
+the returned array has the first dimension removed.
+"""
+function de_embed(x; remove_dim=true)
+
+    siz = size(x)
+    depth = siz[1]
+    siz = siz[2:end]
+
+    x = reshape(x, depth, :)
+    x = [argmax(c) for c in eachcol(x)]
+    if remove_dim
+        return reshape(x, siz...)
+    else
+        return reshape(x, 1,siz...)
+    end
+end

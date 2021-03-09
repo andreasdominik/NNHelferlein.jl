@@ -61,6 +61,7 @@ export NeuNet, Classifier, Regressor, Chain,          # chains
        image2array, array2image, array2RGB,
        WordTokenizer,                           # texts
        crop_array, init0, convert2KnetArray,             # utils
-       blowup_array, recycle_array
+       blowup_array, recycle_array,
+       de_embed
 
 end # module
