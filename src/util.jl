@@ -234,6 +234,7 @@ function de_embed(x; remove_dim=true)
     siz = siz[2:end]
 
     x = reshape(x, depth, :)
+    x = softmax(x, dims=1)
     x = [argmax(c) for c in eachcol(x)]
     if remove_dim
         return reshape(x, siz...)
