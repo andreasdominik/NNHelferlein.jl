@@ -9,11 +9,16 @@
 Mother type for DNN hierarchy with implementation for a chain of layers.
 
 ### Signatures:
-    (m::DNN)(x) = (for l in m.layers; x = l(x); end; x)
-    (m::DNN)(d::Knet.Data) = mean( m(x,y) for (x,y) in d)
-
+```Julia
+(m::DNN)(x) = (for l in m.layers; x = l(x); end; x)
+(m::DNN)(x,y) = m(x,y)
+(m::DNN)(d::Knet.Data) = mean( m(x,y) for (x,y) in d)
+(m::DNN)(d::Tuple) = mean( m(x,y) for (x,y) in d)
+(m::DNN)(d::NNHelferlein.DataLoader) = mean( m(x,y) for (x,y) in d)
+```
 """
-abstract type DNN end
+abstract type DNN
+end
 (m::DNN)(x) = (for l in m.layers; x = l(x); end; x)
 (m::DNN)(x,y) = m(x,y)
 (m::DNN)(d::Knet.Data) = mean( m(x,y) for (x,y) in d)

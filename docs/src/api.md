@@ -8,13 +8,7 @@ DNN
 
 ```@docs
 Classifier
-```
-
-```@docs
 Regressor
-```
-
-```@docs
 Chain
 ```
 
@@ -28,17 +22,8 @@ Layer
 
 ```@docs
 Dense
-```
-
-```@docs
 Linear
-```
-
-```@docs
 Embed
-```
-
-```@docs
 Predictions
 ```
 
@@ -46,17 +31,8 @@ Predictions
 
 ```@docs
 Conv
-```
-
-```@docs
 DeConv
-```
-
-```@docs
 Pool
-```
-
-```@docs
 UnPool
 ```
 
@@ -64,9 +40,6 @@ UnPool
 
 ```@docs
 RSeqClassifier
-```
-
-```@docs
 RSeqTagger
 ```
 
@@ -74,27 +47,10 @@ RSeqTagger
 
 ```@docs
 Flat
-```
-
-```@docs
 PyFlat
-```
-
-
-```@docs
 Softmax
-```
-
-
-```@docs
 Dropout
-```
-
-```@docs
 BatchNorm
-```
-
-```@docs
 LayerNorm
 ```
 
@@ -103,25 +59,10 @@ LayerNorm
 
 ```@docs
 AttentionMechanism
-```
-
-```@docs
 AttnBahdanau
-```
-
-```@docs
 AttnLuong
-```
-
-```@docs
 AttnDot
-```
-
-```@docs
 AttnLocation
-```
-
-```@docs
 AttnInFeed
 ```
 
@@ -148,15 +89,7 @@ iterators of minibatches.
 
 ```@docs
 dataframe_read
-```
-
-
-```@docs
 dataframe_minibatches
-```
-
-
-```@docs
 dataframe_split
 ```
 
@@ -188,26 +121,10 @@ image_dir/
 
 ```@docs
 ImageLoader
-```
-
-
-```@docs
 mk_image_minibatch
-```
-
-```@docs
 get_class_labels
-```
-
-```@docs
 image2array
-```
-
-```@docs
 array2image
-```
-
-```@docs
 array2RGB
 ```
 
@@ -215,20 +132,10 @@ array2RGB
 
 ```@docs
 WordTokenizer
-```
-
-```@docs
 get_tatoeba_corpus
-```
-
-```@docs
-sequence_minibatch
-```
-
-```@docs
+seq_minibatch
 seq2seq_minibatch
 ```
-
 
 
 
@@ -242,9 +149,6 @@ tb_train!
 
 ```@docs
 predict
-```
-
-```@docs
 predict_top5
 ```
 
@@ -252,9 +156,8 @@ predict_top5
 
 ```@docs
 preproc_imagenet
-```
-```@docs
 predict_imagenet
+get_imagenet_classes
 ```
 
 
@@ -264,17 +167,8 @@ predict_imagenet
 
 ```@docs
 positional_encoding_sincos
-```
-
-```@docs
 mk_padding_mask
-```
-
-```@docs
 mk_peek_ahead_mask
-```
-
-```@docs
 dot_prod_attn
 ```
 
@@ -283,17 +177,8 @@ dot_prod_attn
 
 ```@docs
 crop_array
-```
-
-```@docs
 blowup_array
-```
-
-```@docs
 recycle_array
-```
-
-```@docs
 de_embed
 ```
 
@@ -301,8 +186,5 @@ de_embed
 
 ```@docs
 init0
-```
-
-```@docs
 convert2KnetArray
 ```

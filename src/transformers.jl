@@ -87,13 +87,13 @@ Generic scaled dot product attention following the paper of
 Vaswani et al., (2017), *Attention Is All You Need*.
 
 ### Arguments:
-+ `q`: query of size [depth, n_seq_q, ...]
-+ `k`: key of size [depth, n_seq_v, ...]
-+ `v`: value of size [depth, n_seq_v, ...]
++ `q`: query of size `[depth, n_seq_q, ...]`
++ `k`: key of size `[depth, n_seq_v, ...]`
++ `v`: value of size `[depth, n_seq_v, ...]`
 + `mask`: mask for attention factors may have different shapes but must be
         broadcastable for addition to the scores tensor (which as the same size as
-        alpha [n_seq_v, n_seq_q, ...]). In transformer context typical masks are one of:
-        padding mask of size [n_seq_v, ...] or a peek-ahead mask of size [n_seq_v, n_seq_v]
+        alpha `[n_seq_v, n_seq_q, ...]`). In transformer context typical masks are one of:
+        padding mask of size `[n_seq_v, ...]` or a peek-ahead mask of size `[n_seq_v, n_seq_v]`
         (which is only possible in case of self-attention when all seqencee lengths
         are identical).
 

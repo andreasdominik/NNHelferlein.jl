@@ -9,7 +9,8 @@
 
 Mother type for layers hierarchy.
 """
-abstract type Layer end
+abstract type Layer
+end
 
 
 """
@@ -180,11 +181,11 @@ Pooling layer.
         https://denizyuret.github.io/Knet.jl/latest/reference/#Convolution-and-Pooling.
         All keywords to the Knet function `pool` are supported.
 """
-
-struct Pool
+struct Pool    <: Layer
     kwargs
     Pool(;kwargs...) = new(kwargs)
 end
+
 (l::Pool)(x) = Knet.pool(x; l.kwargs...)
 
 
@@ -427,7 +428,7 @@ added to every value of the sample vector.
 + `function (l::LayerNorm)(x; dims=1)`: normalise x along the given dimensions.
         The size of the specified dimension must fit with the initialised `depth`.
 """
-struct LayerNorm
+struct LayerNorm  <: Layer
     a
     b
     ϵ
@@ -462,7 +463,7 @@ steps for all smaples of the minibatch (with model depth as first and samples of
 + `RSeqTagger(n_inputs::Int, n_units::Int; u_type=:lstm)`: with
     number of inputs, number of units and unit type.
 """
-struct RSeqTagger
+struct RSeqTagger <: Layer
     n_inputs
     n_units
     unit_type
@@ -497,7 +498,7 @@ step in each column and one column per sample of the minibatch.
 + `RSeqClassifer(n_inputs::Int, n_units::Int; u_type=:lstm)`: with
     number of inputs, number of units and unit type.
 """
-struct RSeqClassifier
+struct RSeqClassifier <: Layer
     n_inputs
     n_units
     unit_type

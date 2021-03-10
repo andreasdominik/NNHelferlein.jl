@@ -274,12 +274,11 @@ end
 
 
 """
-    function seq_minibatch(x, [y,] batchsize; seq_len=nothing, pad=0, o...) 
+    function seq_minibatch(x, [y,] batchsize; seq_len=nothing, pad=0, o...)
 
 Create an iterator of sequence minibatches from a list of sequences.
 Internally 'Knet.minibatch()' ist used to provide the iterator; all
-keyword args of `Knet.minibatch()`
-(https://denizyuret.github.io/Knet.jl/latest/reference/#Knet.Train20.minibatch) can be used.
+keyword args of [`Knet.minibatch()`](https://denizyuret.github.io/Knet.jl/latest/reference/#Knet.Train20.minibatch) can be used.
 
 All sequences in x are brought to the same length by truncating (if too long)
 or padding with the token provided as `pad`.
@@ -310,6 +309,7 @@ function seq_minibatch(x, y, batchsize; seq_len=nothing, pad=0, o...)
     x = pad_sequences(x, seq_len, pad)
     return Knet.minibatch(x, y, batchsize; o...)
 end
+
 
 function seq_minibatch(x, batchsize; seq_len=nothing, pad=0, o...)
 

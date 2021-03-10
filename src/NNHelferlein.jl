@@ -39,7 +39,7 @@ export DNN, Classifier, Regressor, Chain,          # chains
        ImageLoader, DataLoader, preproc_imagenet,
        get_class_labels,
        iterate, length,
-       Dense, Conv, Pool, Flat, PyFlat,         # layers
+       Layer, Dense, Conv, Pool, Flat, PyFlat,         # layers
        DeConv, UnPool,
        Embed, Predictions,
        RSeqClassifier, RSeqTagger,
@@ -62,7 +62,7 @@ export DNN, Classifier, Regressor, Chain,          # chains
        image2array, array2image, array2RGB,
        WordTokenizer,                           # texts
        get_tatoeba_corpus,
-       sequence_minibatch, seq2seq_minibatch,
+       seq_minibatch, seq2seq_minibatch,
        crop_array, init0, convert2KnetArray,             # utils
        blowup_array, recycle_array,
        de_embed
