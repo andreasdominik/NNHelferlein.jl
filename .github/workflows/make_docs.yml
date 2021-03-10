@@ -34,6 +34,7 @@ jobs:
       - name: make the docs
         run: |
           echo make documentation
+          pwd
           julia -e 'import Pkg; Pkg.add("Documenter")'
           julia docs/make.jl
 
