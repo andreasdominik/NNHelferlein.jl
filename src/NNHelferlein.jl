@@ -3,6 +3,7 @@ module NNHelferlein
 import Base: iterate, length
 using LinearAlgebra
 using Unicode
+import ZipFile
 import HDF5
 import JLD2
 using Statistics: mean, std
@@ -60,6 +61,8 @@ export NeuNet, Classifier, Regressor, Chain,          # chains
        get_imagenet_classes,                    # images
        image2array, array2image, array2RGB,
        WordTokenizer,                           # texts
+       get_tatoeba_corpus,
+       sequence_minibatch, seq2seq_minibatch,
        crop_array, init0, convert2KnetArray,             # utils
        blowup_array, recycle_array,
        de_embed

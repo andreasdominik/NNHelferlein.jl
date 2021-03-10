@@ -213,6 +213,19 @@ array2RGB
 WordTokenizer
 ```
 
+```@docs
+get_tatoeba_corpus
+```
+
+```@docs
+sequence_minibatch
+```
+
+```@docs
+seq2seq_minibatch
+```
+
+
 
 
 # Training

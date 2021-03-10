@@ -16,4 +16,13 @@ For mor details, pleas refer to the API-Section.
 
 ### DataFrames
 
+### Texts and NLP
+
+Some utilities are provided for NLP data handling:
+
++ `WordTokenizer`: a simple tool to encode words as ids.
+        The type comes with signatures to en- and decode in both directions.
++ `get_tatoeba_corpus`: download dual-language corpi and provide
+        corresponding lists of sentences in two languages.
+
 ## Working with pretrained networks

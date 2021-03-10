@@ -272,33 +272,110 @@ function get_tatoeba_corpus(lang; force=false,
 end
 
 
-function sequence_minibatch(x, y=nothing; size=16, seq_len=nothing, pad=0)
 
-    if seq_len != nothing
-        return seq_mb_padded(x, y, size, seq_len, pad)
-    else
-        return seq_mb_optimised(x, y, size, pad)
+"""
+    function seq_minibatch(x, [y,] batchsize; seq_len=nothing, pad=0, o...)
+
+Create an iterator of sequence minibatches from a list of sequences.
+Internally 'Knet.minibatch()' ist used to provide the iterator; all
+keyword args of `Knet.minibatch()`
+(https://denizyuret.github.io/Knet.jl/latest/reference/#Knet.Train20.minibatch) can be used.
+
+All sequences in x are brought to the same length by truncating (if too long)
+or padding with the token provided as `pad`.
+
+If `y` is defined, the minibatches include the sequences for x and
+training targets `y`, given as n-dimensional array (as for `Knet.minibach()`).
+For sequence-2-sequence minibatches the function `seq2seq_minibatch()`
+must be used.
+
+### Arguments:
++ `x`: An iterable object of sequences.
++ `y`: vector or array with training targets
++ `batchsize`: size of minibatches
++ `seq_len=nothing`: demanded length of sequences in the minibatches.
+        If `nothing`, all sequences are padded to match with the longest
+        sequence.
++ `pad=0`: token, used for padding. The token must be compatible
+        with the type of the sequence elements.
++ `o...`: any other keyword arguments of `Knet.minibatch()`, such as
+        `shuffle=true` or `partial=true` can be provided.
+"""
+function seq_minibatch(x, y, batchsize; seq_len=nothing, pad=0, o...)
+
+    if seq_len == nothing
+        seq_len = maximum(length.(x))
     end
+
+    x = pad_sequences(x, seq_len, pad)
+    return Knet.minibatch(x, y, batchsize; o...)
 end
 
-function seq_mb_padded(x, y, size, seq_len, pad)
+function seq_minibatch(x, batchsize; seq_len=nothing, pad=0, o...)
 
-    len = length(x)
-    permu = randperm(len)
-    x = x[permu]
-    y = y[permu]
+    if seq_len == nothing
+        seq_len = maximum(length.(x))
+    end
 
-    # for mb in Iterators.partition(x, size)
-
-
-    return nothing, nothing
+    x = pad_sequences(x, seq_len, pad)
+    return Knet.minibatch(x, batchsize; o...)
 end
 
 
-function seq_mb_optimised(x, y, size, seq_len, pad)
+"""
+    function seq2seq_minibatch(x, y, batchsize; seq_len=nothing, pad=0, o...)
 
-    return nothing, nothing
+Create an iterator of sequence-to-sequence minibatches from
+two lists of sequences.
+Internally 'Knet.minibatch()' ist used to provide the iterator; all
+keyword args of `Knet.minibatch()`
+(https://denizyuret.github.io/Knet.jl/latest/reference/#Knet.Train20.minibatch) can be used.
+
+All sequences in x and y are brought to the same length
+by truncating (if too long)
+or padding with the token provided as `pad`.
+
+### Arguments:
++ `x`: An iterable object of sequences.
++ `y`: vector or array with training targets
++ `batchsize`: size of minibatches
++ `seq_len=nothing`: demanded length of sequences in the minibatches.
+        If `nothing`, all sequences are padded to match with the longest
+        sequence.
++ `pad=0`: token, used for padding. The token must be compatible
+        with the type of the sequence elements.
++ `o...`: any other keyword arguments of `Knet.minibatch()`, such as
+        `shuffle=true` or `partial=true` can be provided.
+"""
+function seq2seq_minibatch(x, y, batchsize; seq_len=nothing, pad=0, o...)
+
+    if seq_len == nothing
+        seq_len = maximum((maximum(length.(x)), maximum(length.(y))))
+    end
+
+    x = pad_sequences(x, seq_len, pad)
+    y = pad_sequences(y, seq_len, pad)
+
+    return Knet.minibatch(x, y, batchsize; o...)
 end
+
+function pad_sequences(x, len, pad)
+
+    elem_type = typeof(x[1][1])
+    data = Array{elem_type}(undef, len, length(x))
+
+    for (i,seq) in enumerate(x)
+        if length(seq) > len        # if too long
+            seq = seq[1:len]
+        end
+        while length(seq) < len  # if too short
+            push!(seq, pad)
+        end
+        data[:,i] = seq
+    end
+    return data
+end
+
 
 
 
