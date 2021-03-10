@@ -214,7 +214,7 @@ function (attn::AttnDot)(h_t, h_enc; reset=false)
     h_tR = reshape(h_t, size(h_t)[1], :)
 
     score = sum(h_encR .* h_tR, dims=1)
-    if scale
+    if attn.scale
         score = score ./ Float32(sqrt(units))
     end
     α = softmax(score, dims=3)
