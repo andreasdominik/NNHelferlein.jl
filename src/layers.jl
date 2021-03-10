@@ -371,14 +371,40 @@ AutoGrad.recording() to detect if in training or in prediction.
 In training the moments are updated to record the running averages;
 in prediction the moments are applied, but not modified.
 
+In addition, optional trainable factor `a` and bias `b` are applied:
+
+```math
+y = a \\cdot \\frac{(x - \\mu)}{(\\sigma + \\epsilon)} + b
+```
+
 ### Constructors:
-+ `Batchnom()` will initialise the moments with `Knet.bnmoments()`.
++ `Batchnom(; trainable=false, channels=0)` will initialise
+        the moments with `Knet.bnmoments()` and
+        trainable parameters `a` and `b` only if
+        `trainable==true` (in this case, the number of channels must
+        be defined).
+
 """
 struct BatchNorm <: Layer
+    trainable
     moments
-    BatchNorm() = new(Knet.bnmoments())
+    params
 end
-(l::BatchNorm)(x) = Knet.batchnorm(x, l.moments)
+function BatchNorm(; trainable=false, channels=0)
+    if trainable
+        return BatchNorm(trainable, Knet.bnmoments(), Knet.bnparams(channels))
+    else
+        return BatchNorm(trainable, Knet.bnmoments(), nothing)
+    end
+end
+
+function (l::BatchNorm)(x)
+    if l.trainable
+        return Knet.batchnorm(x, l.moments, l.params)
+    else
+        return Knet.batchnorm(x, l.moments)
+    end
+end
 
 
 """
