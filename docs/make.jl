@@ -1,5 +1,4 @@
-import Pkg; Pkg.add("Documenter")
-include("../src/NNHelferlein.jl")
+# import Pkg; Pkg.add("Documenter")
 using Documenter, NNHelferlein
 
 makedocs(modules = [NNHelferlein],
