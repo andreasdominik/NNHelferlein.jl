@@ -4,29 +4,31 @@
 
 
 """
-    abstract type NeuNet end
+    abstract type DNN end
 
 Mother type for DNN hierarchy with implementation for a chain of layers.
 
 ### Signatures:
-    (n::NeuNet)(x) = (for l in n.layers; x = l(x); end; x)
-    (m::NeuNet)(d::Knet.Data) = mean( m(x,y) for (x,y) in d)
+    (m::DNN)(x) = (for l in m.layers; x = l(x); end; x)
+    (m::DNN)(d::Knet.Data) = mean( m(x,y) for (x,y) in d)
 
 """
-abstract type NeuNet end
-(n::NeuNet)(x) = (for l in n.layers; x = l(x); end; x)
-(m::NeuNet)(d::Knet.Data) = mean( m(x,y) for (x,y) in d)
-(m::NeuNet)(d::NNHelferlein.DataLoader) = mean( m(x,y) for (x,y) in d)
+abstract type DNN end
+(m::DNN)(x) = (for l in m.layers; x = l(x); end; x)
+(m::DNN)(x,y) = m(x,y)
+(m::DNN)(d::Knet.Data) = mean( m(x,y) for (x,y) in d)
+(m::DNN)(d::Tuple) = mean( m(x,y) for (x,y) in d)
+(m::DNN)(d::NNHelferlein.DataLoader) = mean( m(x,y) for (x,y) in d)
 
 """
-    struct Classifier <: NeuNet
+    struct Classifier <: DNN
 
 Classifyer with nll loss.
 
 ### Signatures:
     (m::Classifier)(x,y) = nll(m(x), y)
 """
-struct Classifier <: NeuNet
+struct Classifier <: DNN
     layers
     Classifier(layers...) = new(layers)
 end
@@ -41,7 +43,7 @@ Regression network with square loss.
 ### Signatures:
     (m::Regression)(x,y) = sum(abs2.( m(x) - y))
 """
-struct Regressor <: NeuNet
+struct Regressor <: DNN
     layers
     Regressor(layers...) = new(layers)
 end
@@ -53,7 +55,7 @@ end
 
 Simple wrapper tu chain layers afer each other.
 """
-struct Chain <: NeuNet
+struct Chain <: DNN
     layers
     Chain(layers...) = new(layers)
 end

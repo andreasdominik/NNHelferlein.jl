@@ -274,7 +274,7 @@ end
 
 
 """
-    function seq_minibatch(x, [y,] batchsize; seq_len=nothing, pad=0, o...)
+    function seq_minibatch(x, [y,] batchsize; seq_len=nothing, pad=0, o...) 
 
 Create an iterator of sequence minibatches from a list of sequences.
 Internally 'Knet.minibatch()' ist used to provide the iterator; all

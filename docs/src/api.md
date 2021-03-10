@@ -3,7 +3,7 @@
 # Chains
 
 ```@docs
-NeuNet
+DNN
 ```
 
 ```@docs
@@ -64,6 +64,10 @@ UnPool
 
 ```@docs
 RSeqClassifier
+```
+
+```@docs
+RSeqTagger
 ```
 
 ## Others

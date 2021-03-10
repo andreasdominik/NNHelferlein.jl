@@ -6,6 +6,19 @@ For more details, please visit the API-Section.
 
 ## Neural network definitions
 
+The abstract type `DNN` provides signatures to be called as
++ `(m::DNN)(x)`: evaluate x (sample or minibatch)
++ `(m::DNN)(x,y)`: evaluate x and calculate the loss
++ `(m::DNN)(d)`: return the mean loss for a dataset, if d is an iterator
+                of type `Knet.Data` or `NNHelferlen.DataLoader`
++ `(m::DNN)((x,y))`: return the mean loss for a x,y-tuple.
+
+Explicit signatures exist for types `Classifier` and `Regressor` with
+negative log-likelihood and square loss as loss, respectively.
+The type `Chain` wraps a list of layers that are executed sequentially.
+
+
+
 ## Layer definitions
 
 Several layers are predefined with executable signatures:

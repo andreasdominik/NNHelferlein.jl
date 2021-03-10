@@ -35,14 +35,14 @@ include("train.jl")
 include("imagenet.jl")
 
 
-export NeuNet, Classifier, Regressor, Chain,          # chains
+export DNN, Classifier, Regressor, Chain,          # chains
        ImageLoader, DataLoader, preproc_imagenet,
        get_class_labels,
        iterate, length,
        Dense, Conv, Pool, Flat, PyFlat,         # layers
        DeConv, UnPool,
        Embed, Predictions,
-       RSeqClassifer, RSeqTagger,
+       RSeqClassifier, RSeqTagger,
        Softmax, Dropout, BatchNorm,LayerNorm,
        Linear,
        AttentionMechanism, AttnBahdanau,

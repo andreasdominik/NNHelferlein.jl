@@ -446,6 +446,22 @@ function (l::LayerNorm)(x; dims=1)
 end
 
 
+"""
+    struct RSeqTagger <: Layer
+
+One layer RNN sequence classifyer that works with minimatches of (time) series data.
+minibatch can be a 2- or 3-dimensional Array.
+If 2-d, inputs for one step are in one column and the Array has as
+many colums as steps.
+If 3-d, the last dimension iterates the samples of the minibatch.
+
+Result is an array matrix with the output of the units of all
+steps for all smaples of the minibatch (with model depth as first and samples of the minimatch as last dimension).
+
+### Constructors:
++ `RSeqTagger(n_inputs::Int, n_units::Int; u_type=:lstm)`: with
+    number of inputs, number of units and unit type.
+"""
 struct RSeqTagger
     n_inputs
     n_units
@@ -466,7 +482,7 @@ end
 
 
 """
-    struct RSeqClassifer <: Layer
+    struct RSeqClassifier <: Layer
 
 One layer RNN sequence classifyer that works with minimatches of (time) series data.
 minibatch can be a 2- or 3-dimensional Array.
@@ -486,7 +502,7 @@ struct RSeqClassifier
     n_units
     unit_type
     rnn
-    RSeqClassifer(n_inputs::Int, n_units::Int; u_type=:lstm) =
+    RSeqClassifier(n_inputs::Int, n_units::Int; u_type=:lstm) =
             new(n_inputs, n_units, u_type, Knet.RNN(n_inputs, n_units, rnnType=u_type))
 end
 
