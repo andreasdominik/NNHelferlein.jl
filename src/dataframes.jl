@@ -7,7 +7,7 @@
 
 Read a data table from an CSV-file with one sample
 per row and return a DataFrame with the data.
-(ODS-support is removed because of frequent PyCall compatibility issues
+(ODS-support is removed because of PyCall compatibility issues
 of the OdsIO package).
 """
 function dataframe_read(fName)
@@ -42,7 +42,7 @@ end
 """
     dataframe_minibatches(data::DataFrames.DataFrame; size=256, ignore=[], teaching=:y, regression=true)
 
-Make Knet-conform minibatches from a dataframe
+Make Knet-conform minibatches of type `Knet.data` from a dataframe
 with one sample per row.
 
 + `ignore`: defines a list of column names to be ignored

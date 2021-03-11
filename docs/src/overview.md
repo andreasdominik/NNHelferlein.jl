@@ -84,8 +84,13 @@ readable Imagenet class labels of the top predictions are printed by
 
 ### DataFrames
 
-A data provider to turn tabular data from a DataFrame (with one sample per row)
-into a Knet-like iterator of minibatches is in preparation.
+Helpers for tabular date include:
++ `dataframe_read`: read a csv-file and return a DataFrame
++ `dataframe_split`: split tabular data in a DataFrame into train and
+                validation data; optionally with balancing.
++ `dataframe_minibatches` data provider to turn tabular data from
+                a DataFrame (with one sample per row)
+                into a Knet-like iterator of minibatches of type `Knet.Data`.
 
 ### Texts and NLP
 
