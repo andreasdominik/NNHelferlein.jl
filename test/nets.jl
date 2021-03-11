@@ -1,10 +1,11 @@
 # using MLDatasets: MNIST
 using Base.Iterators
 import Pkg; Pkg.add("Augmentor"); using Augmentor
+using DataFrames
 
 function test_image_loader()
     augm = CropSize(28,28)
-    trn, vld = mk_image_minibatch("data/flowers",
+    trn, vld = mk_image_minibatch("../data/flowers",
                 4; split=true, fr=0.2,
                 balanced=false, shuffle=true,
                 train=true,
@@ -16,7 +17,7 @@ end
 function test_lenet()
 
     augm = CropSize(28,28)
-    trn, vld = mk_image_minibatch("data/flowers",
+    trn, vld = mk_image_minibatch("../data/flowers",
                 4; split=true, fr=0.2,
                 balanced=false, shuffle=true,
                 train=true,
@@ -40,4 +41,23 @@ function test_lenet()
 
     acc = accuracy(mdl, data=vld)
     return acc isa Real && acc <= 1.0
+end
+
+
+function test_mlp()
+
+        trn = DataFrame(x1=randn(16), x2=randn(16),
+                        x3=randn(16), x4=randn(16),
+                        x5=randn(16), x6=randn(16),
+                        x7=randn(16), x8=randn(16),
+                        y=rand(1:4, 16))
+
+        mb = dataframe_minibatches(trn, size=4, regression=true)
+
+        mlp = Regressor(Dense(8,8, actf=relu),
+                         Dense(8,8),
+                         Predictions(8,1))
+
+        mdl = tb_train!(mlp, Adam, trn, epochs=1, acc_fun=nothing)
+        return acc isa Real && acc <= 1.0
 end
