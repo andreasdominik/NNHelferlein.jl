@@ -1,5 +1,5 @@
 using Knet, NNHelferlein
-using Test
+import Pkg; Pkg.add("Test"); using Test
 
 # test Conv, Dense and tb_train():
 #
