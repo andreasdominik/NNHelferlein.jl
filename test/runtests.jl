@@ -3,7 +3,7 @@ import Pkg; Pkg.add("Test"); using Test
 
 # test Conv, Dense and tb_train():
 #
-include("images.jl")
+include("nets.jl")
 @test test_image_loader()
 @test test_lenet()
 
