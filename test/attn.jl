@@ -39,3 +39,9 @@ end
 
 # transformer tests:
 #
+function test_dpa()
+    kqv = rand(Float32, 3,8,10)
+    c,a = dot_prod_attn(kqv, kqv, kqv)
+
+    return size(c) == (3,8,10) && size(a) == (8,8,10)
+end

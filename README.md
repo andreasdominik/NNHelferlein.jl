@@ -5,16 +5,15 @@ Collection of little helpers to simplify various Machine Learning tasks
 The German word *Helferlein* means something like *little helper*;
 please pronounce it like `en-en-hell-fur-line`.
 
-#### Documentation
 <!---
 [![](https://img.shields.io/badge/docs-stable-blue.svg)](https://andreasdominik.github.io/NNHelferlein.jl/stable)
 --->
 [![](https://img.shields.io/badge/docs-latest-blue.svg)](https://andreasdominik.github.io/NNHelferlein.jl/dev)
-
-#### Build status
-
+<!--
+CI badge
 [![Build Status](https://travis-ci.org/andreasdominik/NNHelferlein.jl.svg?branch=main)](https://travis-ci.org/andreasdominik/NNHelferlein.jl)
-
+-->
+[![Tests](https://github.com/andreasdominik/NNHelferlein.jl/actions/workflows/run_tests.yml/badge.svg)](https://github.com/andreasdominik/NNHelferlein.jl/actions/workflows/run_tests.yml)
 <!---
 [![Coverage Status](https://coveralls.io/repos/github/LiScI-Lab/SOM.jl/badge.svg?branch=master)](https://coveralls.io/github/LiScI-Lab/SOM.jl?branch=master)
 --->

@@ -3,8 +3,8 @@ using Test
 
 # test Conv, Dense and tb_train():
 #
-include("mnist.jl")
-@test test_lenet()
+# include("mnist.jl")
+# @test test_lenet()
 
 
 # test attention mechanisms:
@@ -16,7 +16,10 @@ include("attn.jl")
 @test test_attnLocation()
 @test test_attnInFeed()
 
+@test test_dpa()
+
 
 # texts:
 #
 @test test_tokenizer()
+@test test_seq_mb()
