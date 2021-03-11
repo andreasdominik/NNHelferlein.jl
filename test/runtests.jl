@@ -21,5 +21,6 @@ include("attn.jl")
 
 # texts:
 #
+include("texts.jl")
 @test test_tokenizer()
 @test test_seq_mb()
