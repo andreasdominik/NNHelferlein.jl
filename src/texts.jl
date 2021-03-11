@@ -276,8 +276,9 @@ end
 """
     function seq_minibatch(x, [y,] batchsize; seq_len=nothing, pad=0, o...)
 
-Create an iterator of sequence minibatches from a list of sequences.
-Internally 'Knet.minibatch()' ist used to provide the iterator; all
+Return an iterator of type `Knet.Data` with sequence minibatches from a
+list of sequences.
+all
 keyword args of [`Knet.minibatch()`](https://denizyuret.github.io/Knet.jl/latest/reference/#Knet.Train20.minibatch) can be used.
 
 All sequences in x are brought to the same length by truncating (if too long)
@@ -325,11 +326,10 @@ end
 """
     function seq2seq_minibatch(x, y, batchsize; seq_len=nothing, pad=0, o...)
 
-Create an iterator of sequence-to-sequence minibatches from
+Return an iterator of type `Knet.Data` with (x,y) sequence minibatches from 
 two lists of sequences.
-Internally 'Knet.minibatch()' ist used to provide the iterator; all
-keyword args of `Knet.minibatch()`
-(https://denizyuret.github.io/Knet.jl/latest/reference/#Knet.Train20.minibatch) can be used.
+all
+keyword args of [`Knet.minibatch()`](https://denizyuret.github.io/Knet.jl/latest/reference/#Knet.Train20.minibatch) can be used.
 
 All sequences in x and y are brought to the same length
 by truncating (if too long)
