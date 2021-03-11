@@ -13,8 +13,7 @@ please pronounce it like `hell-fur-line`.
 CI badge
 [![Build Status](https://travis-ci.org/andreasdominik/NNHelferlein.jl.svg?branch=main)](https://travis-ci.org/andreasdominik/NNHelferlein.jl)
 -->
-[![Tests](https://github.com/andreasdominik/NNHelferlein.jl/actions/workflows/run_tests.yml/badge.svg)](https://github.com/andreasdominik/NNHelferlein.jl/actions/workflows/run_tests.yml)  
-[![codecov.io](http://codecov.io/github/andreasdominik/NNHelferlein.jl/coverage.svg?branch=master)](http://codecov.io/github/andreasdominik/NNHelferlein.jl?branch=master)
+[![Tests](https://github.com/andreasdominik/NNHelferlein.jl/actions/workflows/run_tests.yml/badge.svg)](https://github.com/andreasdominik/NNHelferlein.jl/actions/workflows/run_tests.yml) [![codecov.io](http://codecov.io/github/andreasdominik/NNHelferlein.jl/coverage.svg?branch=master)](http://codecov.io/github/andreasdominik/NNHelferlein.jl?branch=master)
 <!---
 [![Coverage Status](https://coveralls.io/repos/github/LiScI-Lab/SOM.jl/badge.svg?branch=master)](https://coveralls.io/github/LiScI-Lab/SOM.jl?branch=master)
 --->
