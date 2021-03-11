@@ -156,13 +156,6 @@ function Base.iterate(il::ImageLoader)
 
     if il.shuffle
         Random.shuffle!(il.i_sequence)
-        # idx = Random.randperm(length(il.i_paths))
-        # il.i_paths .= il.i_paths[idx]   # xv = @view x[idx] ??
-        # il.i_classes .= il.i_classes[idx]
-        # if il.pre_load
-        #     il.i_images .= il.i_images[idx]
-        # end
-        # il.i_paths, il.i_classes = do_shuffle(il.i_paths, il.i_classes)
     end
     state = 1
     return iterate(il, state)
@@ -205,18 +198,6 @@ function mk_image_mb(il, mb_start, mb_size)
     # avoid broadcasting of iterator il:
     #
     mb_i = cat(read_one_image.(image_ns, Ref(il))..., dims=4)
-
-    # mb_i = Float32.(cat(read_one_image.(is, il)..., dims=4))
-    # i = mb_start
-    # mb_i = Float32.(read_one_image(i, il))
-    # mb_i = reshape(mb_i, size(mb_i)..., 1)
-    # i += 1
-    # while i < mb_start+mb_size
-    #     img = Float32.(read_one_image(i, il))
-    #     mb_i = Float32.(cat(mb_i, img, dims=4))
-    #     i += 1
-    # end
-
     mb_y = UInt8.(il.i_classes[image_ns])
 
     if CUDA.functional()
@@ -240,11 +221,16 @@ function read_one_image(i, il)
         img = Images.RGB.(Images.load(il.i_paths[i]))
     end
 
-    if il.aug_pipl isa Augmentor.ImmutablePipeline
+    if il.aug_pipl isa Augmentor.ImmutablePipeline ||
+        il.aug_pipl isa Augmentor.ImageOperation
         img = Augmentor.augment(img, il.aug_pipl)
     end
 
-    img = Float32.(permutedims(Images.channelview(img), (3,2,1)))
+    if isa(img[1,1], Colors.RGB)
+        img = Float32.(permutedims(Images.channelview(img), (3,2,1)))
+    else
+        img = Float32.(Images.channelview(img))
+    end
 
     if il.pre_proc != nothing && il.pre_proc isa Function
         img = il.pre_proc(img)

@@ -16,7 +16,7 @@ import Random
 using Printf
 import CUDA
 using Knet #: KnetArray, Param, @diff
-import Images
+import Images, Colors
 import Augmentor
 import MLDataUtils
 using TensorBoardLogger, Logging
