@@ -74,11 +74,6 @@ julia> init0(2,10)
 
  julia> init0(0,10)
  0×10 Array{Float32,2}
-
- julia> init0((2,10))
-2×10 Array{Float32,2}:
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
- 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
 ```
 """
 function init0(siz...)
@@ -125,7 +120,8 @@ array with an addritional dimension of size 1.
 
 
 ### Examples:
-```
+
+```Julia
 julia> x = [1,2,3,4]; blowup_array(x, 3)
 4×3 Array{Int64,2}:
  1  1  1
@@ -146,7 +142,7 @@ julia> x = [1 2; 3 4]; blowup_array(x, 3)
 [:, :, 3] =
  1  2
  3  4
- ```
+```
 """
 function blowup_array(x, n)
 
@@ -172,9 +168,11 @@ valueas are repeated `n` times.
 ### Arguments:
 + `x`: Array of any dimension
 + `n`: number of repeats. ´n == 1´ will return an unchanged
-array.
+        array.
 
 ### Examples:
+
+```Julia
 julia> recycle_array([1,2],3)
 6-element Array{Int64,1}:
  1
@@ -193,6 +191,7 @@ julia> recycle_array(x,3)
 2×6 Array{Int64,2}:
  1  2  1  2  1  2
  3  4  3  4  3  4
+```
 """
 function recycle_array(x, n)
 
