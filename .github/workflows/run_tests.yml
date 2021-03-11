@@ -15,7 +15,7 @@ jobs:
       - name: Install dependencies
         run: |
           # julia --project=. -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
-          julia --project=. -e 'import Pkg; Pkg.add(["Test", "MLDatasets]")'
+          julia --project=. -e 'import Pkg; Pkg.add(["Test", "MLDatasets"])'
       - name: Test
         run: |
           julia --project=. -e 'using Pkg; Pkg.test("NNHelferlein", coverage=true)'
