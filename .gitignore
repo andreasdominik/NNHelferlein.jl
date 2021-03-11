@@ -7,3 +7,4 @@ examples/*.h5
 examples/play*
 data/Tatoeba
 test/logs
+codecov.token
