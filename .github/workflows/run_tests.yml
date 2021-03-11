@@ -14,13 +14,10 @@ jobs:
           version: '1.5'
       - name: Install dependencies
         run: |
-          julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
-          julia -e 'import Pkg; Pkg.add("Documenter")'
-          julia -e 'import Pkg; Pkg.add("Test")'
-      - name: Build and deploy
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # For authentication with GitHub Actions token
-          DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }} # For authentication with SSH deploy key
+          julia --project=. -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
+          julia --project=. -e 'import Pkg; Pkg.add("Documenter")'
+          julia --project=. -e 'import Pkg; Pkg.add("Test")'
+      - name: Test
         run: |
-          julia -e 'using Pkg; Pkg.test("NNHelferlein", coverage=true)'
-          julia -e 'using Pkg; Pkg.add("Coverage"); using Coverage; Codecov.submit(process_folder())'
+          julia --project=. -e 'using Pkg; Pkg.test("NNHelferlein", coverage=true)'
+          julia --project=. -e 'using Pkg; Pkg.add("Coverage"); using Coverage; Codecov.submit(process_folder())'
