@@ -383,7 +383,7 @@ y = a \\cdot \\frac{(x - \\mu)}{(\\sigma + \\epsilon)} + b
         the moments with `Knet.bnmoments()` and
         trainable parameters `a` and `b` only if
         `trainable==true` (in this case, the number of channels must
-        be defined).
+        be defined - for CNNs this is the number of feature maps).
 
 """
 struct BatchNorm <: Layer

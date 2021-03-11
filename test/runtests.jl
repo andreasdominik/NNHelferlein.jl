@@ -3,8 +3,9 @@ import Pkg; Pkg.add("Test"); using Test
 
 # test Conv, Dense and tb_train():
 #
-# include("mnist.jl")
-# @test test_lenet()
+include("images.jl")
+@test test_image_loader()
+@test test_lenet()
 
 
 # test attention mechanisms:

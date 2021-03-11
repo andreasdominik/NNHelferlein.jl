@@ -8,3 +8,4 @@ examples/play*
 data/Tatoeba
 test/logs
 codecov.token
+logs
