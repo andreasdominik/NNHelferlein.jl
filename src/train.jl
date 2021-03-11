@@ -15,7 +15,7 @@ The model is updated (in-place) and the trained model is returned.
 
 ### Arguments:
 + `mdl`: model; i.e. forward-function for the net
-+ `opti`: Knet-stype optimiser iterator
++ `opti`: Knet-stype optimiser type
 + `trn`: training data; iterator to provide (x,y)-tuples with
         minibatches
 + `vld`: validation data; iterator to provide (x,y)-tuples with
@@ -334,12 +334,12 @@ end
 """
     function predict_top5(mdl, x; top_n=5, classes=nothing)
 
-Run the model mdl for data in x and prints the top 5
+Run the model `mdl` for data in `x` and print the top 5
 predictions as softmax probabilities.
 
 ### Arguments:
-`top_n`: print top *n* hits instead of *5*
-`classes` may be a list of human readable class labels.
++ `top_n`: print top *n* hits
++ `classes`: optional list of human readable class labels.
 """
 function predict_top5(mdl, x; top_n=5, classes=nothing)
 
@@ -368,11 +368,11 @@ end
 Return the prediction for x.
 
 ### Arguments:
-`mdl`: executable network model
-`x`: tensor, minibatch or iterator providing minibatches
++ `mdl`: executable network model
++ `x`: iterator providing minibatches
         of input data
-`softmax`: if true and if model is a `::Classifier` the prediction
-        softmax probabilities are rezrned instead of raw
++ `softmax`: if true and if model is a `::Classifier` the predicted
+        softmax probabilities are returned instead of raw
         activations.
 """
 function predict(mdl, x; softmax=false)
