@@ -88,9 +88,11 @@ Helpers for tabular date include:
 + `dataframe_read`: read a csv-file and return a DataFrame
 + `dataframe_split`: split tabular data in a DataFrame into train and
                 validation data; optionally with balancing.
-+ `dataframe_minibatches` data provider to turn tabular data from
++ `dataframe_minibatches`: data provider to turn tabular data from
                 a DataFrame (with one sample per row)
                 into a Knet-like iterator of minibatches of type `Knet.Data`.
++ `mk_class_ids(labels)`: may be used to turn class label strings into
+                class-IDs.
 
 ### Texts and NLP
 

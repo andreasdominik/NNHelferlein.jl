@@ -53,7 +53,7 @@ export DNN, Classifier, Regressor, Chain,          # chains
        mk_padding_mask, mk_peek_ahead_mask,
        dot_prod_attn,
        dataframe_read, dataframe_split,         # import data
-       dataframe_minibatches,
+       dataframe_minibatches, mk_class_ids,
        mk_image_minibatch,
        tb_train!,
        predict_top5, predict_imagenet,

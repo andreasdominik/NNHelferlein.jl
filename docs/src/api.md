@@ -91,6 +91,7 @@ iterators of minibatches.
 dataframe_read
 dataframe_minibatches
 dataframe_split
+mk_class_ids
 ```
 
 ## Image data
