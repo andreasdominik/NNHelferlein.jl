@@ -70,7 +70,7 @@ function dataframe_minibatches(data; size=16, ignore=[], teaching="y", o...)
     end
     @show cols = filter(c->!(c in ignore), names(data))
 
-    @show = x = convert2KnetArray(data[cols])
+    @show x = convert2KnetArray(data[cols])
     @show x = permutedims(x)
 
     if teaching == nothing
