@@ -68,10 +68,9 @@ function dataframe_minibatches(data; size=16, ignore=[], teaching="y", o...)
     if teaching != nothing
         push!(ignore, teaching)
     end
-    @show cols = filter(c->!(c in ignore), names(data))
-
-    @show x = convert2KnetArray(data[:,cols])
-    @show x = permutedims(x)
+    cols = filter(c->!(c in ignore), names(data))
+    x = convert2KnetArray(data[:,cols])
+    x = permutedims(x)
 
     if teaching == nothing
         return Knet.minibatch(x, size; o...)
@@ -106,7 +105,14 @@ Take a list with n class labels for n instances and return a list of
 n class-IDs (of type Int) and an array of lables with the array index
 of each label corresponds its ID.
 
-A list of class lables can be cerated as:
+
+### Arguments:
++ `labels`: List of labels (typically Strings)
+
+### Result values:
++ array of class-IDs in the same order as the input
++ array of unique class-IDs ordered by their ID.
+
 
 ```Julia
 julia> labels = ["blue", "red", "red", "red", "green", "blue", "blue"]
@@ -135,13 +141,6 @@ julia> mk_class_ids(labels)[1]
  "green"
  "red"
  ```
-
-### Arguments:
-+ `labels`: List of labels (typically Strings)
-
-### Result values:
-+ array of class-IDs in the same order as the input
-+ array of unique class-IDs ordered by their ID.
 """
 function mk_class_ids(labels)
 
