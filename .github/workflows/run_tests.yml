@@ -1,26 +1,4 @@
 name: Tests
-
-# on:
-#   push:
-#     branches:
-#       - main
-# jobs:
-#   build:
-#     runs-on: ubuntu-latest
-#     steps:
-#       - uses: actions/checkout@v2
-#       - uses: julia-actions/setup-julia@latest
-#         with:
-#           version: '1'
-#       - name: Install dependencies
-#         run: |
-#           # julia --project=. -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
-#           julia --project=. -e 'import Pkg; Pkg.add(["Test", "MLDatasets"])'
-#       - name: Test
-#         run: |
-#           julia --project=. -e 'using Pkg; Pkg.test("NNHelferlein", coverage=true)'
-#           julia --project=. -e 'using Pkg; Pkg.add("Coverage"); using Coverage; Codecov.submit(process_folder())'
-
 on:
   push:
     branches:

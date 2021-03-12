@@ -68,9 +68,10 @@ function dataframe_minibatches(data; size=16, ignore=[], teaching="y", o...)
     if teaching != nothing
         push!(ignore, teaching)
     end
-    cols = filter(c->!(c in ignore), names(data))
+    @show cols = filter(c->!(c in ignore), names(data))
 
-    x = permutedims(convert2KnetArray(data[cols]))
+    @show = x = convert2KnetArray(data[cols])
+    @show x = permutedims(x)
 
     if teaching == nothing
         return Knet.minibatch(x, size; o...)
