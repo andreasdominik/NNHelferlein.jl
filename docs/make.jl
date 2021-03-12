@@ -10,7 +10,7 @@ makedocs(modules = [NNHelferlein],
                   "Introduction" => "index.md",
                   "Overview" => "overview.md",
                   "Examples" => "examples.md",
-                  "API" => "api.md",
+                  "API Reference" => "api.md",
                   "License" => "license.md"
                   ],
          #          # Use clean URLs, unless built as a "local" build

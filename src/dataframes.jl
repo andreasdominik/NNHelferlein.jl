@@ -114,7 +114,8 @@ of each label corresponds its ID.
 + array of unique class-IDs ordered by their ID.
 
 
-```Julia
+### Examples:
+```
 julia> labels = ["blue", "red", "red", "red", "green", "blue", "blue"]
 7-element Array{String,1}:
  "blue"
@@ -140,7 +141,7 @@ julia> mk_class_ids(labels)[1]
  "blue"
  "green"
  "red"
- ```
+```
 """
 function mk_class_ids(labels)
 
