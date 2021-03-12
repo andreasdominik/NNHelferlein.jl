@@ -6,6 +6,8 @@ import Pkg; Pkg.add("Test"); using Test
 include("nets.jl")
 @test test_image_loader()
 @test test_lenet()
+@test test_df_loader()
+@test test_mlp()
 
 
 # test attention mechanisms:

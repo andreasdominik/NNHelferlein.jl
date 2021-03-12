@@ -2,6 +2,7 @@
 using Base.Iterators
 import Pkg; Pkg.add("Augmentor"); using Augmentor
 using DataFrames
+using Statistics: mean
 
 function test_image_loader()
     augm = CropSize(28,28)
@@ -44,20 +45,40 @@ function test_lenet()
 end
 
 
+function test_df_loader()
+
+        trn = DataFrame(x1=randn(16), x2=randn(16),
+                        x3=randn(16), x4=randn(16),
+                        x5=randn(16), x6=randn(16),
+                        x7=randn(16), x8=randn(16),
+                        y=["blue", "red", "green", "green",
+                           "blue", "red", "green", "green",
+                           "blue", "red", "green", "green",
+                           "blue", "red", "green", "green"])
+
+        mb = dataframe_minibatches(trn, size=4, teaching="y", ignore="x1")
+        return first(mb)[2] == [0x01  0x03  0x02  0x02]
+end
+
+
+
+
 function test_mlp()
 
         trn = DataFrame(x1=randn(16), x2=randn(16),
                         x3=randn(16), x4=randn(16),
                         x5=randn(16), x6=randn(16),
                         x7=randn(16), x8=randn(16),
-                        y=rand(1:4, 16))
+                        y=collect(range(0, 1, length=16)))
 
-        mb = dataframe_minibatches(trn, size=4, regression=true)
+        mb = dataframe_minibatches(trn, size=4)
 
         mlp = Regressor(Dense(8,8, actf=relu),
                          Dense(8,8),
                          Predictions(8,1))
 
-        mdl = tb_train!(mlp, Adam, trn, epochs=1, acc_fun=nothing)
-        return acc isa Real && acc <= 1.0
+        mlp = tb_train!(mlp, Adam, mb, epochs=1, acc_fun=nothing)
+
+        acc = NNHelferlein.calc_acc(mlp, (x,y)->mean(abs2, x-y), data=mb)
+        return acc isa Real
 end
