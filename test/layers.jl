@@ -50,3 +50,40 @@ function test_layer_pool()
     y = l(x)
     return size(y) == (14,14,3,16)
 end
+
+function test_layer_deconv()
+    l = DeConv(3,3,8,8, padding=1, stride=2)
+    x = rand(Float32, 28,28,8,16)
+    y = l(x)
+    return size(y) == (55,55,8,16)
+end
+
+function test_layer_unpool()
+    l = UnPool()
+    x = rand(Float32, 14,14,3,16)
+    y = l(x)
+    return size(y) == (28,28,3,16)
+end
+
+function test_layer_flat()
+    l = Flat()
+    x = rand(Float32, 10,10,3,16)
+    y = l(x)
+    return size(y) == (300,16)
+end
+
+function test_layer_pyflat()
+    l = PyFlat(python=true)
+    x = rand(Float32, 10,10,3,16)
+    y = l(x)
+    return size(y) == (300,16)
+end
+
+
+
+function test_layer_embed()
+    l = Embed(16, 8)
+    x = rand(1:16, 20)
+    y = l(x)
+    return size(y) == (8,20)
+end
