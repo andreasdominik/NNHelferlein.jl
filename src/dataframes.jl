@@ -10,7 +10,7 @@ per row and return a DataFrame with the data.
 (ODS-support is removed because of PyCall compatibility issues
 of the OdsIO package).
 """
-function dataframe_read(fName)
+function dataframe_read(fname)
 
     if occursin(r".*\.ods$", fname)
         println("Reading ODS-files is no longer supported!")
@@ -33,7 +33,7 @@ end
 
 function readCSV(fname)
 
-    printf("Reading data from CSV: $fname")
+    println("Reading data from CSV: $fname")
     return DataFrames.DataFrame(CSV.File(fname, header=true))
 end
 
@@ -153,21 +153,26 @@ end
 
 
 """
-    function dataframe_split(df::DataFrames.DataFrame; teaching=:y, fr=0.2, balanced=true)
+    function dataframe_split(df::DataFrames.DataFrame;
+                             teaching="y", fr=0.2, balanced=true)
 
 Split data, organised row-wise in a DataFrame into train and valid sets.
 
 ### Arguments:
 + `df`: data
-+ `teaching`: name or index of column with teaching input (y)
-+ `fr`: fraction of data to be used for validation
-+ `balanced`: if `true`, result datasets will be balanced by oversampling.
++ `teaching="y"`: name or index of column with teaching input (y)
++ `fr=0.2`: fraction of data to be used for validation
++ `shuffle=true`: shuffle the rows of the dataframe.
++ `balanced=true`: if `true`, result datasets will be balanced by oversampling.
               Returned datasets will be bigger as expected
               but include the same numbers of samples for each class.
 """
-function dataframe_split(df::DataFrames.DataFrame; teaching=:y,
-                         fr=0.2, balanced=false)
+function dataframe_split(df::DataFrames.DataFrame; teaching="y",
+                         fr=0.2, shuffle=true, balanced=false)
 
+    if shuffle
+        df .= df[Random.randperm(DataFrames.nrow(df)),:]
+    end
     ((trn,ytrn), (vld,yvld)) = do_split(df, df[teaching], at=fr)
 
     if balanced
