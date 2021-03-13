@@ -33,8 +33,15 @@ include("data.jl")
 
 # image loader:
 # tested in nets.jl!
+#
+# imagenet:
+#
+test_preproc_imagenet()
+test_in_classes()
 
 # text loader:
 #
 @test test_tokenizer()
 @test test_seq_mb()
+@test test_tatoeba()
+@test test_seq2seq_mb()

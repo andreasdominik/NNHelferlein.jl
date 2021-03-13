@@ -30,9 +30,7 @@ end
 
 # test NLP utils:
 #
-
 function test_tokenizer()
-
     tok = WordTokenizer(["I love Julia",
                          "Peter loves Python",
                          "We all marvel Geoff"])
@@ -40,7 +38,6 @@ function test_tokenizer()
 end
 
 function test_seq_mb()
-
     tok = WordTokenizer(["I love Julia",
                          "Peter loves Python",
                          "We all marvel Geoff"])
@@ -51,4 +48,40 @@ function test_seq_mb()
 
     mb = seq_minibatch(t, 2, seq_len=4)
     return size(first(mb)) == (4,2)
+end
+
+
+# test tatoeba on tiny dataset Galician:
+#
+function test_tatoeba()
+    en,glg = get_tatoeba_corpus("glg")
+    return en isa AbstractArray
+end
+
+function test_seq2seq_mb()
+     en,glg = get_tatoeba_corpus("glg")
+     ven = WordTokenizer(en)
+     vglg = WordTokenizer(glg)
+     mb = seq2seq_minibatch(ven.(en, split_words=true),
+            vglg.(glg, split_words=true),
+            32, seq_len=20,
+            pad_x=ven("<pad>"), pad_y=vglg("<pad>"))
+
+    mb1 = first(mb)[1]
+    return size(mb1) == (20,32)
+end
+
+
+# imagenet:
+#
+function test_preproc_imagenet()
+
+    img = rand(32,32,3)
+    img = preproc_imagenet(img)
+    return size(img) == (32,32,3)
+end
+
+function test_in_classes()
+    c = get_imagenet_classes()
+    return length(c) == 1000
 end
