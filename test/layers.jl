@@ -26,3 +26,27 @@ function test_layer_linear()
     y = l(x)
     return size(y) == (o,8,8,mb)
 end
+
+
+function test_layer_conv()
+    l = Conv(3,3,1,8)
+    x = rand(Float32, 28,28,1,16)
+    y = l(x)
+    return size(y) == (26,26,8,16)
+end
+
+function test_conv_hdf5()
+    h5file = h5open("../data/testdata/dummykeras.h5")
+    l = Conv(h5file, "conv2d", trainable=true) # 3x3x16, inp: 28x28x1
+    x = rand(Float32, 28,28,1,8)
+    y = l(x)
+    return size(y) == (28,28,16,8)
+end
+
+
+function test_layer_pool()
+    l = Pool()
+    x = rand(Float32, 28,28,3,16)
+    y = l(x)
+    return size(y) == (14,14,3,16)
+end

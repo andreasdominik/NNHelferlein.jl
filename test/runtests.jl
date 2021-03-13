@@ -50,3 +50,9 @@ test_in_classes()
 # test all layers:
 #
 @test test_layer_dense()
+@test test_dense_hdf5()
+@test test_layer_linear()
+
+@test test_layer_conv()
+@test test_conv_hdf5()
+@test test_layer_pool()
