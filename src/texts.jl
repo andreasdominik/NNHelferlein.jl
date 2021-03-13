@@ -326,7 +326,7 @@ end
 """
     function seq2seq_minibatch(x, y, batchsize; seq_len=nothing, pad=0, o...)
 
-Return an iterator of type `Knet.Data` with (x,y) sequence minibatches from 
+Return an iterator of type `Knet.Data` with (x,y) sequence minibatches from
 two lists of sequences.
 all
 keyword args of [`Knet.minibatch()`](https://denizyuret.github.io/Knet.jl/latest/reference/#Knet.Train20.minibatch) can be used.
@@ -337,34 +337,36 @@ or padding with the token provided as `pad`.
 
 ### Arguments:
 + `x`: An iterable object of sequences.
-+ `y`: vector or array with training targets
++ `y`: An iterable object of target sequences.
 + `batchsize`: size of minibatches
 + `seq_len=nothing`: demanded length of sequences in the minibatches.
         If `nothing`, all sequences are padded to match with the longest
         sequence.
-+ `pad=0`: token, used for padding. The token must be compatible
++ `pad_x=0`,
++ `pad_y=0`: token, used for padding. The token must be compatible
         with the type of the sequence elements.
 + `o...`: any other keyword arguments of `Knet.minibatch()`, such as
         `shuffle=true` or `partial=true` can be provided.
 """
-function seq2seq_minibatch(x, y, batchsize; seq_len=nothing, pad=0, o...)
+function seq2seq_minibatch(x, y, batchsize; seq_len=nothing,
+                           pad_x=0, pad_y=0, o...)
 
     if seq_len == nothing
         seq_len = maximum((maximum(length.(x)), maximum(length.(y))))
     end
 
-    x = pad_sequences(x, seq_len, pad)
-    y = pad_sequences(y, seq_len, pad)
+    x = pad_sequences(x, seq_len, pad_x)
+    y = pad_sequences(y, seq_len, pad_y)
 
     return Knet.minibatch(x, y, batchsize; o...)
 end
 
-function pad_sequences(x, len, pad)
+function pad_sequences(s, len, pad)
 
-    elem_type = typeof(x[1][1])
-    data = Array{elem_type}(undef, len, length(x))
+    elem_type = typeof(s[1][1])
+    data = Array{elem_type}(undef, len, length(s))
 
-    for (i,seq) in enumerate(x)
+    for (i,seq) in enumerate(s)
         if length(seq) > len        # if too long
             seq = seq[1:len]
         end
