@@ -1,3 +1,5 @@
+using HDF5
+
 # test layers:
 #
 function test_layer_dense()
