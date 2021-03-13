@@ -45,3 +45,8 @@ test_in_classes()
 @test test_seq_mb()
 @test test_tatoeba()
 @test test_seq2seq_mb()
+
+
+# test all layers:
+#
+@test test_layer_dense()
