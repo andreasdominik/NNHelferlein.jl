@@ -22,8 +22,19 @@ include("attn.jl")
 @test test_dpa()
 
 
-# texts:
+
+# data loader:
 #
-include("texts.jl")
+include("data.jl")
+@test test_read_df()
+@test test_df_split()
+@test test_df_class_ids()
+@test test_df_minibatch()
+
+# image loader:
+# tested in nets.jl!
+
+# text loader:
+#
 @test test_tokenizer()
 @test test_seq_mb()
