@@ -119,3 +119,43 @@ function test_layer_ln()
     y = l(x)
     return isapprox(mean(y[:,1]), 0.0, atol=0.01)
 end
+
+
+function test_layer_seq_tagger()
+    depth, seq, units, mb = 16, 5, 8, 10
+    l = RSeqTagger(depth, units)
+    x = rand(depth, seq, mb)
+    y = l(x)
+    return size(y) == (units, seq, mb)
+end
+
+function test_layer_seq_classi()
+    depth, seq, units, mb = 16, 5, 8, 10
+    l = RSeqClassifier(depth, units)
+    x = rand(depth, seq, mb)
+    y = l(x)
+    return size(y) == (units, mb)
+end
+
+
+function test_layer_H_rnn()
+    depth, seq, units, mb = 16, 5, 8, 10
+    l = RSeqClassifier(depth, units; h=0, c=0)
+    x = rand(depth, seq, mb)
+    y = l(x)
+
+    h = hidden_states(l)
+    c = cell_states(l)
+    return size(h) == (units,mb,1) && size(c) == (units,mb,1)
+end
+
+function test_layer_K_rnn()
+    depth, seq, units, mb = 16, 5, 8, 10
+    l = RNN(depth, units; rnnType=:lstm, h=0, c=0)
+    x = rand(depth, mb, seq)
+    y = l(x)
+
+    h = hidden_states(l)
+    c = cell_states(l)
+    return size(h) == (units,mb,1) && size(c) == (units,mb,1)
+end
