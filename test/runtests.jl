@@ -1,4 +1,4 @@
-using Knet, NNHelferlein
+using Knet, NNHelferlein, CUDA
 import Pkg; Pkg.add("Test"); using Test
 
 # test Conv, Dense and tb_train():
@@ -71,3 +71,14 @@ include("layers.jl")
 @test test_layer_seq_classi()
 @test test_layer_H_rnn()
 @test test_layer_K_rnn()
+
+
+# utils:
+#
+include("util.jl")
+@test test_crop_array()
+@test test_init0()
+@test test_convertKA()
+@test test_blowup()
+@test test_recycle()
+@test test_de_embed()

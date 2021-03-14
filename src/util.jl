@@ -210,12 +210,12 @@ end
 # split the iterator in 2 parts at at
 # and return the first and the second part as separate iterators.
 #
-function split_iterator(itr, at)
-
-    len = length(itr)
-    last_trn = Int(round(len * at))
-    return Iterators.take(itr, last_trn), Iterators.drop(itr, last_trn)
-end
+# function split_iterator(itr, at)
+#
+#     len = length(itr)
+#     last_trn = Int(round(len * at))
+#     return Iterators.take(itr, last_trn), Iterators.drop(itr, last_trn)
+# end
 
 
 """
