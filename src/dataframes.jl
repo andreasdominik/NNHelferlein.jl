@@ -69,7 +69,7 @@ function dataframe_minibatches(data; size=16, ignore=[], teaching="y", o...)
         push!(ignore, teaching)
     end
     cols = filter(c->!(c in ignore), names(data))
-    x = convert2KnetArray(data[:,cols])
+    x = convert2KnetArray(data[!,cols])
     x = permutedims(x)
 
     if teaching == nothing
@@ -77,16 +77,16 @@ function dataframe_minibatches(data; size=16, ignore=[], teaching="y", o...)
     else
         # care for type of teaching column:
         #
-        t_type = eltype(data[:,teaching])
+        t_type = eltype(data[!,teaching])
         if t_type <: AbstractString       # make class_ids from labels
-            teach = mk_class_ids(data[:,teaching])[1]
+            teach = mk_class_ids(data[!,teaching])[1]
             y = permutedims(Array{UInt8}(teach))
 
         elseif t_type <: Int              # take values as class_ids
-            y = permutedims(Array{UInt8}(data[:,teaching]))
+            y = permutedims(Array{UInt8}(data[!,teaching]))
 
         elseif t_type <: Real             # use as is -> probably regression
-            y = permutedims(convert2KnetArray(data[:,teaching]))
+            y = permutedims(convert2KnetArray(data[!,teaching]))
 
         else
             println("Don't know how to handle teaching input of type $t_type!")
@@ -173,7 +173,7 @@ function dataframe_split(df::DataFrames.DataFrame; teaching="y",
     if shuffle
         df .= df[Random.randperm(DataFrames.nrow(df)),:]
     end
-    ((trn,ytrn), (vld,yvld)) = do_split(df, df[teaching], at=fr)
+    ((trn,ytrn), (vld,yvld)) = do_split(df, df[:,teaching], at=fr)
 
     if balanced
         (trn,ytrn) = do_balance(trn, ytrn)
