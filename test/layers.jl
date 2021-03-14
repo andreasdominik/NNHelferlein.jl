@@ -89,3 +89,33 @@ function test_layer_embed()
     y = l(x)
     return size(y) == (8,20)
 end
+
+
+
+function test_layer_softmax()
+    l = Softmax()
+    x = rand(32)
+    y = l(x)
+    return isapprox(sum(y), 1.0, atol=0.01)
+end
+
+function test_layer_dropout()
+    l = Dropout(0.1)
+    x = ones(100,100)
+    y = @diff l(x)
+    return isapprox(sum(y .== 0), 1000, atol=100)
+end
+
+function test_layer_bn()
+    l = BatchNorm()
+    x = rand(16, 20)
+    y = @diff l(x)
+    return isapprox(mean(y[1,:]), 0.0, atol=0.01)
+end
+
+function test_layer_ln()
+    l = LayerNorm(16)
+    x = rand(16, 20)
+    y = l(x)
+    return isapprox(mean(y[:,1]), 0.0, atol=0.01)
+end
