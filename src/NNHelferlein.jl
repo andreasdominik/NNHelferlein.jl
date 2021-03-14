@@ -43,6 +43,7 @@ export DNN, Classifier, Regressor, Chain,          # chains
        DeConv, UnPool,
        Embed, Predictions,
        RSeqClassifier, RSeqTagger,
+       hidden_states, cell_states,
        Softmax, Dropout, BatchNorm, LayerNorm,
        Linear,
        AttentionMechanism, AttnBahdanau,

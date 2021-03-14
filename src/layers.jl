@@ -75,9 +75,13 @@ the TensorFlow-layer:
 The shape of the input tensor is preserved; only the size of the
 first dim is changed from in to out.
 
+### Constructors:
++ `Linear(i::Int, j::Int; bias=true, actf=identity)` weher `i` is fan-in
+        and `j` is fan-out.
+
 ### Keyword arguments:
 + `bias=true`: if false biases are fixed to 0.0
-+ `actf=Knet.sigm`: activation function.
++ `actf=identity`: activation function.
 """
 struct Linear  <: Layer
     w
@@ -460,16 +464,18 @@ Result is an array matrix with the output of the units of all
 steps for all smaples of the minibatch (with model depth as first and samples of the minimatch as last dimension).
 
 ### Constructors:
-+ `RSeqTagger(n_inputs::Int, n_units::Int; u_type=:lstm)`: with
++ `RSeqTagger(n_inputs::Int, n_units::Int; u_type=:lstm, o...)`: with
     number of inputs, number of units and unit type.
+    Internally the type `Knet.RNN` is used and all keyword arguments
+    of `Knet.RNN` may be provided.
 """
 struct RSeqTagger <: Layer
     n_inputs
     n_units
     unit_type
     rnn
-    RSeqTagger(n_inputs::Int, n_units::Int; u_type=:lstm) =
-            new(n_inputs, n_units, u_type, Knet.RNN(n_inputs, n_units, rnnType=u_type))
+    RSeqTagger(n_inputs::Int, n_units::Int; u_type=:lstm, o...) =
+            new(n_inputs, n_units, u_type, Knet.RNN(n_inputs, n_units; rnnType=u_type, o...))
 end
 
 function (rnn::RSeqTagger)(x)
@@ -495,16 +501,18 @@ Result is always a 2-d matrix with the output of the units of the last
 step in each column and one column per sample of the minibatch.
 
 ### Constructors:
-+ `RSeqClassifer(n_inputs::Int, n_units::Int; u_type=:lstm)`: with
++ `RSeqClassifer(n_inputs::Int, n_units::Int; u_type=:lstm, o...)`: with
     number of inputs, number of units and unit type.
+    Internally the type `Knet.RNN` is used and all keyword arguments
+    of `Knet.RNN` may be provided.
 """
 struct RSeqClassifier <: Layer
     n_inputs
     n_units
     unit_type
     rnn
-    RSeqClassifier(n_inputs::Int, n_units::Int; u_type=:lstm) =
-            new(n_inputs, n_units, u_type, Knet.RNN(n_inputs, n_units, rnnType=u_type))
+    RSeqClassifier(n_inputs::Int, n_units::Int; u_type=:lstm, o...) =
+            new(n_inputs, n_units, u_type, Knet.RNN(n_inputs, n_units; rnnType=u_type, o...))
 end
 
 
@@ -517,13 +525,37 @@ function (rnn::RSeqClassifier)(x)
     return x[:,:,end]     # [units, samples]
 end
 
-function hidden_states(l::RSeqClassifier)
-    return l.rnn.h
+"""
+    function hidden_states(l::<RNN_Type>)
+
+Return the hidden states of one or more layers of an RNN.
+`<RNN_Type>` is one of `RSeqClassifier`, `RSeqTagger`,
+`Knet.RNN`.
+"""
+function hidden_states(l::Union{RSeqClassifier, RSeqTagger, Knet.RNN})
+    if l isa Union{RSeqClassifier, RSeqTagger}
+        return l.rnn.h
+    elseif l isa Knet.RNN
+        return l.h
+    else
+        return nothing
+    end
 end
 
-function cell_states(l::RSeqClassifier)
-    if l.unit_type == :lstm
+"""
+    function cell_states(l::<RNN_Type>)
+
+Return the cell states of one or more layers of an RNN only if
+it is a LSTM.
+`<RNN_Type>` is one of `RSeqClassifier`, `RSeqTagger`,
+`Knet.RNN`.
+"""
+function cell_states(l::Union{RSeqClassifier, RSeqTagger, Knet.RNN})
+    if l isa Union{RSeqClassifier, RSeqTagger} &&
+       l.unit_type == :lstm
         return l.rnn.c
+    elseif l isa Knet.RNN && l.mode == 2  # i.e. :lstm
+        return l.c
     else
         return nothing
     end

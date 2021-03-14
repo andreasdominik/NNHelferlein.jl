@@ -58,7 +58,7 @@ end
 """
     struct Chain
 
-Simple wrapper tu chain layers afer each other.
+Simple wrapper to chain layers and execute them one after another.
 """
 struct Chain <: DNN
     layers

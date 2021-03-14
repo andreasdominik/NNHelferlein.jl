@@ -41,6 +41,8 @@ UnPool
 ```@docs
 RSeqClassifier
 RSeqTagger
+hidden_states
+cell_states
 ```
 
 ## Others
