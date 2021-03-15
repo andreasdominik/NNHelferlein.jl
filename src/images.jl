@@ -7,6 +7,7 @@ const UNKNOWN_CLASS = "unknwon_class"
 """
     function mk_image_minibatch(dir, batchsize; split=false, fr=0.2,
                                 balanced=false, shuffle=true, train=true,
+                                pre_load=false,
                                 aug_pipl=nothing, pre_proc=nothing)
 
 Return one or two iterable image-loader-objects that provides

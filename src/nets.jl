@@ -52,7 +52,7 @@ struct Regressor <: DNN
     layers
     Regressor(layers...) = new(layers)
 end
-(m::Regressor)(x,y) = sum(abs2, m(x)-y)
+(m::Regressor)(x,y) = sum(abs2, m(x) .- y)
 
 
 """

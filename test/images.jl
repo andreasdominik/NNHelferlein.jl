@@ -6,11 +6,25 @@ function test_image_loader()
     augm = CropSize(28,28)
     trn, vld = mk_image_minibatch("../data/flowers",
                 4; split=true, fr=0.2,
-                balanced=false, shuffle=true,
+                balanced=true, shuffle=true,
                 train=true,
                 aug_pipl=augm, pre_proc=preproc_imagenet)
 
-    return size(first(trn)[1]) == (28,28,3,4)
+    lab = get_class_labels(trn)
+
+    return size(first(trn)[1]) == (28,28,3,4) &&
+           size(lab) == (3,)
+end
+
+
+function test_image_preload()
+    tst = mk_image_minibatch("../data/flowers",
+                4; split=false, fr=0.2,
+                balanced=false, shuffle=false,
+                train=false, pre_load=true,
+                aug_pipl=nothing, pre_proc=nothing)
+
+    return size(first(tst)) == (256, 256, 3, 4)
 end
 
 

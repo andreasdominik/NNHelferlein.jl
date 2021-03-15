@@ -59,7 +59,36 @@ function test_mlp()
                          Predictions(8,1))
 
         mlp = tb_train!(mlp, Adam, mb, epochs=1, acc_fun=nothing)
-
         acc = NNHelferlein.calc_acc(mlp, (x,y)->mean(abs2, x-y), data=mb)
         return acc isa Real
+end
+
+function test_signatures()
+
+        trn = DataFrame(x1=randn(16), x2=randn(16),
+                        x3=randn(16), x4=randn(16),
+                        x5=randn(16), x6=randn(16),
+                        x7=randn(16), x8=randn(16),
+                        y=collect(range(0, 1, length=16)))
+
+        mb = dataframe_minibatches(trn, size=4)
+
+        mlp = Regressor(Dense(8,8, actf=relu),
+                         Dense(8,8),
+                         Predictions(8,1))
+        mlp = tb_train!(mlp, Adam, mb, epochs=1, acc_fun=nothing)
+
+        y = mlp(rand(Float32, 8,4))
+        test_sign = size(y) == (1,4)
+
+        loss = mlp(rand(Float32, 8,4), rand(Float32, 1,4))
+        test_sign = test_sign && typeof(loss) <: Real
+
+        loss = mlp(mb)
+        test_sign = test_sign && typeof(loss) <: Real
+
+        loss = mlp(first(mb))
+        test_sign = test_sign && typeof(loss) <: Real
+
+        return test_sign
 end
