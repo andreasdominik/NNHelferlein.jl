@@ -41,7 +41,7 @@ export DNN, Classifier, Regressor, Chain,          # chains
        iterate, length,
        Layer, Dense, Conv, Pool, Flat, PyFlat,         # layers
        DeConv, UnPool,
-       Embed, Predictions,
+       Embed, 
        RSeqClassifier, RSeqTagger,
        hidden_states, cell_states,
        Softmax, Dropout, BatchNorm, LayerNorm,

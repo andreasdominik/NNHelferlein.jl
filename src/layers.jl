@@ -310,31 +310,6 @@ end
 
 (l::Embed)(x) = l.actf.(l.w[:,x])
 
-"""
-    struct Predictions <: Layer
-
-Simple wrapper around a Dense layer without activation function
-that can used as output layer (because all loss-functions
-of the package assume raw output activations).
-
-### Constructors:
-+ `Predictions(i::Int, j:Int)`: with
-    input size i, output size j activation function idendity.
-+ `Predictions(h5::HDF5.File, group::String; trainable=false)`:
-+ `Predictions(h5::HDF5.File, kernel::String, bias::String;
-               trainable=false)`: with
-    an hdf5-object and group name of the output layer.
-"""
-struct Predictions <: Layer
-    Predictions(i::Int,j::Int) = Dense(i, j, actf=identity)
-    Predictions(h5::HDF5.File, group::String; trainable=false) =
-                Predictions(h5, "$group/$group/kernel:0","$group/$group/bias:0",
-                            trainable=trainable)
-    Predictions(h5::HDF5.File, kernel::String, bias::String;
-                trainable=false) =
-                Dense(h5, kernel, bias, trainable=trainable, actf=identity)
-end
-
 
 """
     struct Softmax <: Layer

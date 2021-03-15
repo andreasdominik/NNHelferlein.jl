@@ -26,7 +26,6 @@ Several layers are predefined with executable signatures:
         `Dense`: default layer for a vector (i.e. sample)
            or matrix (i.e. mininbatch) as input with logistic
            actvation as default.        
-        `Predictions`: Dense layer without activation function.
         `Linear`: TensorFlow-style layer to process high-dimensional
           arrays and identity as default activation.
         `Embed`: embedding layer that adds a first dimension with the

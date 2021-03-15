@@ -20,7 +20,7 @@ function test_lenet()
                     Flat(),
                     Dense(800,512),
                     Linear(512, 512, actf=relu),
-                    Predictions(512,3)
+                    Dense(512,3,actf=identity)
             )
 
     mdl = tb_train!(lenet, Adam, trn, vld, epochs=1,
@@ -56,7 +56,7 @@ function test_mlp()
 
         mlp = Regressor(Dense(8,8, actf=relu),
                          Dense(8,8),
-                         Predictions(8,1))
+                         Dense(8,1, actf=identity))
 
         mlp = tb_train!(mlp, Adam, mb, epochs=1, acc_fun=nothing)
         acc = NNHelferlein.calc_acc(mlp, (x,y)->mean(abs2, x-y), data=mb)
@@ -75,7 +75,7 @@ function test_signatures()
 
         mlp = Regressor(Dense(8,8, actf=relu),
                          Dense(8,8),
-                         Predictions(8,1))
+                         Dense(8,1, actf=identity))
         mlp = tb_train!(mlp, Adam, mb, epochs=1, acc_fun=nothing)
 
         y = mlp(rand(Float32, 8,4))
