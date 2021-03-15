@@ -41,6 +41,7 @@ test_in_classes()
 #
 @test test_tokenizer()
 @test test_seq_mb()
+@test test_seq_mb_xy()
 @test test_tatoeba()
 @test test_seq2seq_mb()
 
@@ -94,3 +95,4 @@ include("nets.jl")
 @test test_lenet()
 @test test_mlp()
 @test test_signatures()
+@test test_decay_cp()

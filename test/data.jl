@@ -60,10 +60,24 @@ function test_seq_mb()
 
     t = [tok("I love Julia", split_words=true),
          tok("Peter loves Python", split_words=true),
-         tok("Peter loves Julia and I", split_words=true)]
+         tok("Peter loves Julia and Scala", split_words=true)]
 
     mb = seq_minibatch(t, 2, seq_len=4)
     return size(first(mb)) == (4,2)
+end
+
+function test_seq_mb_xy()
+    tok = WordTokenizer(["I love Julia",
+                         "Peter loves Python",
+                         "We all marvel Geoff"])
+
+    t = [tok("I love Julia", split_words=true),
+         tok("Peter loves Python", split_words=true),
+         tok("Peter loves Julia and Scala", split_words=true)]
+
+    y = [1 1 2]
+    mb = seq_minibatch(t, y, 2, seq_len=4)
+    return first(mb)[2] == [1 1]
 end
 
 

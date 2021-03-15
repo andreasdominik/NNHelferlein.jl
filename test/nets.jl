@@ -92,3 +92,23 @@ function test_signatures()
 
         return test_sign
 end
+
+function test_decay_cp()
+
+        trn = DataFrame(x1=randn(16), x2=randn(16),
+                        x3=randn(16), x4=randn(16),
+                        x5=randn(16), x6=randn(16),
+                        x7=randn(16), x8=randn(16),
+                        y=collect(range(0, 1, length=16)))
+
+        mb = dataframe_minibatches(trn, size=4)
+
+        mlp = Regressor(Dense(8,8, actf=relu),
+                         Dense(8,8),
+                         Dense(8,1, actf=identity))
+
+        mlp = tb_train!(mlp, Adam, mb, epochs=2, acc_fun=nothing,
+                cp_freq=1, lr=0.01, lr_decay=0.99, l2=1e-6)
+        acc = NNHelferlein.calc_acc(mlp, (x,y)->mean(abs2, x-y), data=mb)
+        return acc isa Real
+end
