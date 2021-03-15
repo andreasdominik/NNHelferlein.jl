@@ -360,7 +360,7 @@ end
     function array2RGB(arr)
 
 Take a 3d-array with colour channels as last dimension or a 2d-array
-and return alwasy an array of RGB as Image.
+and return always an array of RGB as Image.
 """
 function array2RGB(arr)
 

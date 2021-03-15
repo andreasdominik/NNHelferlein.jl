@@ -1,13 +1,8 @@
 using Knet, NNHelferlein, CUDA
+using Images, Colors
 import Pkg; Pkg.add("Test"); using Test
+using Statistics: mean
 
-# test Conv, Dense and tb_train():
-#
-include("nets.jl")
-@test test_image_loader()
-@test test_lenet()
-@test test_df_loader()
-@test test_mlp()
 
 
 # test attention mechanisms:
@@ -27,15 +22,17 @@ include("attn.jl")
 #
 include("data.jl")
 @test test_read_df()
+@test test_df_loader()
 @test test_df_split()
 @test test_df_class_ids()
 @test test_df_minibatch()
 
 # image loader:
-# tested in nets.jl!
 #
-# imagenet:
-#
+include("images.jl")
+test_image_loader()
+test_image2arr()
+test_array2image()
 test_preproc_imagenet()
 test_in_classes()
 
@@ -82,3 +79,10 @@ include("util.jl")
 @test test_blowup()
 @test test_recycle()
 @test test_de_embed()
+
+
+# test Conv, Dense and tb_train():
+#
+include("nets.jl")
+@test test_lenet()
+@test test_mlp()

@@ -2,18 +2,6 @@
 using Base.Iterators
 import Pkg; Pkg.add("Augmentor"); using Augmentor
 using DataFrames
-using Statistics: mean
-
-function test_image_loader()
-    augm = CropSize(28,28)
-    trn, vld = mk_image_minibatch("../data/flowers",
-                4; split=true, fr=0.2,
-                balanced=false, shuffle=true,
-                train=true,
-                aug_pipl=augm, pre_proc=nothing)
-
-    return size(first(trn)[1]) == (28,28,3,4)
-end
 
 function test_lenet()
 
@@ -22,7 +10,7 @@ function test_lenet()
                 4; split=true, fr=0.2,
                 balanced=false, shuffle=true,
                 train=true,
-                aug_pipl=augm, pre_proc=nothing)
+                aug_pipl=augm, pre_proc=preproc_imagenet)
 
     lenet = Classifier(Conv(5,5,3,20),
                     Pool(),
@@ -41,23 +29,16 @@ function test_lenet()
             tb_name="test_run", tb_text="NNHelferlein example")
 
     acc = accuracy(mdl, data=vld)
-    return acc isa Real && acc <= 1.0
-end
 
-
-function test_df_loader()
-
-        trn = DataFrame(x1=randn(16), x2=randn(16),
-                        x3=randn(16), x4=randn(16),
-                        x5=randn(16), x6=randn(16),
-                        x7=randn(16), x8=randn(16),
-                        y=["blue", "red", "green", "green",
-                           "blue", "red", "green", "green",
-                           "blue", "red", "green", "green",
-                           "blue", "red", "green", "green"])
-
-        mb = dataframe_minibatches(trn, size=4, teaching="y", ignore="x1")
-        return first(mb)[2] == [0x01  0x03  0x02  0x02]
+    tst = mk_image_minibatch("../data/flowers",
+                4; split=false, fr=0.2,
+                balanced=false, shuffle=true,
+                train=false,
+                aug_pipl=augm, pre_proc=nothing)
+    p = predict_imagenet(mdl, tst, top_n=2)
+    return acc isa Real && acc <= 1.0 &&
+           isdir("logs") &&
+           size(p) == (3,8)
 end
 
 

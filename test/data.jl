@@ -7,6 +7,22 @@ function test_read_df()
     return nrow(df) == 150
 end
 
+function test_df_loader()
+
+        trn = DataFrame(x1=randn(16), x2=randn(16),
+                        x3=randn(16), x4=randn(16),
+                        x5=randn(16), x6=randn(16),
+                        x7=randn(16), x8=randn(16),
+                        y=["blue", "red", "green", "green",
+                           "blue", "red", "green", "green",
+                           "blue", "red", "green", "green",
+                           "blue", "red", "green", "green"])
+
+        mb = dataframe_minibatches(trn, size=4, teaching="y", ignore="x1")
+        return first(mb)[2] == [0x01  0x03  0x02  0x02]
+end
+
+
 
 function test_df_split()
     df = dataframe_read("../data/iris/iris150.csv")
@@ -69,19 +85,4 @@ function test_seq2seq_mb()
 
     mb1 = first(mb)[1]
     return size(mb1) == (20,32)
-end
-
-
-# imagenet:
-#
-function test_preproc_imagenet()
-
-    img = rand(32,32,3)
-    img = preproc_imagenet(img)
-    return size(img) == (32,32,3)
-end
-
-function test_in_classes()
-    c = get_imagenet_classes()
-    return length(c) == 1000
 end
