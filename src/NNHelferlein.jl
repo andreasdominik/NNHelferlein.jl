@@ -49,7 +49,7 @@ export DNN, Classifier, Regressor, Chain,          # chains
        AttentionMechanism, AttnBahdanau,
        AttnLuong, AttnDot, AttnLocation,
        AttnInFeed,
-       leaky_sigm,
+       leaky_sigm, leaky_relu, leaky_tanh,
        PositionalEncoding, positional_encoding_sincos,  # transformers
        mk_padding_mask, mk_peek_ahead_mask,
        dot_prod_attn,

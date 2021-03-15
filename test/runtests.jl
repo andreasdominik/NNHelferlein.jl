@@ -82,6 +82,11 @@ include("util.jl")
 @test test_recycle()
 @test test_de_embed()
 
+# other funs:
+#
+include("funs.jl")
+@test test_leaky()
+
 
 # test Conv, Dense and tb_train():
 #
