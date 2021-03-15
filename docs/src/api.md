@@ -24,7 +24,6 @@ Layer
 Dense
 Linear
 Embed
-Predictions
 ```
 
 ## Convolutional

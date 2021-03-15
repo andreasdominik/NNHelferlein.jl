@@ -48,6 +48,7 @@ test_in_classes()
 #
 include("layers.jl")
 @test test_layer_dense()
+@test test_layer_pred()
 @test test_dense_hdf5()
 @test test_layer_linear()
 

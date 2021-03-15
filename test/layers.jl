@@ -9,6 +9,13 @@ function test_layer_dense()
     y = l(x)
     return size(y) == (o,mb)
 end
+function test_layer_pred()
+    i,o,mb = 50, 25, 16
+    l = Dense(i,o, actf=sigm)
+    x = rand(Float32, i, mb)
+    y = l(x)
+    return size(y) == (o,mb)
+end
 
 function test_dense_hdf5()
     h5file = h5open("../data/testdata/dummykeras.h5")
