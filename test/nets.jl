@@ -90,8 +90,13 @@ function test_signatures()
         loss = mlp(first(mb))
         test_sign = test_sign && typeof(loss) <: Real
 
+        x,y = first(mb)
+        loss = mlp(x,y)
+        test_sign = test_sign && typeof(loss) <: Real
+
         return test_sign
 end
+
 
 function test_decay_cp()
 
@@ -103,9 +108,10 @@ function test_decay_cp()
 
         mb = dataframe_minibatches(trn, size=4)
 
-        mlp = Regressor(Dense(8,8, actf=relu),
-                         Dense(8,8),
-                         Dense(8,1, actf=identity))
+        chain = Chain(Dense(8,8, actf=relu),
+                      Dense(8,8))
+        mlp = Regressor(chain,
+                        Dense(8,1, actf=identity))
 
         mlp = tb_train!(mlp, Adam, mb, epochs=2, acc_fun=nothing,
                 cp_freq=1, lr=0.01, lr_decay=0.99, l2=1e-6)
