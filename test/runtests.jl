@@ -15,6 +15,7 @@ include("attn.jl")
 @test test_attnInFeed()
 
 @test test_dpa()
+@test test_dotp_attn()
 
 
 

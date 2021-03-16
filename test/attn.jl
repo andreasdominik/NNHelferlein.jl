@@ -45,3 +45,40 @@ function test_dpa()
 
     return size(c) == (3,8,10) && size(a) == (8,8,10)
 end
+
+function test_masks()
+    seqs = rand(1:16, 4,6)
+    el = Embed(16,8)
+    seqs_e = el(seqs)
+
+    pl = PositionalEncoding()
+    pos_enc = pl(seqs)   # asser 4x6
+
+    peek_ah = mk_peek_ahead_mask(4)
+    padd = mk_padding_mask(seqs)
+
+    return size(pos_enc) == (4,6) &&
+           size(peek_ah) == (4,4) &&
+           size(padd) == (4,1,1,6)
+end
+
+
+function test_dotp_attn()
+
+    function separate_heads(x, n)
+        depth, seq, mb = size(x)
+        mh_depth = depth ÷ n
+        x = reshape(x, mh_depth, n, :, mb)     # split depth in 2 separate dims for heads
+        return permutedims(x, (1,3,2,4))       # bring seq-len back to 2nd dim
+    end
+
+    seqs = rand(1:16, 4,6)
+    el = Embed(16,8)
+    emb = el(seqs)
+    heads = separate_heads(emb, 2)
+    padd = mk_padding_mask(seqs)
+
+    dpa = dot_prod_attn(heads, heads, heads, mask=padd)
+
+    return size(dpa[1]) == (4,4,2,6)
+end
