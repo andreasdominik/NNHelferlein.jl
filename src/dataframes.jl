@@ -89,7 +89,8 @@ function dataframe_minibatches(data; size=16, ignore=[], teaching="y", o...)
             y = permutedims(convert2KnetArray(data[!,teaching]))
 
         else
-            println("Don't know how to handle teaching input of type $t_type!")
+            println("Don't know how to handle teaching input of type $t_type")
+            return nothing
         end
         return Knet.minibatch(x, y, size; o...)
     end

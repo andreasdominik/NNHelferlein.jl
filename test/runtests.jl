@@ -26,6 +26,7 @@ include("data.jl")
 @test test_df_split()
 @test test_df_class_ids()
 @test test_df_minibatch()
+@test test_df_errors()
 
 # image loader:
 #

@@ -18,8 +18,18 @@ function test_df_loader()
                            "blue", "red", "green", "green",
                            "blue", "red", "green", "green"])
 
-        mb = dataframe_minibatches(trn, size=4, teaching="y", ignore="x1")
-        return first(mb)[2] == [0x01  0x03  0x02  0x02]
+        mb1 = dataframe_minibatches(trn, size=4, teaching="y", ignore="x1")
+
+        trn.iy = [1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4]
+        @show mb2 = dataframe_minibatches(trn, size=4, teaching="iy", ignore=["x1", "y"])
+        @show first(mb2)[2]
+
+        trn.is = [:a,:a,:a,:a,:b,:b,:b,:b,:c,:c,:c,:c,:d,:d,:d,:d]
+        mb3 = dataframe_minibatches(trn, size=4, teaching="is", ignore=["iy", "y"])
+
+        return first(mb1)[2] == UInt8[0x01  0x03  0x02  0x02] &&
+               first(mb2)[2] == UInt8[0x01 0x01 0x01 0x01]    &&
+               mb3 == nothing
 end
 
 
@@ -43,6 +53,13 @@ function test_df_minibatch()
     return size(first(mb)[1]) == (4,10)
 end
 
+function test_df_errors()
+    df1 = dataframe_read("../data/iris/iris150.ods")
+    df2 = dataframe_read("../data/iris/iris150.dat")
+
+    return df1 == nothing &&
+           df2 == nothing
+end
 
 # test NLP utils:
 #
