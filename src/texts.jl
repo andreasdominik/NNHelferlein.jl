@@ -49,7 +49,7 @@ Decode a word by returning the word corresponding to `i` or
 "<unknown>" if the number is out of range of the vocabulary.
 
 
-function (t::WordTokenizer)(s::AbstractArray{T}; add_ctl=false)
+    function (t::WordTokenizer)(s::AbstractArray{T}; add_ctl=false)
                                where {T <: AbstractString}
 
 Called with an Array of Strings the tokeniser splits the strings
