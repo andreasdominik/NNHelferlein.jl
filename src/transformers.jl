@@ -41,7 +41,8 @@ end
 function (l::PositionalEncoding)(x)
     # only one style implemented yet:
     # if l.style == sincos
-        return x = x .+ positional_encoding_sincos(size(x)[1], size(x)[2])
+        x = x .+ positional_encoding_sincos(size(x)[1], size(x)[2])
+        return convert2KnetArray(x)
 end
 
 
