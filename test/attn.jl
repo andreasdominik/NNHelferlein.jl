@@ -54,7 +54,7 @@ function test_masks()
     pl = PositionalEncoding()
     pos_enc = pl(seqs)   # asser 4x6
 
-    peek_ah = mk_peek_ahead_mask(4)
+    peek_ah = mk_peek_ahead_mask(seqs)
     padd = mk_padding_mask(seqs)
 
     return size(pos_enc) == (4,6) &&
