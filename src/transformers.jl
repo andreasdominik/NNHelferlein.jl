@@ -66,15 +66,21 @@ end
 
 
 """
-    function mk_peek_ahead_mask(n_seq)
+    function mk_peek_ahead_mask(x; dim=1)
 
 Return a matrix of size `[n_seq, n_seq]` filled with 1.0 and the *lower triangle*
 set to 0.0.
 Type is `KnetArray{Float32}` in GPU context, `Array{Float32}` otherwise.
 The matrix can be used as peek-ahead mask in transformers.
-"""
-function mk_peek_ahead_mask(n_seq)
 
+`dim=1` specifies the dimension in which the sequence length is
+represented. For un-embedded data this is normally `1`, i.e. the
+shape of x is [n_seq, n_mb]. After embedding the shape probably is
+[depth, n_seq, n_mb].
+"""
+function mk_peek_ahead_mask(x, dim=1)
+
+    n_seq = size(x)[dim]
     return convert2KnetArray(1 .- LowerTriangular(ones(n_seq, n_seq)))
 end
 
