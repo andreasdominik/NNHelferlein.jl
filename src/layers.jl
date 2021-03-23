@@ -416,7 +416,7 @@ end
 function LayerNorm(depth; eps=1e-6)
         a = param(depth; init=ones)
         b = param(depth; init=zeros)
-        LayerNorm(a, b, eps)
+        LayerNorm(a, b, Float32(eps))
 end
 
 function (l::LayerNorm)(x; dims=1)
