@@ -387,7 +387,8 @@ end
 
 
 """
-    function seq2seq_minibatch(x, y, batchsize; seq_len=nothing, pad=0, o...)
+    function seq2seq_minibatch(x, y, batchsize; seq_len=nothing,
+                pad_x=0, pad_y=0, o...)
 
 Return an iterator of type `Knet.Data` with (x,y) sequence minibatches from
 two lists of sequences.
