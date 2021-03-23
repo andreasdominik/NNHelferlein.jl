@@ -67,7 +67,10 @@ function test_tokenizer()
     tok = WordTokenizer(["I love Julia",
                          "Peter loves Python",
                          "We all marvel Geoff"])
-    return tok("Julia") == 4 && tok(4) == "Julia"
+    l = tok(["I love Julia", "Peter loves Python", "We all marvel Geoff"],
+            add_ctl=true)
+    return tok("Julia") == 4 && tok(4) == "Julia" &&
+           l[3] == [11, 2, 10, 9, 7, 12]
 end
 
 function test_seq_mb()

@@ -48,6 +48,14 @@ by `<start>` and `<end>` tokens.
 Decode a word by returning the word corresponding to `i` or
 "<unknown>" if the number is out of range of the vocabulary.
 
+
+function (t::WordTokenizer)(s::AbstractArray{T}; add_ctl=false)
+                               where {T <: AbstractString}
+
+Called with an Array of Strings the tokeniser splits the strings
+into words and returns an Array of `Array{Int}` with each of the
+input strings represented by a sequence of Integer values.
+
 ### Examples:
 
     julia> vocab = WordTokenizer(["I love Julia", "They love Python"]);
@@ -63,13 +71,37 @@ Decode a word by returning the word corresponding to `i` or
      1
      4
 
+    julia> vocab.i2w
+    9-element Array{String,1}:
+     "love"
+     "I"
+     "They"
+     "Julia"
+     "Python"
+     "<start>"
+     "<end>"
+     "<pad>"
+     "<unknown>"
+
+    julia> vocab.w2i
+    Dict{String,Int64} with 9 entries:
+      "I"         => 2
+      "They"      => 3
+      "<end>"     => 7
+      "<pad>"     => 8
+      "Julia"     => 4
+      "love"      => 1
+      "Python"    => 5
+      "<start>"   => 6
+      "<unknown>" => 9
+
     julia> vocab.([3,1,4])
     3-element Array{String,1}:
      "They"
      "love"
      "Julia
 
-     julia> vocab.(split("I love Scala"))
+    julia> vocab.(split("I love Scala"))
     3-element Array{Int64,1}:
      2
      1
@@ -81,13 +113,18 @@ Decode a word by returning the word corresponding to `i` or
      "love"
      "<unknown>"
 
-     julia> vocab("Ich liebe Python", split_words=true, add_ctl=true)
+    julia> vocab("Ich liebe Python", split_words=true, add_ctl=true)
     5-element Array{Int64,1}:
      6
      9
      9
      5
      7
+
+    julia> vocab(["They love Julia", "I love Julia"])
+    2-element Array{Array{Int64,1},1}:
+     [3, 1, 4]
+     [2, 1, 4]
 """
 mutable struct WordTokenizer
     len
@@ -193,6 +230,17 @@ function (t::WordTokenizer)(w::AbstractString; split_words=false, add_ctl=false)
         return st
     end
 end
+
+function (t::WordTokenizer)(s::AbstractArray{T}; add_ctl=false) where {T <: AbstractString}
+
+    # return a list of sequences:
+    #
+    return [t(w; split_words=true, add_ctl=add_ctl) for w in s]
+end
+
+
+
+
 
 """
     function get_tatoeba_corpus(lang; force=false,
