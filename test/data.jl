@@ -69,8 +69,11 @@ function test_tokenizer()
                          "We all marvel Geoff"])
     l = tok(["I love Julia", "Peter loves Python", "We all marvel Geoff"],
             add_ctl=true)
+
+    sentence = tok([4, 8, 1])
     return tok("Julia") == 4 && tok(4) == "Julia" &&
-           l[3] == [11, 2, 10, 9, 7, 12]
+           l[3] == [11, 2, 10, 9, 7, 12] &&
+           sentence == "Julia loves Peter"
 end
 
 function test_seq_mb()

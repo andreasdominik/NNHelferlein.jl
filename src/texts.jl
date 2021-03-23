@@ -56,6 +56,14 @@ Called with an Array of Strings the tokeniser splits the strings
 into words and returns an Array of `Array{Int}` with each of the
 input strings represented by a sequence of Integer values.
 
+
+    function (t::WordTokenizer)(seq::AbstractArray{T}; add_ctl=false)
+                                     where {T <: Int}
+
+Called with an Array of Integer values a single string  is returned
+with the decoded token-IDs as words (space-separated).
+
+
 ### Examples:
 
     julia> vocab = WordTokenizer(["I love Julia", "They love Python"]);
@@ -236,6 +244,13 @@ function (t::WordTokenizer)(s::AbstractArray{T}; add_ctl=false) where {T <: Abst
     # return a list of sequences:
     #
     return [t(w; split_words=true, add_ctl=add_ctl) for w in s]
+end
+
+function (t::WordTokenizer)(seq::AbstractArray{T}; add_ctl=false) where {T <: Int}
+
+    # return a list of sequences:
+    #
+    return join(t.(seq), " ")
 end
 
 
