@@ -18,7 +18,8 @@ function positional_encoding_sincos(n_embed, n_seq)
 
     angl = [1/(10000^(2*i/n_embed)) for i in 1:n_embed/2]
     angl = angl * permutedims(1:n_seq)
-    return vcat(sin.(angl), cos.(angl))
+    pos_enc = vcat(sin.(angl), cos.(angl))
+    return convert2KnetArray(pos_enc)
 end
 
 
@@ -42,7 +43,7 @@ function (l::PositionalEncoding)(x)
     # only one style implemented yet:
     # if l.style == sincos
         x = x .+ positional_encoding_sincos(size(x)[1], size(x)[2])
-        return convert2KnetArray(x)
+        return x
 end
 
 
