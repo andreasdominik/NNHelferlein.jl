@@ -2,6 +2,7 @@ Manifest*
 docs/build
 keys.txt
 examples/.ipynb*
+examples/*Copy*.ipynb
 examples/logs/*
 examples/*.h5
 examples/play*
