@@ -41,12 +41,12 @@ The model is updated (in-place) and the trained model is returned.
         calculated after each epoch. With eval_freq=10 eveluation is
         calculated 10 times per epoch.
 + `acc_fun=nothing`: function to calculate accuracy. The function
-        is called with 2 arguments: `acc_fun(model, data=data)` where
-        data is an iterator that provides (x,y)-tuples of minibatches.
+        is called with 2 arguments: `fun(predictions, teaching)` where
+        `predictions` is the output of a model call and a matrix and
+        `teaching` is the teaching input (y).
         For classification tasks, `accuracy` from the Knet package is
         a good choice. For regression a correlation or mean error
-        may be used, i.e.
-        `acc_fun=(mdl; data=data)->mean([mean(abs, mdl.(x) .- y) for (x,y) in data])`.
+        may be used (i.e. `acc_fun=(x,y)->sum(abs, x.-y)`).
 + `mb_loss_freq=100`: frequency of training loss reporting. default=100
         means that 100 loss-values per epoch will be logged to TensorBoard.
         If mb_loss_freq is greater then the number of minibatches,
@@ -274,23 +274,24 @@ function write_cp(model, step, dir)
     Knet.save(fname, "model", model)
 end
 
-# Helper to calc loss and acc :
-#
-# TODO: remove and jusrt use mdl() and acc()!!
+# Helper to calc loss and acc with only ONE forward run:
 #
 function calc_loss(mdl; data)
 
-    # loss = 0.0
-    # for (x,y) in data
-    #     loss += mdl(x,y)
-    # end
-    # return loss/length(data)
-    return mdl(data)
+    loss = 0.0
+    for (x,y) in data
+        loss += mdl(x,y)
+    end
+    return loss/length(data)
 end
 
 function calc_acc(mdl, fun; data)
 
-    return fun(mdl, data=data)
+    acc = 0.0
+    for (x,y) in data
+        acc += fun(mdl(x), y)
+    end
+    return acc/length(data)
 end
 
 
