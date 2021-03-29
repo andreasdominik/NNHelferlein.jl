@@ -31,7 +31,8 @@ With arguments:
 
 ### Signatures:
 
-    function (t::WordTokenizer)(w::AbstractString)
+    function (t::WordTokenizer)(w::T; split_words=false, add_ctls=false)
+                                where {T <: AbstractString}
 
 Encode a word and return the corresponding number in the vocabulary or
 the highest number (i.e. `"<unknown>"`) if the word is not in the vocabulary.
@@ -109,7 +110,7 @@ with the decoded token-IDs as words (space-separated).
      "love"
      "Julia
 
-    julia> vocab.(split("I love Scala"))
+    julia> vocab.("I love Scala", split_words=true)
     3-element Array{Int64,1}:
      2
      1
@@ -218,9 +219,10 @@ function (t::WordTokenizer)(i::Int)
     end
 end
 
-function (t::WordTokenizer)(w::AbstractString; split_words=false, add_ctl=false)
+function (t::WordTokenizer)(w::T; split_words=false,
+                add_ctl=false) where {T <: AbstractString}
 
-    # tokenize a word or a complete string:
+    # tokenise a word or a complete string:
     #
     if !split_words
         if haskey(t.w2i, w)
