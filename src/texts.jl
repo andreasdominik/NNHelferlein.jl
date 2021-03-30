@@ -316,7 +316,7 @@ function get_tatoeba_corpus(lang; force=false,
     #
     println("Reading Tatoeba corpus for languages en-$lang")
     z = ZipFile.Reader(pathname)
-    en, lang = [], []
+    en, lang = String[], String[]
 
     for f in z.files
         for (i,line) in enumerate(eachline(f))
