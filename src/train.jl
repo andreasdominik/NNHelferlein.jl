@@ -106,7 +106,7 @@ function tb_train!(mdl, opti, trn, vld=nothing; epochs=1,
     # mk log directory:
     #
     start_time = Dates.now()
-    tb_log_dir = joinpath(tb_dir, tb_name,
+    tb_log_dir = joinpath(pwd(), tb_dir, tb_name,
                     Dates.format(start_time, "yyyy-mm-ddTHH-MM-SS"))
     println("Training $epochs epochs with $n_trn minibatches/epoch")
     if vld != nothing
