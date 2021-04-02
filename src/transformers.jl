@@ -115,6 +115,8 @@ Vaswani et al., (2017), *Attention Is All You Need*.
 function dot_prod_attn(q, k, v; mask=nothing)
 
     score = bmm(k, q, transA=true) ./ Float32(sqrt(size(q)[1]))  # [s_v x s_k x mb]
+    # @show typeof(score)
+    # @show typeof(mask)
     if mask != nothing
         score = score .+ mask * Float32(-1e9)
     end
