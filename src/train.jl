@@ -271,7 +271,7 @@ function write_cp(model, step, dir)
         mkdir(dir_name)
     end
     fname = joinpath(dir_name, "checkpoint_$step.jld2")
-    JLD2.@save fname, model
+    JLD2.@save fname model
 end
 
 # Helper to calc loss and acc with only ONE forward run:
