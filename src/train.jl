@@ -24,9 +24,12 @@ The model is updated (in-place) and the trained model is returned.
 ### Keyword arguments:
 #### Optimiser:
 + `epochs=1`: number of epochs to train
-+ `lr_decay=nothing`: Leraning rate decay if not `nothing`:
-        factor (<1) to reduce the
-        lr every epoch as `lr  *= lr_decay`.
++ `lr_decay=nothing`: do a leraning rate decay if not `nothing`:
+        the value given is the final learning rate after `epochs*lrd_freq`
+        steps of decay. `lr_decay` is only applied if both start learning rate
+        `lr` and final learning rate `lr_decay` are defined explicitly.
+        Example: `lr=0.01, lr_decay=0.001` will reduce the lr from
+        0.01 to 0.001 during the training.
 + `lrd_freq=1`: frequency of learning rate decay steps. Default is
         to modify the lr after every epoch
 + `l2=0.0`: L2 regularisation; implemented as weight decay per
@@ -100,6 +103,15 @@ function tb_train!(mdl, opti, trn, vld=nothing; epochs=1,
     lr_nth = cld(n_trn, lrd_freq)
     if cp_freq != nothing
         cp_nth = cld(n_trn, cp_freq)
+    end
+
+
+    # do lr-decay only if lr is explicitly defined:
+    #
+    if lr_decay != nothing && haskey(opti_args, :lr)
+        lr_decay = calc_d_η(opti_args[:lr], lr_decay, lrd_freq*epochs)
+    else
+        lr_decay = nothing
     end
 
 
@@ -329,7 +341,13 @@ function calc_and_report_acc(mdl, acc_fun, trn, vld, tbl, step)
     end
 end
 
-
+# calc step size for lr-decay based on
+# start rate, end rate and num steps:
+#
+function calc_d_η(η_start, η_end, steps)
+    d = log(η_end/η_start) / steps
+    return exp(d)
+end
 
 """
     function predict_top5(mdl, x; top_n=5, classes=nothing)
