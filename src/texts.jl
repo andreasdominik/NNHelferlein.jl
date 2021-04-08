@@ -222,6 +222,7 @@ end
 function (t::WordTokenizer)(w::T; split_words=false,
                 add_ctl=false) where {T <: AbstractString}
 
+    w = clean_sentence(w)
     # tokenise a word or a complete string:
     #
     if !split_words
@@ -231,7 +232,6 @@ function (t::WordTokenizer)(w::T; split_words=false,
             return t("<unknown>")
         end
     else
-        s = clean_sentence(w)
         s = split(w, " ")
         st = t.(s)
         if add_ctl
