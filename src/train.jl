@@ -1,6 +1,7 @@
 """
     function tb_train!(mdl, opti, trn, vld=nothing; epochs=1,
-                      lr_decay=nothing, lrd_freq=1, l2=0.0,
+                      lr_decay=nothing, lrd_freq=1, lrd_linear=false,
+                      l2=0.0,
                       eval_size=0.2, eval_freq=1,
                       acc_fun=nothing,
                       mb_loss_freq=100,
@@ -32,6 +33,10 @@ The model is updated (in-place) and the trained model is returned.
         0.01 to 0.001 during the training.
 + `lrd_freq=1`: frequency of learning rate decay steps. Default is
         to modify the lr after every epoch
++ `lrd_linear=false`: type of learning rate decay;
+        If `false`, lr is modified
+        by a constant factor (e.g. 0.9) resulting in an exponential decay.
+        If `true`, lr is modified by the same step size, i.e. linearly.
 + `l2=0.0`: L2 regularisation; implemented as weight decay per
         parameter
 + `opti_args...`: optional keyword arguments for the optimiser can be specified
@@ -71,7 +76,8 @@ TensorBoard log-directory is created from 3 parts:
         to be included in the TensorBoard log as *text* log.
 """
 function tb_train!(mdl, opti, trn, vld=nothing; epochs=1,
-                  lr_decay=nothing, lrd_freq=1, l2=0.0,
+                  lr_decay=nothing, lrd_freq=1, lrd_linear=false,
+                  l2=0.0,
                   eval_size=0.2, eval_freq=1, acc_fun=nothing,
                   mb_loss_freq=100,
                   cp_freq=nothing, cp_dir="checkpoints",
@@ -109,7 +115,7 @@ function tb_train!(mdl, opti, trn, vld=nothing; epochs=1,
     # do lr-decay only if lr is explicitly defined:
     #
     if lr_decay != nothing && haskey(opti_args, :lr)
-        lr_decay = calc_d_η(opti_args[:lr], lr_decay, lrd_freq*epochs)
+       lr_decay = calc_d_η(opti_args[:lr], lr_decay, lrd_linear, lrd_freq*epochs)
     else
         lr_decay = nothing
     end
@@ -198,8 +204,9 @@ function tb_train!(mdl, opti, trn, vld=nothing; epochs=1,
         # lr decay:
         #
         if (lr_decay != nothing) && (i % lr_nth == 0)
-            lr = first(params(mdl)).opt.lr * lr_decay
-            println("Set learning rate to η = $lr")
+            lr = first(params(mdl)).opt.lr
+            lr = lrd_linear ? lr + lr_decay : lr * lr_decay
+            @printf("Setting learning rate to η=%.2e\n", lr)
             for p in params(mdl)
                 p.opt.lr = lr
                 # println("adapting lr in $p to $(p.opt.lr)")
@@ -344,9 +351,14 @@ end
 # calc step size for lr-decay based on
 # start rate, end rate and num steps:
 #
-function calc_d_η(η_start, η_end, steps)
-    d = log(η_end/η_start) / steps
-    return exp(d)
+function calc_d_η(η_start, η_end, lrd_linear, steps)
+    if !lrd_linear
+        d = log(η_end/η_start) / steps
+        d = exp(d)
+    else
+        d = (η_end - η_start) / steps
+    end
+    return d
 end
 
 """
