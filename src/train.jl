@@ -327,7 +327,7 @@ function calc_and_report_loss(mdl, trn, vld, tbl, step)
         end
     else
         with_logger(tbl) do
-            @info "Evaluation Loss" train=loss_trn log_step_increment=step
+            @info "Evaluation Loss" train=loss_trn log_step_increment=0
         end
     end
 end
