@@ -151,13 +151,13 @@ function tb_train!(mdl, opti, trn, vld=nothing; epochs=1,
 
     # set optimiser - only if not yet set:
     #
-    for p in params(mdl)
-        if p.opt == nothing
+    if first(params(mdl)).opt == nothing
+        for p in params(mdl)
             p.opt = opti(;opti_args...)
-        else
-            if haskey(opti_args, :lr)
-                p.opt.lr = opti_args[:lr]
-            end
+        end
+    else
+        if haskey(opti_args, :lr)
+            set_learning_rate(mdl, opti_args[:lr])
         end
     end
 
@@ -213,7 +213,7 @@ function tb_train!(mdl, opti, trn, vld=nothing; epochs=1,
             lr = first(params(mdl)).opt.lr
             lr = lrd_linear ? lr + lr_decay : lr * lr_decay
             @printf("Setting learning rate to η=%.2e\n", lr)
-            set_leraning_rate(mdl, lr)
+            set_learning_rate(mdl, lr)
             # for p in params(mdl)
             #     p.opt.lr = lr
             #     # println("adapting lr in $p to $(p.opt.lr)")
