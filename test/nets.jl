@@ -58,9 +58,21 @@ function test_mlp()
                          Dense(8,8),
                          Dense(8,1, actf=identity))
 
-        mlp = tb_train!(mlp, Adam, mb, epochs=10, acc_fun=nothing, 
+        mlp = tb_train!(mlp, Adam, mb, epochs=10, acc_fun=nothing,
                 lr=0.001, lr_decay=0.0001, lrd_freq=5)
-        acc = NNHelferlein.calc_acc(mlp, (x,y)->mean(abs2, x-y), data=mb)
+
+        function acc_fun(mdl; data=data)
+            a = 0.0
+            for (x,y) in data
+                a += mean(abs2, mdl(x) .- y)
+            end
+            return a/length(data)
+        end
+
+        mlp = tb_train!(mlp, Adam, mb, epochs=10, acc_fun=acc_fun,
+                lr=0.001, lr_decay=0.0001, lrd_freq=5)
+
+        acc = NNHelferlein.calc_acc(mlp, acc_fun, data=mb)
         return acc isa Real
 end
 
