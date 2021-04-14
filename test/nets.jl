@@ -43,6 +43,13 @@ end
 
 
 
+function acc_fun(mdl; data=data)
+    a = 0.0
+    for (x,y) in data
+        a += mean(abs2, mdl(x) .- y)
+    end
+    return a/length(data)
+end
 
 function test_mlp()
 
@@ -61,13 +68,6 @@ function test_mlp()
         mlp = tb_train!(mlp, Adam, mb, epochs=10, acc_fun=nothing,
                 lr=0.001, lr_decay=0.0001, lrd_freq=5)
 
-        function acc_fun(mdl; data=data)
-            a = 0.0
-            for (x,y) in data
-                a += mean(abs2, mdl(x) .- y)
-            end
-            return a/length(data)
-        end
 
         mlp = tb_train!(mlp, Adam, mb, epochs=10, acc_fun=acc_fun,
                 lr=0.001, lr_decay=0.0001, lrd_freq=5)
@@ -128,6 +128,6 @@ function test_decay_cp()
 
         mlp = tb_train!(mlp, Adam, mb, epochs=2, acc_fun=nothing,
                 cp_freq=1, lr=0.01, lr_decay=0.99, l2=1e-6)
-        acc = NNHelferlein.calc_acc(mlp, (x,y)->mean(abs2, x-y), data=mb)
+        acc = NNHelferlein.calc_acc(mlp, acc_fun, data=mb)
         return acc isa Real
 end
