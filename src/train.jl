@@ -278,7 +278,7 @@ function log_text(tbl, tb_log_dir, tb_name, start_time, tb_text,
     "   <li>Epochs: $epochs</li>"
 
     if lr_decay != nothing
-        tb_log_text *= "   <li>lr-decay: $lr_decay with frequency $lrd_freq</li>"
+        tb_log_text *= "   <li>learning rate step size: $lr_decay with frequency $lrd_freq</li>"
     end
     if l2 > 0
         tb_log_text *= "   <li>L2 regularisation: $l2</li>"
