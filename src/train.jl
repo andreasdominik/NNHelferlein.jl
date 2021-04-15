@@ -451,12 +451,12 @@ must be the same.
         and teaching input for a minibatch of sequences.
         Shape of the arrays must be identical except of the first dimension
         (i.e. the sequence length) that may differ between `p` and `t`.
-+ `accuracy=false`: if `false` the mean Hamming distance in the minibatch
++ `accuracy=false`: if `false`, the mean Hamming distance in the minibatch
         is returned (i.e. the average number of differences in the sequences).
-        If `false` the accuracy is returned
+        If `true`, the accuracy is returned
         for all not padded positions in a range (0.0 - 1.0).
 + `vocab=nothing`: target laguage vocabulary of type `NNHelferlein.WordTokenizer`.
-        If defined
+        If defined,
         the padding token of `vocab` is used to mask all control tokens in the
         sequences (i.e. '<start>, <end>, <unknwon>, <pad>').
 + `pad=0`: if `vocab` is undefined, `pad` is used to pad `p`, if the sequence
