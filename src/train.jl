@@ -436,3 +436,72 @@ function predict(mdl, x; softmax=false)
         return y
     end
 end
+
+
+"""
+    function hamming_dist(p, t; accuracy=false, vocab=nothing, pad=0)
+
+Return the Hamming distance between two sequences or two minibatches
+of sequences. Predicted sequences `p` and teaching input sequences `t`
+may be of different length but the number of sequences in the minibatch
+must be the same.
+
+### Arguments:
++ `p`, `t`: n-dimensional arrays of type `Int` with predictions
+        and teaching input for a minibatch of sequences.
+        Shape of the arrays must be identical except of the first dimension
+        (i.e. the sequence length) that may differ between `p` and `t`.
++ `accuracy=false`: if `false` the mean Hamming distance in the minibatch
+        is returned (i.e. the average number of differences in the sequences).
+        If `false` the accuracy is returned
+        for all not padded positions in a range (0.0 - 1.0).
++ `vocab=nothing`: target laguage vocabulary of type `NNHelferlein.WordTokenizer`.
+        If defined
+        the padding token of `vocab` is used to mask all control tokens in the
+        sequences (i.e. '<start>, <end>, <unknwon>, <pad>').
++ `pad=0`: if `vocab` is undefined, `pad` is used to pad `p`, if the sequence
+        length of `p` is smaller than the length of `t`.
+"""
+function hamming_dist(p, t; accuracy=false, vocab=nothing, pad=0)
+
+    # make 2d matrix of sequences:
+    #
+    n_seq_t = size(t)[1]
+    t = reshape(t, n_seq_t,:)
+
+    n_seq_p = size(p)[1]
+    p = reshape(p, n_seq_p,:)
+
+    n_mb = size(t)[2]
+
+    # make all control-tokens the same:
+    #
+    if vocab != nothing
+        START = vocab("<start>")
+        END = vocab("<end>")
+        UNK = vocab("<unknown>")
+        PAD = vocab("<pad>")
+
+        t[t .== START] .= PAD
+        t[t .== END] .= PAD
+        t[t .== UNK] .= PAD
+    else
+        PAD = pad
+    end
+
+    # make n_seq of p the same as t:
+    #
+    if n_seq_p > n_seq_t
+        p = p[1:n_seq_t,:]
+    end
+    while size(p)[1] < n_seq_t
+        p = vcat(p, repeat([PAD], inner=(1,n_mb)))
+    end
+
+    # mask preds same as teaching and count all
+    # mask positions:
+    #
+    p[t .== PAD] .= PAD
+    num_pad = length(t[t .== PAD])
+    return accuracy ? (sum(p .== t) - num_pad)/(length(t)-num_pad) : sum(p .!= t)/n_mb
+end

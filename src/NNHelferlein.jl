@@ -41,7 +41,7 @@ export DNN, Classifier, Regressor, Chain,          # chains
        iterate, length,
        Layer, Dense, Conv, Pool, Flat, PyFlat,         # layers
        DeConv, UnPool,
-       Embed, 
+       Embed,
        RSeqClassifier, RSeqTagger,
        hidden_states, cell_states,
        Softmax, Dropout, BatchNorm, LayerNorm,
@@ -58,7 +58,7 @@ export DNN, Classifier, Regressor, Chain,          # chains
        mk_image_minibatch,
        tb_train!,
        predict_top5, predict_imagenet,
-       predict,
+       predict, hamming_dist,
        get_imagenet_classes,                    # images
        image2array, array2image, array2RGB,
        WordTokenizer,                           # texts

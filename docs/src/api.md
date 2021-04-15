@@ -152,6 +152,7 @@ tb_train!
 ```@docs
 predict
 predict_top5
+hamming_dist
 ```
 
 # ImageNet tools
