@@ -35,6 +35,8 @@ include("train.jl")
 include("imagenet.jl")
 
 
+DATA_DIR = normpath(joinpath(dirname(pathof(@__MODULE__)), "..", "data"))
+
 export DNN, Classifier, Regressor, Chain,          # chains
        ImageLoader, DataLoader, preproc_imagenet,
        get_class_labels,
@@ -66,6 +68,7 @@ export DNN, Classifier, Regressor, Chain,          # chains
        seq_minibatch, seq2seq_minibatch,
        crop_array, init0, convert2KnetArray,             # utils
        blowup_array, recycle_array,
-       de_embed
+       de_embed,
+       DATA_DIR
 
 end # module
