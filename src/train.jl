@@ -81,7 +81,7 @@ function tb_train!(mdl, opti, trn, vld=nothing; epochs=1,
                   mb_loss_freq=100,
                   cp_freq=nothing, cp_dir="checkpoints",
                   tb_dir="logs", tb_name="run",
-                  tb_text=""""Description of tb_train!() run.""",
+                  tb_text="""Description of tb_train!() run.""",
                   opti_args...)
 
     # use every n-th mb for evaluation (based on vld if defined):
