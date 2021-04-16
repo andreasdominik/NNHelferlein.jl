@@ -24,10 +24,9 @@ With arguments:
 + `len=nothing`: maximum number of different words in the vocabulary.
         Additional words in texts will be encoded as unknown. If `nothing`,
         all words of the texts are included.
-+ `add_ctls=true`: if true, control words are added to the vocabulary
-        (extending the maximum length by 4): `"<start>"`, `"<end>"`,
-        `"<pad>"` and `"<unknown>"`. `"<unknown>"` will allways be encoded
-        with the largest number in the vocab (i.e. `i2w[end]`).
++ `add_ctls=true`: if true, control words are added in front of the vocabulary
+        (extending the maximum length by 4): `"<start>"=>1`, `"<end>"=>2`,
+        `"<pad>"=>3` and `"<unknown>"=>4`.
 
 ### Signatures:
 
@@ -68,43 +67,43 @@ with the decoded token-IDs as words (space-separated).
 ### Examples:
 
     julia> vocab = WordTokenizer(["I love Julia", "They love Python"]);
-    Julia> vocab(4)
+    Julia> vocab(8)
     "Julia"
 
     julia> vocab("love")
-    1
+    5
 
     julia> vocab.(split("I love Julia"))
     3-element Array{Int64,1}:
-     2
-     1
-     4
+     5
+     6
+     8
 
     julia> vocab.i2w
     9-element Array{String,1}:
+     "<start>"
+     "<end>"
+     "<pad>"
+     "<unknown>"
      "love"
      "I"
      "They"
      "Julia"
      "Python"
-     "<start>"
-     "<end>"
-     "<pad>"
-     "<unknown>"
 
     julia> vocab.w2i
     Dict{String,Int64} with 9 entries:
-      "I"         => 2
-      "They"      => 3
-      "<end>"     => 7
-      "<pad>"     => 8
-      "Julia"     => 4
-      "love"      => 1
-      "Python"    => 5
-      "<start>"   => 6
-      "<unknown>" => 9
+      "I"         => 6
+      "<end>"     => 2
+      "<pad>"     => 3
+      "They"      => 7
+      "Julia"     => 8
+      "love"      => 5
+      "Python"    => 9
+      "<start>"   => 1
+      "<unknown>" => 4
 
-    julia> vocab.([3,1,4])
+    julia> vocab.([7,5,8])
     3-element Array{String,1}:
      "They"
      "love"
@@ -112,28 +111,28 @@ with the decoded token-IDs as words (space-separated).
 
     julia> vocab.("I love Scala", split_words=true)
     3-element Array{Int64,1}:
-     2
-     1
-     9
+     6
+     5
+     4
 
-    julia> vocab.([2,1,9])
+    julia> vocab.([6,5,4])
     3-element Array{String,1}:
      "I"
      "love"
      "<unknown>"
 
-    julia> vocab("Ich liebe Python", split_words=true, add_ctl=true)
+    julia> vocab("I love Python", split_words=true, add_ctl=true)
     5-element Array{Int64,1}:
+     1
      6
-     9
-     9
      5
-     7
+     9
+     2
 
     julia> vocab(["They love Julia", "I love Julia"])
     2-element Array{Array{Int64,1},1}:
-     [3, 1, 4]
-     [2, 1, 4]
+     [7, 5, 8]
+     [6, 5, 8]
 """
 mutable struct WordTokenizer
     len
@@ -192,10 +191,10 @@ function WordTokenizer(texts; len=nothing, add_ctls=true)
     # add control tokens:
     #
     if add_ctls
-        append!(pairs, ["<start>" => 0,
+        pushfirst!(pairs, "<start>" => 0,
                         "<end>" => 0,
                         "<pad>" => 0,
-                        "<unknown>" => 0])
+                        "<unknown>" => 0)
     end
 
     # make encode and decode data structures:
