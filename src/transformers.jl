@@ -70,7 +70,7 @@ end
 """
     function mk_peek_ahead_mask(x; dim=1)
 
-Return a matrix of size `[n_seq, n_seq]` filled with 1.0 and the *lower triangle*
+Return a matrix of size `[n_seq, n_seq]` filled with 1.0 and the *uppper triangle*
 set to 0.0.
 Type is `KnetArray{Float32}` in GPU context, `Array{Float32}` otherwise.
 The matrix can be used as peek-ahead mask in transformers.
@@ -83,7 +83,7 @@ shape of x is [n_seq, n_mb]. After embedding the shape probably is
 function mk_peek_ahead_mask(x, dim=1)
 
     n_seq = size(x)[dim]
-    return convert2KnetArray(1 .- LowerTriangular(ones(n_seq, n_seq)))
+    return convert2KnetArray(1 .- UpperTriangular(ones(n_seq, n_seq)))
 end
 
 
@@ -119,7 +119,7 @@ function dot_prod_attn(q, k, v; mask=nothing)
     if mask != nothing
         score = score .+ mask * Float32(-1e9)
     end
-    
+
     α = softmax(score, dims=1)
     c = bmm(v, α)
     return c, α
