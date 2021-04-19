@@ -67,7 +67,7 @@ function Base.summary(l::Dense)
     return @sprintf("%-50s params: %8d", s1, n)
 end
 
-get_n_params(l::Dense) = length(l.w) + length(l.b)
+# get_n_params(l::Dense) = length(l.w) + length(l.b)
 
 
 """
@@ -115,7 +115,7 @@ function Base.summary(l::Linear)
     return @sprintf("%-50s params: %8d", s1, n)
 end
 
-get_n_params(l::Linear) = length(l.w) + length(l.b)
+# get_n_params(l::Linear) = length(l.w) + length(l.b)
 
 
 
@@ -195,7 +195,7 @@ function Base.summary(l::Conv)
     return @sprintf("%-50s params: %8d", s1, n)
 end
 
-get_n_params(l::Conv) = length(l.w) + length(l.b)
+# get_n_params(l::Conv) = length(l.w) + length(l.b)
 
 
 
@@ -233,7 +233,7 @@ function Base.summary(l::Pool)
     return @sprintf("%-50s params: %8d", s1, n)
 end
 
-get_n_params(l::Pool) = 0
+# get_n_params(l::Pool) = 0
 
 
 
@@ -287,7 +287,7 @@ function Base.summary(l::DeConv)
     return @sprintf("%-50s params: %8d", s1, n)
 end
 
-get_n_params(l::DeConv) = length(l.w) + length(l.b)
+# get_n_params(l::DeConv) = length(l.w) + length(l.b)
 
 
 
@@ -316,7 +316,7 @@ function Base.summary(l::UnPool)
     return @sprintf("%-50s params: %8d", s1, n)
 end
 
-get_n_params(l::UnPool) = 0
+# get_n_params(l::UnPool) = 0
 
 
 
@@ -339,7 +339,7 @@ function Base.summary(l::Flat)
     return @sprintf("%-50s params: %8d", s1, n)
 end
 
-get_n_params(l::Flat) = 0
+# get_n_params(l::Flat) = 0
 
 
 
@@ -365,7 +365,7 @@ function Base.summary(l::PyFlat)
     return @sprintf("%-50s params: %8d", s1, n)
 end
 
-get_n_params(l::PyFlat) = 0
+# get_n_params(l::PyFlat) = 0
 
 
 """
@@ -404,7 +404,7 @@ function Base.summary(l::Embed)
     return @sprintf("%-50s params: %8d", s1, n)
 end
 
-get_n_params(l::Embed) = length(l.w)
+# get_n_params(l::Embed) = length(l.w)
 
 
 """
@@ -425,7 +425,7 @@ function Base.summary(l::Softmax)
     return @sprintf("%-50s params: %8d", s1, n)
 end
 
-get_n_params(l::Softmax) = 0
+# get_n_params(l::Softmax) = 0
 
 
 """
@@ -450,7 +450,7 @@ function Base.summary(l::Dropout)
     return @sprintf("%-50s params: %8d", s1, n)
 end
 
-get_n_params(l::Dropout) = 0
+# get_n_params(l::Dropout) = 0
 
 
 
@@ -499,6 +499,18 @@ function (l::BatchNorm)(x)
     end
 end
 
+function Base.summary(l::BatchNorm)
+    n = get_n_params(l)
+    if l.trainable
+        s1 = "Trainable BatchNorm layer,"
+    else
+        s1 = "BatchNorm layer,"
+    end
+    return @sprintf("%-50s params: %8d", s1, n)
+end
+
+# get_n_params(l::BatchNorm) = l.trainable ? length(l.params) : 0
+
 
 """
     struct LayerNorm  <: Layer
@@ -538,6 +550,16 @@ function (l::LayerNorm)(x; dims=1)
     return l.a .* (x .- μ) ./ (σ .+ l.ϵ) .+ l.b
 end
 
+function Base.summary(l::LayerNorm)
+    n = get_n_params(l)
+    s1 = "Trainable LayerNorm layer,"
+    return @sprintf("%-50s params: %8d", s1, n)
+end
+
+# get_n_params(l::LayerNorm) = length(l.a) + length(l.b)
+
+
+
 
 """
     struct RSeqTagger <: Layer
@@ -572,6 +594,12 @@ function (rnn::RSeqTagger)(x)
     x = permutedims(x, (1,3,2))
     x = rnn.rnn(x)
     return permutedims(x, (1,3,2)) # [units, time-steps, samples]
+end
+
+function Base.summary(l::RSeqTagger)
+    n = get_n_params(l)
+    s1 = "RSeqTagger layer, $(l.n_inputs) → $(l.n_units) of type $(l.unit_type),"
+    return @sprintf("%-50s params: %8d", s1, n)
 end
 
 
@@ -613,6 +641,12 @@ function (rnn::RSeqClassifier)(x)
     return x[:,:,end]     # [units, samples]
 end
 
+function Base.summary(l::RSeqClassifyer)
+    n = get_n_params(l)
+    s1 = "RSeqClassifyer layer, $(l.n_inputs) → $(l.n_units) of type $(l.unit_type),"
+    return @sprintf("%-50s params: %8d", s1, n)
+end
+
 """
     function hidden_states(l::<RNN_Type>)
 
@@ -647,4 +681,16 @@ function cell_states(l::Union{RSeqClassifier, RSeqTagger, Knet.RNN})
     else
         return nothing
     end
+end
+
+
+# return number of params:
+#
+function get_n_params(mdl)
+
+    n = 0
+    for p in params(mdl)
+        n += length(p)
+    end
+    return n
 end
