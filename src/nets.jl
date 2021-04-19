@@ -40,6 +40,9 @@ end
 (m::Classifier)(x,y) = Knet.nll(m(x), y)
 
 
+
+
+
 """
     struct Regressor
 
@@ -54,6 +57,14 @@ struct Regressor <: DNN
 end
 (m::Regressor)(x,y) = sum(abs2, m(x) .- y)
 
+function Base.summary(mdl::Regressor)
+    n = get_n_params(mdl)
+    ls = length(mdl.layers)
+    s1 = "regressor with $ls layers,"
+    return @sprintf("%-50s params: %8d", s1, n)
+end
+
+
 
 """
     struct Chain
@@ -63,4 +74,36 @@ Simple wrapper to chain layers and execute them one after another.
 struct Chain <: DNN
     layers
     Chain(layers...) = new(layers)
+end
+
+
+
+function Base.summary(mdl::DNN)
+    n = get_n_params(mdl)
+    ls = length(mdl.layers)
+    s1 = "$(typeof(mdl)) with $ls layers,"
+    return @sprintf("%-50s params: %8d", s1, n)
+end
+
+
+function print_network(mdl::DNN; indent="")
+
+    if indent == ""
+        println("Neural network summary:")
+        println(summary(mdl))
+        println("Details:")
+    else
+        println(indent*summary(mdl))
+    end
+
+    indent *= "    "
+    println(" ")
+    for l in mdl.layers
+        if l isa DNN
+            print_network(l, indent=indent)
+            println(" ")
+        else
+            println(indent*summary(l))
+        end
+    end
 end

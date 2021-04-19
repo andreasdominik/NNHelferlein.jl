@@ -69,6 +69,7 @@ export DNN, Classifier, Regressor, Chain,          # chains
        crop_array, init0, convert2KnetArray,             # utils
        blowup_array, recycle_array,
        de_embed,
+       print_network,
        DATA_DIR
 
 end # module

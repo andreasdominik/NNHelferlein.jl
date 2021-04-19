@@ -67,8 +67,6 @@ function Base.summary(l::Dense)
     return @sprintf("%-50s params: %8d", s1, n)
 end
 
-# get_n_params(l::Dense) = length(l.w) + length(l.b)
-
 
 """
     struct Linear  <: Layer
@@ -114,8 +112,6 @@ function Base.summary(l::Linear)
     s1 = "Linear layer $i → $o, with $(l.actf),"
     return @sprintf("%-50s params: %8d", s1, n)
 end
-
-# get_n_params(l::Linear) = length(l.w) + length(l.b)
 
 
 
@@ -195,7 +191,6 @@ function Base.summary(l::Conv)
     return @sprintf("%-50s params: %8d", s1, n)
 end
 
-# get_n_params(l::Conv) = length(l.w) + length(l.b)
 
 
 
@@ -233,7 +228,6 @@ function Base.summary(l::Pool)
     return @sprintf("%-50s params: %8d", s1, n)
 end
 
-# get_n_params(l::Pool) = 0
 
 
 
@@ -287,7 +281,6 @@ function Base.summary(l::DeConv)
     return @sprintf("%-50s params: %8d", s1, n)
 end
 
-# get_n_params(l::DeConv) = length(l.w) + length(l.b)
 
 
 
@@ -316,7 +309,6 @@ function Base.summary(l::UnPool)
     return @sprintf("%-50s params: %8d", s1, n)
 end
 
-# get_n_params(l::UnPool) = 0
 
 
 
@@ -339,7 +331,6 @@ function Base.summary(l::Flat)
     return @sprintf("%-50s params: %8d", s1, n)
 end
 
-# get_n_params(l::Flat) = 0
 
 
 
@@ -365,7 +356,6 @@ function Base.summary(l::PyFlat)
     return @sprintf("%-50s params: %8d", s1, n)
 end
 
-# get_n_params(l::PyFlat) = 0
 
 
 """
@@ -404,7 +394,6 @@ function Base.summary(l::Embed)
     return @sprintf("%-50s params: %8d", s1, n)
 end
 
-# get_n_params(l::Embed) = length(l.w)
 
 
 """
@@ -425,7 +414,6 @@ function Base.summary(l::Softmax)
     return @sprintf("%-50s params: %8d", s1, n)
 end
 
-# get_n_params(l::Softmax) = 0
 
 
 """
@@ -450,7 +438,6 @@ function Base.summary(l::Dropout)
     return @sprintf("%-50s params: %8d", s1, n)
 end
 
-# get_n_params(l::Dropout) = 0
 
 
 
@@ -509,7 +496,6 @@ function Base.summary(l::BatchNorm)
     return @sprintf("%-50s params: %8d", s1, n)
 end
 
-# get_n_params(l::BatchNorm) = l.trainable ? length(l.params) : 0
 
 
 """
@@ -556,7 +542,6 @@ function Base.summary(l::LayerNorm)
     return @sprintf("%-50s params: %8d", s1, n)
 end
 
-# get_n_params(l::LayerNorm) = length(l.a) + length(l.b)
 
 
 
@@ -641,11 +626,13 @@ function (rnn::RSeqClassifier)(x)
     return x[:,:,end]     # [units, samples]
 end
 
-function Base.summary(l::RSeqClassifyer)
+function Base.summary(l::RSeqClassifier)
     n = get_n_params(l)
     s1 = "RSeqClassifyer layer, $(l.n_inputs) → $(l.n_units) of type $(l.unit_type),"
     return @sprintf("%-50s params: %8d", s1, n)
 end
+
+    
 
 """
     function hidden_states(l::<RNN_Type>)
