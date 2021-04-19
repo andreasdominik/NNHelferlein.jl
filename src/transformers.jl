@@ -49,7 +49,7 @@ end
 
 
 """
-    function mk_padding_mask(x; pad=0)
+    function mk_padding_mask(x; pad=3)
 
 Make a padding mask; i.e. return an Array of type
 `KnetArray{Float32}` (or `Array{Float32}`) similar to `x` but with
@@ -61,7 +61,7 @@ value `1.0` at each position where `x` is `pad` and `0.0` otherwise.
 The function can be used for creating padding masks for attention
 mechanisms.
 """
-function mk_padding_mask(x; pad=0)
+function mk_padding_mask(x; pad=3)
 
     return reshape(convert2KnetArray(x .== pad), size(x)[1],1,1,size(x)[2])
 end
