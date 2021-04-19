@@ -60,6 +60,14 @@ end
 
 (l::Dense)(x) = l.actf.(l.w * x .+ l.b)
 
+function Base.summary(l::Dense)
+    n = get_n_params(l)
+    o,i = size(l.w)
+    s1 = "Dense layer $i → $o with $(l.actf),"
+    return @sprintf("%-50s params: %8d", s1, n)
+end
+
+get_n_params(l::Dense) = length(l.w) + length(l.b)
 
 
 """
@@ -100,6 +108,14 @@ struct Linear  <: Layer
      return reshape(y, siz...)
  end
 
+function Base.summary(l::Linear)
+    n = get_n_params(l)
+    o,i = size(l.w)
+    s1 = "Linear layer $i → $o, with $(l.actf),"
+    return @sprintf("%-50s params: %8d", s1, n)
+end
+
+get_n_params(l::Linear) = length(l.w) + length(l.b)
 
 
 
@@ -167,6 +183,19 @@ function Conv(h5::HDF5.File, kernel::String, bias::String; trainable=false, actf
     return Conv(w, b, actf; padding=pad)
 end
 
+function Base.summary(l::Conv)
+    n = get_n_params(l)
+    k1,k2 = size(l.w)[1:2]
+    if length(l.kwargs) > 0
+        kwa = " $(collect(l.kwargs))"
+    else
+        kwa = ""
+    end
+    s1 = "Conv layer ($k1,$k2)$kwa with $(l.actf),"
+    return @sprintf("%-50s params: %8d", s1, n)
+end
+
+get_n_params(l::Conv) = length(l.w) + length(l.b)
 
 
 
@@ -191,6 +220,20 @@ struct Pool    <: Layer
 end
 
 (l::Pool)(x) = Knet.pool(x; l.kwargs...)
+
+
+function Base.summary(l::Pool)
+    n = get_n_params(l)
+    if length(l.kwargs) > 0
+        kwa = " $(collect(l.kwargs))"
+    else
+        kwa = ""
+    end
+    s1 = "Pool layer$kwa,"
+    return @sprintf("%-50s params: %8d", s1, n)
+end
+
+get_n_params(l::Pool) = 0
 
 
 
@@ -232,6 +275,20 @@ end
 
 (c::DeConv)(x) = c.actf.(Knet.deconv4(c.w, x; c.kwargs...) .+ c.b)
 
+function Base.summary(l::DeConv)
+    n = get_n_params(l)
+    k1,k2 = size(l.w)[1:2]
+    if length(l.kwargs) > 0
+        kwa = " $(collect(l.kwargs))"
+    else
+        kwa = ""
+    end
+    s1 = "DeConv layer ($k1,$k2)$kwa with $(l.actf),"
+    return @sprintf("%-50s params: %8d", s1, n)
+end
+
+get_n_params(l::DeConv) = length(l.w) + length(l.b)
+
 
 
 """
@@ -248,6 +305,20 @@ struct UnPool <: Layer
 end
 (l::UnPool)(x) = Knet.unpool(x; l.kwargs...)
 
+function Base.summary(l::UnPool)
+    n = get_n_params(l)
+    if length(l.kwargs) > 0
+        kwa = " $(collect(l.kwargs))"
+    else
+        kwa = ""
+    end
+    s1 = "UnPool layer$kwa,"
+    return @sprintf("%-50s params: %8d", s1, n)
+end
+
+get_n_params(l::UnPool) = 0
+
+
 
 """
     struct Flat <: Layer
@@ -260,6 +331,15 @@ Default flatten layer.
 struct Flat <: Layer
 end
 (l::Flat)(x) = Knet.mat(x)
+
+
+function Base.summary(l::Flat)
+    n = get_n_params(l)
+    s1 = "Flat layer,"
+    return @sprintf("%-50s params: %8d", s1, n)
+end
+
+get_n_params(l::Flat) = 0
 
 
 
@@ -279,6 +359,13 @@ struct PyFlat <: Layer
 end
 (l::PyFlat)(x) = l.python ? Knet.mat(permutedims(x, (3,2,1,4))) : mat(x)
 
+function Base.summary(l::PyFlat)
+    n = get_n_params(l)
+    s1 = "PyFlat layer,"
+    return @sprintf("%-50s params: %8d", s1, n)
+end
+
+get_n_params(l::PyFlat) = 0
 
 
 """
@@ -310,6 +397,15 @@ end
 
 (l::Embed)(x) = l.actf.(l.w[:,x])
 
+function Base.summary(l::Embed)
+    n = get_n_params(l)
+    o,i = size(l.w)
+    s1 = "Embed layer $i → $o, with $(l.actf),"
+    return @sprintf("%-50s params: %8d", s1, n)
+end
+
+get_n_params(l::Embed) = length(l.w)
+
 
 """
     struct Softmax <: Layer
@@ -322,6 +418,14 @@ Simple softmax layer to compute softmax probabilities.
 struct Softmax <: Layer
 end
 (l::Softmax)(x) = Knet.softmax(x)
+
+function Base.summary(l::Softmax)
+    n = get_n_params(l)
+    s1 = "Softmax layer,"
+    return @sprintf("%-50s params: %8d", s1, n)
+end
+
+get_n_params(l::Softmax) = 0
 
 
 """
@@ -339,6 +443,15 @@ struct Dropout <: Layer
     p
 end
 (l::Dropout)(x) = Knet.dropout(x, l.p)
+
+function Base.summary(l::Dropout)
+    n = get_n_params(l)
+    s1 = "Dropout layer with p = $(l.p),"
+    return @sprintf("%-50s params: %8d", s1, n)
+end
+
+get_n_params(l::Dropout) = 0
+
 
 
 

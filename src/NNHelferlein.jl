@@ -1,6 +1,6 @@
 module NNHelferlein
 
-import Base: iterate, length
+import Base: iterate, length, summary
 using LinearAlgebra
 using Unicode
 import ZipFile
