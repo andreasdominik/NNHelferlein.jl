@@ -60,11 +60,11 @@ end
 
 (l::Dense)(x) = l.actf.(l.w * x .+ l.b)
 
-function Base.summary(l::Dense)
+function Base.summary(l::Dense; indent=0)
     n = get_n_params(l)
     o,i = size(l.w)
     s1 = "Dense layer $i → $o with $(l.actf),"
-    return @sprintf("%-50s params: %8d", s1, n)
+    return print_summary_line(indent, s1, n)
 end
 
 
@@ -106,11 +106,11 @@ struct Linear  <: Layer
      return reshape(y, siz...)
  end
 
-function Base.summary(l::Linear)
+function Base.summary(l::Linear; indent=0)
     n = get_n_params(l)
     o,i = size(l.w)
     s1 = "Linear layer $i → $o, with $(l.actf),"
-    return @sprintf("%-50s params: %8d", s1, n)
+    return print_summary_line(indent, s1, n)
 end
 
 
@@ -179,16 +179,16 @@ function Conv(h5::HDF5.File, kernel::String, bias::String; trainable=false, actf
     return Conv(w, b, actf; padding=pad)
 end
 
-function Base.summary(l::Conv)
+function Base.summary(l::Conv; indent=0)
     n = get_n_params(l)
-    k1,k2 = size(l.w)[1:2]
+    k1,k2,i,o = size(l.w)
     if length(l.kwargs) > 0
         kwa = " $(collect(l.kwargs))"
     else
         kwa = ""
     end
-    s1 = "Conv layer ($k1,$k2)$kwa with $(l.actf),"
-    return @sprintf("%-50s params: %8d", s1, n)
+    s1 = "Conv layer $i → $o ($k1,$k2)$kwa with $(l.actf),"
+    return print_summary_line(indent, s1, n)
 end
 
 
@@ -217,7 +217,7 @@ end
 (l::Pool)(x) = Knet.pool(x; l.kwargs...)
 
 
-function Base.summary(l::Pool)
+function Base.summary(l::Pool; indent=0)
     n = get_n_params(l)
     if length(l.kwargs) > 0
         kwa = " $(collect(l.kwargs))"
@@ -225,7 +225,8 @@ function Base.summary(l::Pool)
         kwa = ""
     end
     s1 = "Pool layer$kwa,"
-    return @sprintf("%-50s params: %8d", s1, n)
+    s2 = @sprintf("%10d params", n)
+    return print_summary_line(indent, s1, n)
 end
 
 
@@ -269,16 +270,16 @@ end
 
 (c::DeConv)(x) = c.actf.(Knet.deconv4(c.w, x; c.kwargs...) .+ c.b)
 
-function Base.summary(l::DeConv)
+function Base.summary(l::DeConv; indent=0)
     n = get_n_params(l)
-    k1,k2 = size(l.w)[1:2]
+    k1,k2,i,o = size(l.w)
     if length(l.kwargs) > 0
         kwa = " $(collect(l.kwargs))"
     else
         kwa = ""
     end
-    s1 = "DeConv layer ($k1,$k2)$kwa with $(l.actf),"
-    return @sprintf("%-50s params: %8d", s1, n)
+    s1 = "DeConv layer $o → $i ($k1,$k2)$kwa with $(l.actf),"
+    return print_summary_line(indent, s1, n)
 end
 
 
@@ -298,7 +299,7 @@ struct UnPool <: Layer
 end
 (l::UnPool)(x) = Knet.unpool(x; l.kwargs...)
 
-function Base.summary(l::UnPool)
+function Base.summary(l::UnPool; indent=0)
     n = get_n_params(l)
     if length(l.kwargs) > 0
         kwa = " $(collect(l.kwargs))"
@@ -306,7 +307,7 @@ function Base.summary(l::UnPool)
         kwa = ""
     end
     s1 = "UnPool layer$kwa,"
-    return @sprintf("%-50s params: %8d", s1, n)
+    return print_summary_line(indent, s1, n)
 end
 
 
@@ -325,10 +326,10 @@ end
 (l::Flat)(x) = Knet.mat(x)
 
 
-function Base.summary(l::Flat)
+function Base.summary(l::Flat; indent=0)
     n = get_n_params(l)
     s1 = "Flat layer,"
-    return @sprintf("%-50s params: %8d", s1, n)
+    return print_summary_line(indent, s1, n)
 end
 
 
@@ -350,10 +351,14 @@ struct PyFlat <: Layer
 end
 (l::PyFlat)(x) = l.python ? Knet.mat(permutedims(x, (3,2,1,4))) : mat(x)
 
-function Base.summary(l::PyFlat)
+function Base.summary(l::PyFlat; indent=0)
     n = get_n_params(l)
-    s1 = "PyFlat layer,"
-    return @sprintf("%-50s params: %8d", s1, n)
+    if l.python
+        s1 = "PyFlat layer with row-major (Python) flattening,"
+    else
+        s1 = "PyFlat layer with column-major (Julia) flattening,"
+    end
+    return print_summary_line(indent, s1, n)
 end
 
 
@@ -387,11 +392,12 @@ end
 
 (l::Embed)(x) = l.actf.(l.w[:,x])
 
-function Base.summary(l::Embed)
+
+function Base.summary(l::Embed; indent=0)
     n = get_n_params(l)
     o,i = size(l.w)
     s1 = "Embed layer $i → $o, with $(l.actf),"
-    return @sprintf("%-50s params: %8d", s1, n)
+    return print_summary_line(indent, s1, n)
 end
 
 
@@ -408,10 +414,10 @@ struct Softmax <: Layer
 end
 (l::Softmax)(x) = Knet.softmax(x)
 
-function Base.summary(l::Softmax)
+function Base.summary(l::Softmax; indent=0)
     n = get_n_params(l)
     s1 = "Softmax layer,"
-    return @sprintf("%-50s params: %8d", s1, n)
+    return print_summary_line(indent, s1, n)
 end
 
 
@@ -432,10 +438,10 @@ struct Dropout <: Layer
 end
 (l::Dropout)(x) = Knet.dropout(x, l.p)
 
-function Base.summary(l::Dropout)
+function Base.summary(l::Dropout; indent=0)
     n = get_n_params(l)
     s1 = "Dropout layer with p = $(l.p),"
-    return @sprintf("%-50s params: %8d", s1, n)
+    return print_summary_line(indent, s1, n)
 end
 
 
@@ -472,10 +478,14 @@ struct BatchNorm <: Layer
 end
 function BatchNorm(; trainable=false, channels=0)
     if trainable
-        return BatchNorm(trainable, Knet.bnmoments(), Knet.bnparams(channels))
+        p = Knet.bnparams(channels)
+        if !(p isa Param)
+            p = Param(p)
+        end
     else
-        return BatchNorm(trainable, Knet.bnmoments(), nothing)
+        p = nothing
     end
+    return BatchNorm(trainable, Knet.bnmoments(), p)
 end
 
 function (l::BatchNorm)(x)
@@ -486,14 +496,14 @@ function (l::BatchNorm)(x)
     end
 end
 
-function Base.summary(l::BatchNorm)
+function Base.summary(l::BatchNorm; indent=0)
     n = get_n_params(l)
     if l.trainable
         s1 = "Trainable BatchNorm layer,"
     else
         s1 = "BatchNorm layer,"
     end
-    return @sprintf("%-50s params: %8d", s1, n)
+    return print_summary_line(indent, s1, n)
 end
 
 
@@ -536,10 +546,10 @@ function (l::LayerNorm)(x; dims=1)
     return l.a .* (x .- μ) ./ (σ .+ l.ϵ) .+ l.b
 end
 
-function Base.summary(l::LayerNorm)
+function Base.summary(l::LayerNorm; indent=0)
     n = get_n_params(l)
     s1 = "Trainable LayerNorm layer,"
-    return @sprintf("%-50s params: %8d", s1, n)
+    return print_summary_line(indent, s1, n)
 end
 
 
@@ -581,10 +591,10 @@ function (rnn::RSeqTagger)(x)
     return permutedims(x, (1,3,2)) # [units, time-steps, samples]
 end
 
-function Base.summary(l::RSeqTagger)
+function Base.summary(l::RSeqTagger; indent=0)
     n = get_n_params(l)
     s1 = "RSeqTagger layer, $(l.n_inputs) → $(l.n_units) of type $(l.unit_type),"
-    return @sprintf("%-50s params: %8d", s1, n)
+    return print_summary_line(indent, s1, n)
 end
 
 
@@ -626,13 +636,13 @@ function (rnn::RSeqClassifier)(x)
     return x[:,:,end]     # [units, samples]
 end
 
-function Base.summary(l::RSeqClassifier)
+function Base.summary(l::RSeqClassifier; indent=0)
     n = get_n_params(l)
     s1 = "RSeqClassifyer layer, $(l.n_inputs) → $(l.n_units) of type $(l.unit_type),"
-    return @sprintf("%-50s params: %8d", s1, n)
+    return print_summary_line(indent, s1, n)
 end
 
-    
+
 
 """
     function hidden_states(l::<RNN_Type>)

@@ -101,3 +101,6 @@ include("nets.jl")
 @test test_decay_cp()
 
 @test test_hamming()
+
+@test test_summary()
+@test test_print()

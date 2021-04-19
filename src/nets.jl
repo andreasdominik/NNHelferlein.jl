@@ -57,12 +57,6 @@ struct Regressor <: DNN
 end
 (m::Regressor)(x,y) = sum(abs2, m(x) .- y)
 
-function Base.summary(mdl::Regressor)
-    n = get_n_params(mdl)
-    ls = length(mdl.layers)
-    s1 = "regressor with $ls layers,"
-    return @sprintf("%-50s params: %8d", s1, n)
-end
 
 
 
@@ -78,32 +72,56 @@ end
 
 
 
-function Base.summary(mdl::DNN)
+function Base.summary(mdl::DNN; indent=0)
     n = get_n_params(mdl)
     ls = length(mdl.layers)
     s1 = "$(typeof(mdl)) with $ls layers,"
-    return @sprintf("%-50s params: %8d", s1, n)
+    return print_summary_line(indent, s1, n)
 end
 
 
-function print_network(mdl::DNN; indent="")
+function print_network(mdl::DNN; n=0, indent=0)
 
-    if indent == ""
+    top = indent == 0
+    if top
         println("Neural network summary:")
         println(summary(mdl))
         println("Details:")
     else
-        println(indent*summary(mdl))
+        println(summary(mdl, indent=indent))
     end
 
-    indent *= "    "
+    indent += 4
     println(" ")
     for l in mdl.layers
         if l isa DNN
-            print_network(l, indent=indent)
+            n = print_network(l, n=n, indent=indent)
             println(" ")
         else
-            println(indent*summary(l))
+            println(summary(l, indent=indent))
+            n += 1
         end
     end
+
+    if top
+        println(" ")
+        println("Total number of layers: $n")
+        println("Total number of parameters: $(get_n_params(mdl))")
+    end
+    return n
+end
+
+function print_summary_line(indent, line, params)
+
+    LIN_LEN = 60
+    s1 = " "^indent * line
+    len = length(s1)
+    gap = " "
+    if len < LIN_LEN
+        gap = " "^(LIN_LEN-len)
+    end
+
+    s2 = @sprintf("%8d params", params)
+
+    return "$s1 $gap $s2"
 end

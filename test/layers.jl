@@ -166,3 +166,39 @@ function test_layer_K_rnn()
     c = cell_states(l)
     return size(h) == (units,mb,1) && size(c) == (units,mb,1)
 end
+
+
+function test_summary()
+
+    ch = Chain(
+            Dense(100,100),
+            Linear(100,100),
+            Conv(3, 3, 3, 100, padding=2),
+            Pool(),
+            DeConv(3,3, 100, 10, stride=2),
+            UnPool(),
+            Flat(),
+            PyFlat(),
+            PyFlat(python=false),
+            Embed(100,10),
+            Softmax(),
+            Dropout(0.1),
+            BatchNorm(trainable=true, channels=16),
+            LayerNorm(128),
+            RSeqTagger(100, 16),
+            RSeqClassifier(100, 16)
+            )
+    n = print_network(ch)
+    return n == 16
+end
+
+function test_print()
+
+    ch = Chain(Conv(3, 3, 3, 100),
+            Pool(),
+            Conv(3,3,100,50))
+    cl = Classifier(ch, Flat(), Linear(100,10))
+    n = print_network(cl)
+
+    return n == 5
+end
