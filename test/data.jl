@@ -68,7 +68,7 @@ function test_tokenizer()
                          "Peter loves Python",
                          "We all marvel Geoff"])
     l = tok(["I love Julia", "Peter loves Python", "We all marvel Geoff"],
-            add_ctl=true)
+            add_ctls=true)
 
     sentence = tok([8, 12, 5])
     return tok("Julia") == 8 && tok(8) == "Julia" &&
