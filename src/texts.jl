@@ -37,9 +37,9 @@ Encode a word and return the corresponding number in the vocabulary or
 the highest number (i.e. `"<unknown>"`) if the word is not in the vocabulary.
 
 The encode-signature accepts the keyword arguments `split_words` and
-`add_ctl`. If `split_words==true`, the input is treated as a sentence
+`add_ctls`. If `split_words==true`, the input is treated as a sentence
 and splitted into single words and an array of integer with the encoded
-sequence is returned. If `add_ctl==true` the sequence will be framed
+sequence is returned. If `add_ctls==true` the sequence will be framed
 by `<start>` and `<end>` tokens.
 
 
@@ -49,7 +49,7 @@ Decode a word by returning the word corresponding to `i` or
 "<unknown>" if the number is out of range of the vocabulary.
 
 
-    function (t::WordTokenizer)(s::AbstractArray{T}; add_ctl=false)
+    function (t::WordTokenizer)(s::AbstractArray{T}; add_ctls=false)
                                where {T <: AbstractString}
 
 Called with an Array of Strings the tokeniser splits the strings
@@ -57,7 +57,7 @@ into words and returns an Array of `Array{Int}` with each of the
 input strings represented by a sequence of Integer values.
 
 
-    function (t::WordTokenizer)(seq::AbstractArray{T}; add_ctl=false)
+    function (t::WordTokenizer)(seq::AbstractArray{T}; add_ctls=false)
                                      where {T <: Int}
 
 Called with an Array of Integer values a single string  is returned
@@ -121,7 +121,7 @@ with the decoded token-IDs as words (space-separated).
      "love"
      "<unknown>"
 
-    julia> vocab("I love Python", split_words=true, add_ctl=true)
+    julia> vocab("I love Python", split_words=true, add_ctls=true)
     5-element Array{Int64,1}:
      1
      6
@@ -219,7 +219,7 @@ function (t::WordTokenizer)(i::Int)
 end
 
 function (t::WordTokenizer)(w::T; split_words=false,
-                add_ctl=false) where {T <: AbstractString}
+                add_ctls=false) where {T <: AbstractString}
 
     w = clean_sentence(w)
     # tokenise a word or a complete string:
@@ -233,21 +233,21 @@ function (t::WordTokenizer)(w::T; split_words=false,
     else
         s = split(w, " ")
         st = t.(s)
-        if add_ctl
+        if add_ctls
             st = vcat(t("<start>"), st, t("<end>"))
         end
         return st
     end
 end
 
-function (t::WordTokenizer)(s::AbstractArray{T}; add_ctl=false) where {T <: AbstractString}
+function (t::WordTokenizer)(s::AbstractArray{T}; add_ctls=false) where {T <: AbstractString}
 
     # return a list of sequences:
     #
-    return [t(w; split_words=true, add_ctl=add_ctl) for w in s]
+    return [t(w; split_words=true, add_ctls=add_ctls) for w in s]
 end
 
-function (t::WordTokenizer)(seq::AbstractArray{T}; add_ctl=false) where {T <: Int}
+function (t::WordTokenizer)(seq::AbstractArray{T}; add_ctls=false) where {T <: Int}
 
     # return a list of sequences:
     #
