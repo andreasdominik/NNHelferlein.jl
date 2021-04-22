@@ -14,7 +14,7 @@ function test_lenet()
 
     lenet = Classifier(Conv(5,5,3,20),
                     Pool(),
-                    BatchNorm()
+                    BatchNorm(),
                     Conv(5,5,20,50),
                     BatchNorm(trainable=true, channels = 50),
                     Pool(),
