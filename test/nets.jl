@@ -18,7 +18,7 @@ function test_lenet()
                     Conv(5,5,20,50),
                     BatchNorm(trainable=true, channels = 50),
                     Pool(),
-                    BatchNorm(trainable=true)
+                    BatchNorm(trainable=true),
                     Flat(),
                     Dense(800,512),
                     Linear(512, 512, actf=relu),
