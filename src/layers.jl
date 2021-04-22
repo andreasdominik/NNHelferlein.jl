@@ -470,18 +470,32 @@ y = a \\cdot \\frac{(x - \\mu)}{(\\sigma + \\epsilon)} + b
         `trainable==true` (in this case, the number of channels must
         be defined - for CNNs this is the number of feature maps).
 
+### Details:
+2d, 4d and 5d inputs are supported. Mean and variance are computed over
+dimensions (2), (1,2,4) and (1,2,3,5) for 2d, 4d and 5d arrays, respectively.
+
+If `trainable=true` and `channels != 0`, trainable
+parameters `a` and `b` will be initialised for each channel.
+
+If `trainable=true` and `channels == 0` (i.e. `Batchnom(trainable=true)`),
+the params `a` and `b` are not initialised by the constructor.
+Instead,
+the number of channels is inferred when the first minibatch is normalised
+as:
+2d: `size(x)[1]`
+4d: `size(x)[3]`
+5d: `size(x)[4]`
+or `0` otherwise.
 """
-struct BatchNorm <: Layer
+mutable struct BatchNorm <: Layer
     trainable
     moments
     params
 end
+
 function BatchNorm(; trainable=false, channels=0)
     if trainable
-        p = Knet.bnparams(channels)
-        if !(p isa Param)
-            p = Param(p)
-        end
+        p = init_bn_params(channels)
     else
         p = nothing
     end
@@ -490,10 +504,35 @@ end
 
 function (l::BatchNorm)(x)
     if l.trainable
+        if length(l.params) == 0
+            l.params = init_bn_params(x)
+        end
+
         return Knet.batchnorm(x, l.moments, l.params)
     else
         return Knet.batchnorm(x, l.moments)
     end
+end
+
+function init_bn_params(x)
+
+    if x isa Int
+        channels = x
+    elseif x isa Array
+        dims = size(x)
+        if length(dims) in (2, 4, 5)
+            channels = dims[end-1]
+        else
+            channels = 0
+        end
+    else
+        channels = 0
+    end
+    p = Knet.bnparams(Float32, channels)
+    if !(p isa Param)
+        p = Param(p)
+    end
+    return p
 end
 
 function Base.summary(l::BatchNorm; indent=0)

@@ -14,9 +14,11 @@ function test_lenet()
 
     lenet = Classifier(Conv(5,5,3,20),
                     Pool(),
+                    BatchNorm()
                     Conv(5,5,20,50),
-                    BatchNorm(;trainable=true, channels = 50),
+                    BatchNorm(trainable=true, channels = 50),
                     Pool(),
+                    BatchNorm(trainable=true)
                     Flat(),
                     Dense(800,512),
                     Linear(512, 512, actf=relu),
