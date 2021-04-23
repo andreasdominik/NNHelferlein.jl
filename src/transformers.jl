@@ -80,7 +80,7 @@ represented. For un-embedded data this is normally `1`, i.e. the
 shape of x is [n_seq, n_mb]. After embedding the shape probably is
 [depth, n_seq, n_mb].
 """
-function mk_peek_ahead_mask(x, dim=1)
+function mk_peek_ahead_mask(x; dim=1)
 
     n_seq = size(x)[dim]
     return convert2KnetArray(1 .- UpperTriangular(ones(n_seq, n_seq)))
