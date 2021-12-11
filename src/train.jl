@@ -416,7 +416,7 @@ Return the prediction for x.
 + `mdl`: executable network model
 + `x`: iterator providing minibatches
         of input data
-+ `softmax`: if true and if model is a `::Classifier` the predicted
++ `softmax`: if true or if model is of type `Classifier` the predicted
         softmax probabilities are returned instead of raw
         activations.
 """
@@ -430,8 +430,8 @@ function predict(mdl, x; softmax=false)
     end
     y = convert(Array{Float32}, y)
 
-    if softmax && mdl isa Classifier
-        return Knet.softmax(y)
+    if softmax || mdl isa Classifier
+        return Knet.softmax(y, dims=1)
     else
         return y
     end
