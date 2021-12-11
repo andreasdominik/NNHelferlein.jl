@@ -98,8 +98,10 @@ Convert an array `x` to a `KnetArray{Float32}` only in GPU context
 """
 function convert2KnetArray(x)
 
+    # check if GPU and accept all type of Array-like x:
+    #
     if CUDA.functional()
-        return Knet.KnetArray{Float32}(x)
+        return Knet.KnetArray{Float32}(Array(x))
     else
         return Array{Float32}(x)
     end
