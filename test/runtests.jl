@@ -1,4 +1,6 @@
-using PkgPkg.add("git@github.com:denizyuret/AutoGrad.jl.git")
+using Pkg
+Pkg.add("git@github.com:denizyuret/AutoGrad.jl.git")
+
 using Knet, NNHelferlein, CUDA
 using Images, Colors
 import Pkg; Pkg.add("Test"); using Test
