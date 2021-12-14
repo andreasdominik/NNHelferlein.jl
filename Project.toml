@@ -4,7 +4,6 @@ authors = ["andreas.dominik <andreas.dominik@mni.thm.de>"]
 version = "0.1.0"
 
 [deps]
-AutoGrad = "6710c13c-97f1-543f-91c5-74e8f7d95b35"
 Augmentor = "02898b10-1f73-11ea-317c-6393d7073e15"
 CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
 CUDA = "052768ef-5323-5732-b1bb-66c8b64840ba"
@@ -32,5 +31,4 @@ Unicode = "4ec0a83e-493e-50e2-b9ac-8f72acf5a8f5"
 ZipFile = "a5390f91-8eb1-5f08-bee0-b1d1ffed6cea"
 
 [compat]
-AutoGrad = "1.2.5"
 julia = "1.0"
