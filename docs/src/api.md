@@ -1,4 +1,4 @@
-
+API doc of all exported functions are listed here:
 
 # Chains
 
@@ -93,6 +93,7 @@ dataframe_read
 dataframe_minibatches
 dataframe_split
 mk_class_ids
+MBNoiser
 ```
 
 ## Image data
