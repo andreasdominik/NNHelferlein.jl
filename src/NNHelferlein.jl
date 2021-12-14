@@ -57,6 +57,7 @@ export DNN, Classifier, Regressor, Chain,          # chains
        dot_prod_attn,
        dataframe_read, dataframe_split,         # import data
        dataframe_minibatches, mk_class_ids,
+       MBNoiser,
        mk_image_minibatch,
        tb_train!,
        predict_top5, predict_imagenet,
