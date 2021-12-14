@@ -25,6 +25,8 @@ jobs:
         with:
           version: ${{ matrix.version }}
           arch: ${{ matrix.arch }}
+      - name: Install dependencies
+        run: julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate(); Pkg.add("git@github.com:denizyuret/AutoGrad.jl.git")
       - uses: actions/cache@v1
         env:
           cache-name: cache-artifacts
