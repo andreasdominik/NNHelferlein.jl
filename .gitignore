@@ -1,4 +1,4 @@
-Manifest*
+Manifest.toml
 docs/build
 keys.txt
 examples/.ipynb*
