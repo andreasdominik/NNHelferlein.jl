@@ -199,6 +199,12 @@ Gaussian noise with mean=1.0 and sd=sigma.
 
 + `mbs`: iteraor with minibatches
 + `σ`: standard deviation for the Gaussian noise
+
+### Example:
+```
+trn = minibatch(x)
+tb_train!(mdl, Adam, MBNoiser(trn, σ=0.1))
+```
 """
 struct MBNoiser
     mbs::Knet.Data
