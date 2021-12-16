@@ -200,7 +200,6 @@ Gaussian noise with mean=1.0 and sd=sigma.
 + `mbs`: iteraor with minibatches
 + `σ`: standard deviation for the Gaussian noise
 """
-
 struct MBNoiser
     mbs::Knet.Data
     size
