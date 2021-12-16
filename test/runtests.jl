@@ -1,5 +1,5 @@
 using Pkg
-## Pkg.add(url="git@github.com:denizyuret/AutoGrad.jl.git")
+Pkg.add(url="https://github.com/denizyuret/AutoGrad.jl.git")
 
 using Knet, NNHelferlein, CUDA
 using Images, Colors
