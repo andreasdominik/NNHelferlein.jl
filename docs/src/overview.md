@@ -17,6 +17,8 @@ Explicit signatures exist for types `Classifier` and `Regressor` with
 negative log-likelihood and square loss as loss, respectively.
 The type `Chain` wraps a list of layers that are executed sequentially.
 
+A network summary can be printed with `summary(mdl::DNN)` and
+a more detailed list of all layers with `print_network(mdl::DNN)`.
 
 
 ## Layer definitions

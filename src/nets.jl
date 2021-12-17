@@ -80,6 +80,13 @@ function Base.summary(mdl::DNN; indent=0)
 end
 
 
+"""
+    function print_network(mdl::DNN)
+
+Print a network summary of any model of Type `DNN`.
+If the model has a field `layers`, the summary of all included layers
+will be printed recursively.
+"""
 function print_network(mdl::DNN; n=0, indent=0)
 
     top = indent == 0
