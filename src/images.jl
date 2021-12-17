@@ -353,7 +353,7 @@ function array2image(arr)
             itype = Images.RGB
         end
     end
-    return Images.colorview(itype, arr)
+    return Images.colorview(itype, Array(arr))
 end
 
 
