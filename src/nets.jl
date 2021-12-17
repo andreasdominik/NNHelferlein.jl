@@ -132,3 +132,87 @@ function print_summary_line(indent, line, params)
 
     return "$s1 $gap $s2"
 end
+
+
+
+"""
+    struct VAE
+
+Type for a generic variational autoencoder.
+
+### Constructor:
+    VAE(e,d)
+Separate predefinded chains (idella, but not necessarily of type `Chain`) 
+for encoder and decoder must be specified.
+
+### Signatures: 
+    (vae::VAE)(x)
+    (vae::VAE)(x,x)
+Called with one argument prodict will be executed; 
+with two arguments (args x and y should be identical for the autoencoder)
+the loss will be returned.    
+
+### Details:
+The loss is calculated as the sum of element-wise error squares plus
+the Kullback-Leibler-Divergence to adapt the distributions of the
+bottleneck codes.
+
+Input and output
+of the autoencoder are cropped in a way that their seize is idendical before
+loss calculation (and before prediction); i.e. the output has alwas the same dimensions
+as the input, even if the last layer generates a different shape
+(this is especially of interest for convolutional autoencoders).
+"""
+struct VAE <: DNN
+    layers
+    VAE(e,d) = new([e,d])
+end
+
+function (vae::VAE)(x, y=nothing)
+    
+    # encode and
+    # calc size of decoder input (1/2 of encoder output):
+    #
+    size_in = size(x)
+    x = vae.layers[1](x)
+    size_dec_in = [size(x)...]
+    size_dec_in[end-1] = size_dec_in[end-1] ÷ 2
+    
+    # separate μ and σ:
+    #
+    x = mat(x)
+    code_size = size(x)
+    n_codes = code_size[1] ÷ 2
+
+    μ = x[1:n_codes,:]
+    logσ² = x[n_codes+1:end,:]
+    σ² = exp.(logσ²)
+    σ = sqrt.(σ²)
+    
+    # variate:
+    #
+    ζ = randn(Float32, size(μ))
+    if CUDA.functional()
+        ζ = KnetArray(ζ)
+    end
+    
+    x = μ .+ ζ .* σ
+    
+    # reshape codes to fit encoder input
+    # and decode:
+    #
+    x = reshape(x, size_dec_in...)
+    x = vae.layers[2](x)
+    x = crop_array(x, size_in)
+       
+    # calc loss, if y given:
+    #
+    if y == nothing
+        return x
+    else
+        n = length(x)
+        loss = sum(abs2, x .- y) / n
+        loss_KL = -sum(1 .+ logσ² .- μ.*μ .- σ²) / (2n)
+        return loss + loss_KL
+    end
+end

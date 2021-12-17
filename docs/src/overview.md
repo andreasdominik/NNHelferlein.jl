@@ -15,6 +15,8 @@ The abstract type `DNN` provides signatures to be called as
 
 Explicit signatures exist for types `Classifier` and `Regressor` with
 negative log-likelihood and square loss as loss, respectively.
+For variational autoencoders the type `VAE` exists.
+
 The type `Chain` wraps a list of layers that are executed sequentially.
 
 A network summary can be printed with `summary(mdl::DNN)` and

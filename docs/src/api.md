@@ -11,6 +11,7 @@ print_network
 Classifier
 Regressor
 Chain
+VAE
 ```
 
 # Layers
