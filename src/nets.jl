@@ -165,8 +165,8 @@ the *Kullback-Leibler-Divergence* to adapt the distributions of the
 bottleneck codes *i* is the index of input values and 
 *c* the index of the bottleneck codes):
 ```math
-\\mathcal{L} = \\frac{1}{n_i} \\sum_{i=1}^{n_i} (t_{i}-o_{i})^{2}
-               \\frac{1}{2n_c} \\sum_{c=1}^{n_c}(\\sigma_{c}^{2}+\\mu_{c}^{2}-ln\\sigma_{c}^{2}-1 
+\\mathcal{L} = \\frac{1}{n_i} \\sum_{i=1}^{n_i} (t_{i}-o_{i})^{2} + 
+               \\frac{1}{2n_c} \\-sum_{c=1}^{n_c}(1 + ln\\sigma_{c}^{2}-\\mu_{c}^{2}-\\sigma_{c}^{2}) 
 ```
 
 Output
@@ -223,7 +223,7 @@ function (vae::VAE)(x, y=nothing)
     else
         n = length(x)
         loss = sum(abs2, x .- y) / n
-        loss_KL = -sum(1 .+ logσ² .- μ.*μ .- σ²) / (2n)
+        loss_KL = -sum(1 .+ logσ² .- μ.*μ .- σ²) / (2 * n_codes)
         return loss + loss_KL
     end
 end
