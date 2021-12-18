@@ -1,6 +1,6 @@
 """
     function tb_train!(mdl, opti, trn, vld=nothing; epochs=1,
-                      lr_decay=nothing, lrd_freq=1, lrd_linear=false,
+                      lr_decay=nothing, lrd_steps=5, lrd_linear=false,
                       l2=0.0,
                       eval_size=0.2, eval_freq=1,
                       acc_fun=nothing,
@@ -26,13 +26,13 @@ The model is updated (in-place) and the trained model is returned.
 #### Optimiser:
 + `epochs=1`: number of epochs to train
 + `lr_decay=nothing`: do a leraning rate decay if not `nothing`:
-        the value given is the final learning rate after `epochs*lrd_freq`
+        the value given is the final learning rate after `lrd_steps`
         steps of decay. `lr_decay` is only applied if both start learning rate
         `lr` and final learning rate `lr_decay` are defined explicitly.
         Example: `lr=0.01, lr_decay=0.001` will reduce the lr from
         0.01 to 0.001 during the training.
-+ `lrd_freq=1`: frequency of learning rate decay steps. Default is
-        to modify the lr after every epoch
++ `lrd_steps=5`: number of learning rate decay steps. Default is
+        to modify the lr 5 times during the training.
 + `lrd_linear=false`: type of learning rate decay;
         If `false`, lr is modified
         by a constant factor (e.g. 0.9) resulting in an exponential decay.
@@ -75,7 +75,7 @@ TensorBoard log-directory is created from 3 parts:
         to be included in the TensorBoard log as *text* log.
 """
 function tb_train!(mdl, opti, trn, vld=nothing; epochs=1,
-                  lr_decay=nothing, lrd_freq=1, lrd_linear=false,
+                  lr_decay=nothing, lrd_steps=5, lrd_linear=false,
                   l2=0.0,
                   eval_size=0.2, eval_freq=1, acc_fun=nothing,
                   mb_loss_freq=100,
@@ -105,7 +105,13 @@ function tb_train!(mdl, opti, trn, vld=nothing; epochs=1,
     #
     eval_nth = cld(n_trn, eval_freq)
     mb_loss_nth = cld(n_trn, mb_loss_freq)
-    lr_nth = cld(n_trn, lrd_freq)
+
+    # learning rate steps:
+    #
+    if lrd_steps > epochs
+        lrd_steps = epochs
+    end
+    lr_nth = cld(epochs, lrd_steps)
     if cp_freq != nothing
         cp_nth = cld(n_trn, cp_freq)
     end
@@ -114,7 +120,7 @@ function tb_train!(mdl, opti, trn, vld=nothing; epochs=1,
     # do lr-decay only if lr is explicitly defined:
     #
     if lr_decay != nothing && haskey(opti_args, :lr)
-       lr_decay = calc_d_η(opti_args[:lr], lr_decay, lrd_linear, lrd_freq*epochs)
+       lr_decay = calc_d_η(opti_args[:lr], lr_decay, lrd_linear, lrd_steps)
     else
         lr_decay = nothing
     end
@@ -139,7 +145,7 @@ function tb_train!(mdl, opti, trn, vld=nothing; epochs=1,
                     min_level=Logging.Info)
     log_text(tbl, tb_log_dir, tb_name, start_time, tb_text,
              opti, trn, vld, epochs,
-             lr_decay, lrd_freq, l2,
+             lr_decay, lrd_steps, l2,
              cp_freq, opti_args)
     calc_and_report_loss(mdl, eval_trn, eval_vld, tbl, 0)
 
@@ -213,10 +219,6 @@ function tb_train!(mdl, opti, trn, vld=nothing; epochs=1,
             lr = lrd_linear ? lr + lr_decay : lr * lr_decay
             @printf("Setting learning rate to η=%.2e\n", lr)
             set_learning_rate(mdl, lr)
-            # for p in params(mdl)
-            #     p.opt.lr = lr
-            #     # println("adapting lr in $p to $(p.opt.lr)")
-            # end
         end
     end
 
@@ -252,7 +254,7 @@ end
 
 function log_text(tbl, tb_log_dir, tb_name, start_time, tb_text,
                   opti, trn, vld, epochs,
-                  lr_decay, lrd_freq, l2,
+                  lr_decay, lrd_steps, l2,
                   cp_freq, opti_args)
 
     if vld == nothing
@@ -277,7 +279,7 @@ function log_text(tbl, tb_log_dir, tb_name, start_time, tb_text,
     "   <li>Epochs: $epochs</li>"
 
     if lr_decay != nothing
-        tb_log_text *= "   <li>learning rate step size: $lr_decay with frequency $lrd_freq</li>"
+        tb_log_text *= "   <li>learning rate is reduced to $lr_decay in $lrd_steps steps.</li>"
     end
     if l2 > 0
         tb_log_text *= "   <li>L2 regularisation: $l2</li>"
