@@ -27,10 +27,12 @@ The model is updated (in-place) and the trained model is returned.
 + `epochs=1`: number of epochs to train
 + `lr_decay=nothing`: do a leraning rate decay if not `nothing`:
         the value given is the final learning rate after `lrd_steps`
-        steps of decay. `lr_decay` is only applied if both start learning rate
+        steps of decay (`lr_decay` may be bigger than `lr`; in this case
+        the leraning rate is increased). 
+        `lr_decay` is only applied if both start learning rate
         `lr` and final learning rate `lr_decay` are defined explicitly.
         Example: `lr=0.01, lr_decay=0.001` will reduce the lr from
-        0.01 to 0.001 during the training.
+        0.01 to 0.001 during the training (by default in 5 steps).
 + `lrd_steps=5`: number of learning rate decay steps. Default is
         to modify the lr 5 times during the training.
 + `lrd_linear=false`: type of learning rate decay;
