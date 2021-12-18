@@ -141,27 +141,38 @@ end
 Type for a generic variational autoencoder.
 
 ### Constructor:
-    VAE(e,d)
-Separate predefinded chains (idella, but not necessarily of type `Chain`) 
+    VAE(encoder, decoder)
+Separate predefinded chains (ideally, but not necessarily of type `Chain`) 
 for encoder and decoder must be specified.
+The VAE needs the 2 parameters mean and variance to define thedistribution of each
+code-neuronin the bottleneck-layer. In consequence the encoder outputmust be 2 times 
+the size of the decoder input
+(in case of dense layers: if encoder output is a 8-value vector,
+4 codes are defined and the decoder input is a 4-value vector.
+in case of convolutional layers the number of encoder output channels
+must be 2 times the number of the encoder input channels - see the examples). 
 
 ### Signatures: 
     (vae::VAE)(x)
-    (vae::VAE)(x,x)
-Called with one argument prodict will be executed; 
+    (vae::VAE)(x,y)
+Called with one argument, predict will be executed; 
 with two arguments (args x and y should be identical for the autoencoder)
 the loss will be returned.    
 
 ### Details:
 The loss is calculated as the sum of element-wise error squares plus
-the Kullback-Leibler-Divergence to adapt the distributions of the
-bottleneck codes.
+the *Kullback-Leibler-Divergence* to adapt the distributions of the
+bottleneck codes *i* is the index of input values and 
+*c* the index of the bottleneck codes):
+```math
+\\mathcal{L} = \\frac{1}{n_i} \\sum_{i=1}^{n_i} (t_{i}-o_{i})^{2}
+               \\frac{1}{2n_c} \\sum_{c=1}^{n_c}(\\sigma_{c}^{2}+\\mu_{c}^{2}-ln\\sigma_{c}^{2}-1 
+```
 
-Input and output
-of the autoencoder are cropped in a way that their seize is idendical before
-loss calculation (and before prediction); i.e. the output has alwas the same dimensions
-as the input, even if the last layer generates a different shape
-(this is especially of interest for convolutional autoencoders).
+Output
+of the autoencoder is cropped to the size of input before
+loss calculation (and before prediction); i.e. the output has always the same dimensions
+as the input, even if the last layer generates a bigger shape.
 """
 struct VAE <: DNN
     layers
