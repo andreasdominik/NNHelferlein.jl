@@ -103,6 +103,8 @@ include("nets.jl")
 @test test_signatures()
 @test test_decay_cp()
 
+@test test_vae()
+
 @test test_hamming()
 
 @test test_summary()

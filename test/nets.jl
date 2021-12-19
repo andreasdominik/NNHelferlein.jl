@@ -68,14 +68,36 @@ function test_mlp()
                          Dense(8,1, actf=identity))
 
         mlp = tb_train!(mlp, Adam, mb, epochs=10, acc_fun=nothing,
-                lr=0.001, lr_decay=0.0001, lrd_freq=5)
+                lr=0.001, lr_decay=0.0001, lrd_steps=5)
 
 
         mlp = tb_train!(mlp, Adam, mb, epochs=10, acc_fun=acc_fun,
-                lr=0.001, lr_decay=0.0001, lrd_freq=5)
+                lr=0.001, lr_decay=0.0001, lrd_steps=5)
 
         acc = NNHelferlein.calc_acc(mlp, acc_fun, data=mb)
         return acc isa Real
+end
+
+function test_vae()
+
+        trn = DataFrame(x1=randn(16), x2=randn(16),
+                        x3=randn(16), x4=randn(16),
+                        x5=randn(16), x6=randn(16),
+                        x7=randn(16), x8=randn(16),
+                        y=collect(range(0, 1, length=16)))
+
+        mb = dataframe_minibatches(trn, size=4)
+
+
+        enc = Chain(Dense(8,16), Dense(16,8))
+        dec = Chain(Dense(4,16), Dense(16,8))
+        vae = VAE(enc, dec)   
+
+        vae = tb_train!(vae, Adam, mb, epochs=10, acc_fun=nothing,
+                lr=0.001, lr_decay=0.0001, lrd_steps=5)
+
+        loss = vae(first(mb)...)
+        return loss isa Real
 end
 
 function test_signatures()
