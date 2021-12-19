@@ -144,11 +144,11 @@ Type for a generic variational autoencoder.
     VAE(encoder, decoder)
 Separate predefinded chains (ideally, but not necessarily of type `Chain`) 
 for encoder and decoder must be specified.
-The VAE needs the 2 parameters mean and variance to define thedistribution of each
-code-neuronin the bottleneck-layer. In consequence the encoder outputmust be 2 times 
+The VAE needs the 2 parameters mean and variance to define the distribution of each
+code-neuron in the bottleneck-layer. In consequence the encoder outputmust be 2 times 
 the size of the decoder input
 (in case of dense layers: if encoder output is a 8-value vector,
-4 codes are defined and the decoder input is a 4-value vector.
+4 codes are defined and the decoder input is a 4-value vector;
 in case of convolutional layers the number of encoder output channels
 must be 2 times the number of the encoder input channels - see the examples). 
 
@@ -164,8 +164,8 @@ The loss is calculated as the sum of element-wise error squares plus
 the *Kullback-Leibler-Divergence* to adapt the distributions of the
 bottleneck codes:
 ```math
-\\mathcal{L} = \\frac{1}{n_i} \\sum_{i=1}^{n} (t_{i}-o_{i})^{2} + 
-               \\frac{1}{2n_c} \\-sum_{i=1}^{n}(1 + ln\\sigma_{c}^{2}-\\mu_{c}^{2}-\\sigma_{c}^{2}) 
+\\mathcal{L} = \\frac{1}{2} \\sum_{i=1}^{n_{outputs}} (t_{i}-o_{i})^{2} + 
+               \\frac{1}{2} \\-sum_{j=1}^{n_{codes}}(1 + ln\\sigma_{c_j}^{2}-\\mu_{c_j}^{2}-\\sigma_{c_j}^{2}) 
 ```
 
 Output
@@ -221,8 +221,8 @@ function (vae::VAE)(x, y=nothing)
         return x
     else
         n = length(x)
-        loss = sum(abs2, x .- y) / n
-        loss_KL = -sum(1 .+ logσ² .- abs2.(μ) .- σ²) / (2n)
+        loss = sum(abs2, x .- y) / 2
+        loss_KL = -sum(1 .+ logσ² .- abs2.(μ) .- σ²) / 2
         return loss + loss_KL
     end
 end
