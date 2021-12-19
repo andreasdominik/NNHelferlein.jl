@@ -9,5 +9,4 @@ data/Tatoeba
 test/logs
 codecov.token
 logs
-examples
 data
