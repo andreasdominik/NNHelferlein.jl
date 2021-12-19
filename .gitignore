@@ -6,6 +6,7 @@ examples/logs/*
 examples/*.h5
 examples/play*
 examples/new*
+examples/Untitled*
 data/Tatoeba
 test/logs
 codecov.token
