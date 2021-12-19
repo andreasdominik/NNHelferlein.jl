@@ -164,11 +164,8 @@ The loss is calculated as the sum of element-wise error squares plus
 the *Kullback-Leibler-Divergence* to adapt the distributions of the
 bottleneck codes:
 ```math
-\\mathcal{L} = \\frac{1}{2} \\sum_{i=1}^{n_{outputs}} (t_{i}-o_{i})^{2} + 
-```
-
-```math
-               \\frac{1}{2} \\-sum_{j=1}^{n_{codes}}(1 + ln\\sigma_{c_j}^{2}-\\mu_{c_j}^{2}-\\sigma_{c_j}^{2}) 
+\\mathcal{L} = \\frac{1}{2} \\sum_{i=1}^{n_{outputs}} (t_{i}-o_{i})^{2} - 
+               \\frac{1}{2} \\sum_{j=1}^{n_{codes}}(1 + ln\\sigma_{c_j}^{2}-\\mu_{c_j}^{2}-\\sigma_{c_j}^{2}) 
 ```
 
 Output
