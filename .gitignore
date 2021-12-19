@@ -5,6 +5,7 @@ examples/*Copy*.ipynb
 examples/logs/*
 examples/*.h5
 examples/play*
+examples/new*
 data/Tatoeba
 test/logs
 codecov.token
