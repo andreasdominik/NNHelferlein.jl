@@ -9,8 +9,18 @@ All examples are at [GitHub/examples](https://github.com/andreasdominik/NNHelfer
   build with help of the *Helferlein* layers in just two (ok: long) lines of code. 
 
 
++ [`Vanilla Autoencider`]
+  (https://github.com/andreasdominik/NNHelferlein.jl/blob/main/examples/30-ae.ipynb):
+  A simple autoencoder design with help of *Knet* in *Helferlein*-style.
+  
+
++ [`Convolutional Autoencider`]
+  (https://github.com/andreasdominik/NNHelferlein.jl/blob/main/examples/31-cae.ipynb):
+  A convolutional autoencoder design with help of *Knet* in *Helferlein*-style.
+  
+
 + [`Variational Autoencoder`]
-  (https://github.com/andreasdominik/NNHelferlein.jl/blob/main/examples/51-vae.ipynb):
+  (https://github.com/andreasdominik/NNHelferlein.jl/blob/main/examples/32-vae.ipynb):
   Example for a simple VAE utilising the NNHelferlein-type `VAE` and demonstrating the
   fascinating regularisation of a VAE.
 
