@@ -23,7 +23,7 @@ CI badge
 
 # Installation
 
-The package is not yet released but vcan be installed manually with the Julia
+The package is not yet released but can be installed manually with the Julia
 package manager.
 Due to a backwards incompatibility with the dependency `AutoGrad.jl`, it is
 currently necessary to manually install the latest version of AutoGrad.jl instead
