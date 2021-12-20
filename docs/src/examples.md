@@ -14,7 +14,7 @@ All examples are at [GitHub/examples](https://github.com/andreasdominik/NNHelfer
   A simple autoencoder design with help of *Knet* in *Helferlein*-style.
   
 
-+ [`Convolutional Autoencider`]
++ [`Convolutional Autoencoder`]
   (https://github.com/andreasdominik/NNHelferlein.jl/blob/main/examples/31-cae.ipynb):
   A convolutional autoencoder design with help of *Knet* in *Helferlein*-style.
   
