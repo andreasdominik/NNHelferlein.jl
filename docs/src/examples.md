@@ -9,7 +9,7 @@ All examples are at [GitHub/examples](https://github.com/andreasdominik/NNHelfer
   build with help of the *Helferlein* layers in just two (ok: long) lines of code. 
 
 
-+ [`Vanilla Autoencider`]
++ [`Vanilla Autoencoder`]
   (https://github.com/andreasdominik/NNHelferlein.jl/blob/main/examples/30-ae.ipynb):
   A simple autoencoder design with help of *Knet* in *Helferlein*-style.
   
