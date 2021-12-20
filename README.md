@@ -5,6 +5,8 @@ Collection of little helpers to simplify various Machine Learning tasks
 The German word *Helferlein* means something like *little helper*;
 please pronounce it like `hell-fur-line`.
 
+See documentation and examples for a first intro.
+
 <!---
 [![](https://img.shields.io/badge/docs-stable-blue.svg)](https://andreasdominik.github.io/NNHelferlein.jl/stable)
 --->
@@ -39,7 +41,7 @@ Pgk.add("https://github.com/denizyuret/AutoGrad.jl.git")
 
 # Caveat:
 Please be aware that the package is still in development and
-not yet tested. You may already use it on own risk.
+not yet compltetely tested. You may already use it on own risk.
 
 
 As soon as dev. and tests are completed the package will be
