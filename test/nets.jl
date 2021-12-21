@@ -171,7 +171,7 @@ function test_hamming()
              0  0  0  0  0]
 
         acc = hamming_dist(p,t)
-        hd = hamming_dist(p,t, accuracy=true)
+        hd = hamming_acc(p,t)
 
-        return acc ≈ 2.4 && hd ≈ 0.2
+       return acc ≈  0.77 && hd ≈ 0.6
 end
