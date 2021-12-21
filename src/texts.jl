@@ -372,7 +372,7 @@ function seq_minibatch(x, y, batchsize; seq_len=nothing, pad=0, o...)
     end
 
     x = pad_sequences(x, seq_len, pad)
-    return Knet.minibatch(convert2KnetArray.(x), convert2KnetArray(y), batchsize; o...)
+    return Knet.minibatch(x, y, batchsize; o...)
 end
 
 
@@ -383,7 +383,7 @@ function seq_minibatch(x, batchsize; seq_len=nothing, pad=0, o...)
     end
 
     x = pad_sequences(x, seq_len, pad)
-    return Knet.minibatch(convert2KnetArray.(x), batchsize; o...)
+    return Knet.minibatch(x, batchsize; o...)
 end
 
 
@@ -423,7 +423,7 @@ function seq2seq_minibatch(x, y, batchsize; seq_len=nothing,
     x = pad_sequences(x, seq_len, pad_x)
     y = pad_sequences(y, seq_len, pad_y)
 
-    return Knet.minibatch(convert2KnetArray.(x), convert2KnetArray.(y), batchsize; o...)
+    return Knet.minibatch(x, y, batchsize; o...)
 end
 
 function pad_sequences(s, len, pad)
