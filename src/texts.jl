@@ -63,6 +63,12 @@ input strings represented by a sequence of Integer values.
 Called with an Array of Integer values a single string  is returned
 with the decoded token-IDs as words (space-separated).
 
+### Base Signatures:
+
+        function length(t::WordTokenizer)
+
+Return the length of the vocab.
+
 
 ### Examples:
 
@@ -210,6 +216,11 @@ function WordTokenizer(texts; len=nothing, add_ctls=true)
     return WordTokenizer(length(w2i), w2i, i2w)
 end
 
+import Base.length
+function Base.length(vocab::WordTokenizer)
+    return vocab.len
+end
+
 function (t::WordTokenizer)(i::Int)
     if i > t.len
         return t.i2w[end]
@@ -244,7 +255,7 @@ function (t::WordTokenizer)(s::AbstractArray{T}; add_ctls=false) where {T <: Abs
 
     # return a list of sequences:
     #
-    return [t(w; split_words=true, add_ctls=add_ctls) for w in s]
+    return Array[t(w; split_words=true, add_ctls=add_ctls) for w in s]
 end
 
 function (t::WordTokenizer)(seq::AbstractArray{T}; add_ctls=false) where {T <: Int}
@@ -338,7 +349,7 @@ end
 
 
 """
-    function seq_minibatch(x, [y,] batchsize; seq_len=nothing, pad=0, o...)
+    function seq_minibatch(x, [y,] batchsize; seq_len=nothing, pad=3, o...)
 
 Return an iterator of type `Knet.Data` with sequence minibatches from a
 list of sequences.
@@ -360,12 +371,13 @@ must be used.
 + `seq_len=nothing`: demanded length of sequences in the minibatches.
         If `nothing`, all sequences are padded to match with the longest
         sequence.
-+ `pad=0`: token, used for padding. The token must be compatible
++ `pad=3`: token, used for padding. The default (3) is the token set by
+        the `WordRTokenizer`. The token must be compatible
         with the type of the sequence elements.
 + `o...`: any other keyword arguments of `Knet.minibatch()`, such as
         `shuffle=true` or `partial=true` can be provided.
 """
-function seq_minibatch(x, y, batchsize; seq_len=nothing, pad=0, o...)
+function seq_minibatch(x, y, batchsize; seq_len=nothing, pad=3, o...)
 
     if seq_len == nothing
         seq_len = maximum(length.(x))
@@ -389,7 +401,7 @@ end
 
 """
     function seq2seq_minibatch(x, y, batchsize; seq_len=nothing,
-                pad_x=0, pad_y=0, o...)
+                pad_x=3, pad_y=3, o...)
 
 Return an iterator of type `Knet.Data` with (x,y) sequence minibatches from
 two lists of sequences.
@@ -407,14 +419,14 @@ or padding with the token provided as `pad`.
 + `seq_len=nothing`: demanded length of sequences in the minibatches.
         If `nothing`, all sequences are padded to match with the longest
         sequence.
-+ `pad_x=0`,
-+ `pad_y=0`: token, used for padding. The token must be compatible
++ `pad_x=3`,
++ `pad_y=3`: token, used for padding. The token must be compatible
         with the type of the sequence elements.
 + `o...`: any other keyword arguments of `Knet.minibatch()`, such as
         `shuffle=true` or `partial=true` can be provided.
 """
 function seq2seq_minibatch(x, y, batchsize; seq_len=nothing,
-                           pad_x=0, pad_y=0, o...)
+                           pad_x=3, pad_y=3, o...)
 
     if seq_len == nothing
         seq_len = maximum((maximum(length.(x)), maximum(length.(y))))
