@@ -172,7 +172,7 @@ function WordTokenizer(texts; len=nothing, add_ctls=true)
 
     # make vocab:
     #
-    counts = Dict{String, Int}()
+    counts = Dict{String, Int32}()
     for w in words
         if haskey(counts, w)
             counts[w] += 1
@@ -199,12 +199,12 @@ function WordTokenizer(texts; len=nothing, add_ctls=true)
 
     # make encode and decode data structures:
     #
-    w2i = Dict{String, Int}()
+    w2i = Dict{String, Int32}()
     i2w = String[]
 
     for (i, w) in enumerate(pairs)
         push!(i2w, w[1])
-        w2i[w[1]] = i
+        w2i[w[1]] = Int32(i)
     end
 
     return WordTokenizer(length(w2i), w2i, i2w)
@@ -372,7 +372,7 @@ function seq_minibatch(x, y, batchsize; seq_len=nothing, pad=0, o...)
     end
 
     x = pad_sequences(x, seq_len, pad)
-    return Knet.minibatch(x, y, batchsize; o...)
+    return Knet.minibatch(convert2KnetArray.(x), convert2KnetArray(y), batchsize; o...)
 end
 
 
@@ -383,7 +383,7 @@ function seq_minibatch(x, batchsize; seq_len=nothing, pad=0, o...)
     end
 
     x = pad_sequences(x, seq_len, pad)
-    return Knet.minibatch(x, batchsize; o...)
+    return Knet.minibatch(convert2KnetArray.(x), batchsize; o...)
 end
 
 
@@ -423,7 +423,7 @@ function seq2seq_minibatch(x, y, batchsize; seq_len=nothing,
     x = pad_sequences(x, seq_len, pad_x)
     y = pad_sequences(y, seq_len, pad_y)
 
-    return Knet.minibatch(x, y, batchsize; o...)
+    return Knet.minibatch(convert2KnetArray.(x), convert2KnetArray.(y), batchsize; o...)
 end
 
 function pad_sequences(s, len, pad)
