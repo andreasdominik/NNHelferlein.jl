@@ -55,7 +55,7 @@ The model is updated (in-place) and the trained model is returned.
         data is an iterator that provides (x,y)-tuples of minibatches.
         For classification tasks, `accuracy` from the Knet package is
         a good choice. For regression a correlation or mean error
-        may be used.
+        may be preferred.
 + `mb_loss_freq=100`: frequency of training loss reporting. default=100
         means that 100 loss-values per epoch will be logged to TensorBoard.
         If mb_loss_freq is greater then the number of minibatches,
@@ -450,7 +450,15 @@ end
 
 
 """
-    function hamming_dist(p, t; accuracy=false, vocab=nothing, pad=0)
+    function hamming_dist(p, t; accuracy=false, 
+                                ignore_ctls=false, vocab=nothing, 
+                                start=nothing, stop=nothing, pad=nothing, unk=nothing)
+
+
+    function hamming_acc(p, t; o...)
+
+
+    function hamming_acc(mdl; data=data, o...)
 
 Return the Hamming distance between two sequences or two minibatches
 of sequences. Predicted sequences `p` and teaching input sequences `t`
@@ -466,53 +474,125 @@ must be the same.
         is returned (i.e. the average number of differences in the sequences).
         If `true`, the accuracy is returned
         for all not padded positions in a range (0.0 - 1.0).
++ `ignore_ctls=false`: a vocab is used to replace all '<start>, <end>, <unknwon>, <pad>'
+        tokens by `<pad>`. If true, padding and other control tokens are treated as
+        normal codes and are not ignored.
 + `vocab=nothing`: target laguage vocabulary of type `NNHelferlein.WordTokenizer`.
         If defined,
         the padding token of `vocab` is used to mask all control tokens in the
         sequences (i.e. '<start>, <end>, <unknwon>, <pad>').
-+ `pad=0`: if `vocab` is undefined, `pad` is used to pad `p`, if the sequence
-        length of `p` is smaller than the length of `t`.
++ `start, stop, pad, unk`: may be used to define individual control tokens.
+        default is `nothing`.
+
+### Details:
+The function `hamming_acc()` is a shortcut to return the accuracy instead of
+the distance. The signature `hamming_acc(mdl; data=data; o...)` is for compatibility
+with acc functions called by train.
+
+
+
 """
-function hamming_dist(p, t; accuracy=false, vocab=nothing, pad=0)
+function hamming_dist(p, t; accuracy=false, ignore_ctls=false, vocab=nothing, 
+                            start=nothing, stop=nothing, pad=nothing, unk=nothing)
 
     # make 2d matrix of sequences:
     #
     n_seq_t = size(t)[1]
-    t = reshape(t, n_seq_t,:)
+    t = reshape(copy(t), n_seq_t,:)
 
     n_seq_p = size(p)[1]
-    p = reshape(p, n_seq_p,:)
+    p = reshape(copy(p), n_seq_p,:)
 
     n_mb = size(t)[2]
 
     # make all control-tokens the same:
     #
-    if vocab != nothing
-        START = vocab("<start>")
-        END = vocab("<end>")
-        UNK = vocab("<unknown>")
-        PAD = vocab("<pad>")
+    if !ignore_ctls
+        if isnothing(vocab)   # use defaults
+            PAD = 3
+            START = 1
+            END = 2
+            UNK = 4
+        else                  # use vocab
+            START = vocab("<start>")
+            END = vocab("<end>")
+            UNK = vocab("<unknown>")
+            PAD = vocab("<pad>")
+        end
+
+        if !isnothing(start)
+            START = start
+        end
+        if !isnothing(stop)
+            END = stop
+        end
+        if !isnothing(pad)
+            PAD = pad
+        end
+        if !isnothing(unk)
+            UNK = unk
+        end
 
         t[t .== START] .= PAD
         t[t .== END] .= PAD
         t[t .== UNK] .= PAD
-    else
-        PAD = pad
     end
 
-    # make n_seq of p the same as t:
+    # make seqs the same length and 
+    # add the rest to dist:
     #
+    dist = 0
     if n_seq_p > n_seq_t
         p = p[1:n_seq_t,:]
+        dist += n_seq_p - n_seq_t 
+    elseif n_seq_t > n_seq_p
+        t = t[1:n_seq_p,:]
+        dist += n_seq_t - n_seq_p 
     end
-    while size(p)[1] < n_seq_t
-        p = vcat(p, repeat([PAD], inner=(1,n_mb)))
-    end
+
+    println("dist from len $dist")
 
     # mask preds same as teaching and count all
     # mask positions:
     #
-    p[t .== PAD] .= PAD
-    num_pad = length(t[t .== PAD])
-    return accuracy ? (sum(p .== t) - num_pad)/(length(t)-num_pad) : sum(p .!= t)/n_mb
+    if ignore_ctls
+        num_non_pad = length(t)
+    else
+        p[t .== PAD] .= PAD
+        num_non_pad = length(t[t .!== PAD])
+    end
+
+    dist += sum(p .!= t)
+
+
+    if accuracy
+        correct = num_non_pad - dist
+        if correct < 0
+            correct = 0
+        end
+        return correct / num_non_pad
+
+    else
+        return dist/n_mb
+    end
+
+    # return accuracy ? (sum(p .== t) - num_pad)/(length(t)-num_pad) : sum(p .!= t)/n_mb
+    return dist
 end
+
+function hamming_acc(p, t; o...)
+
+    return hamming_dist(p, t; accuracy=true, o...)
+end
+
+
+function hamming_acc(mdl; data=data, o...)
+
+    acc = []
+    for (x,y) in data
+        p = mdl(x)
+        push!(acc, hamming_acc(p, y; o...))
+    end
+    return mean(acc)
+end
+    
