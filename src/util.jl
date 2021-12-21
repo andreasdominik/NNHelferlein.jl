@@ -81,7 +81,7 @@ function init0(siz...)
     x = zeros(Float32, siz...)
 
     if CUDA.functional()
-        return KnetArray(x)
+        return Knet.KnetArray(x)
     else
         return x
     end
@@ -101,7 +101,7 @@ function convert2KnetArray(x)
 
     # check if GPU and accept all type of Array-like x:
     #
-    if eltype(x) <: Number
+    if eltype(x) <: Int
         out_type = Int32
     else 
         out_type = Float32
