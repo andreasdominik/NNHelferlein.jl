@@ -3,6 +3,12 @@
 Examples may be used as templates for new projects...    
 All examples are at [GitHub/examples](https://github.com/andreasdominik/NNHelferlein.jl/tree/main/examples):
 
++ [`Simple MLP`]
+  (https://github.com/andreasdominik/NNHelferlein.jl/blob/main/examples/01-simple-mlp.ipynb):
+  A simple multi-layer perceptron for MNIST classification,
+  build with Knet and *Helferlein*-types in just one line of code (or so).
+
+
 + [`Simple LeNet`]
   (https://github.com/andreasdominik/NNHelferlein.jl/blob/main/examples/10-simple-lenet.ipynb):
   A simple LeNet for MNIST classification, 
