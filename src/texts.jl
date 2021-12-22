@@ -146,19 +146,23 @@ mutable struct WordTokenizer
     i2w
 end
 
-# QnD cleaning of a sentence before creating tokens.
-# + normalise
-# + remove punctuation
-# + remove duplicate spaces
-# + trim
-#
+
+"""
+    function clean_sentence(s)
+
+
+Cleaning a sentence in some simple steps:
++ normalise Unicode
++ remove punctuation
++ remove duplicate spaces
++ strip
+"""
 function clean_sentence(s)
 
     s = Unicode.normalize(s)
-    s = replace(s, Regex("[.!?,;:\"\']") => " ")
+    s = replace(s, Regex("[.!?,;:#~^\"\']") => " ")
     s = replace(s, Regex(" {2,}") => " ")
-    s = replace(s, Regex("^ ") => "")
-    s = replace(s, Regex(" \$") => "")
+    s = strip(s)
     return s
 end
 

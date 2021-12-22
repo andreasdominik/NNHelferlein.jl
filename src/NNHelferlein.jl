@@ -64,7 +64,7 @@ export DNN, Classifier, Regressor, Chain, VAE,          # chains
        predict, hamming_dist, hamming_acc,
        get_imagenet_classes,                    # images
        image2array, array2image, array2RGB,
-       WordTokenizer,                           # texts
+       clean_sentence, WordTokenizer,                    # texts
        get_tatoeba_corpus,
        seq_minibatch, seq2seq_minibatch,
        crop_array, init0, convert2KnetArray,             # utils
