@@ -255,18 +255,18 @@ function (t::WordTokenizer)(w::T; split_words=false,
     end
 end
 
-function (t::WordTokenizer)(s::AbstractArray{T}; add_ctls=false) where {T <: AbstractString}
+function (t::WordTokenizer)(s::AbstractArray{T}; o...) where {T <: AbstractString}
 
     # return a list of sequences:
     #
-    return Array[t(w; split_words=true, add_ctls=add_ctls) for w in s]
+    return Array[t(w; split_words=true, o...) for w in s]
 end
 
-function (t::WordTokenizer)(seq::AbstractArray{T}; add_ctls=false) where {T <: Int}
+function (t::WordTokenizer)(seq::AbstractArray{T}; o...) where {T <: Int}
 
     # return a list of sequences:
     #
-    return join(t.(seq), " ")
+    return join(t.(seq, o...), " ")
 end
 
 
