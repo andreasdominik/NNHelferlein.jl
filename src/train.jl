@@ -550,8 +550,6 @@ function hamming_dist(p, t; accuracy=false, ignore_ctls=false, vocab=nothing,
         dist += n_seq_t - n_seq_p 
     end
 
-    println("dist from len $dist")
-
     # mask preds same as teaching and count all
     # mask positions:
     #
