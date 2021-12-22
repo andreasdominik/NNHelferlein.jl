@@ -33,8 +33,8 @@ of the released version 1.2.4 to be used with NNHelferlein:
 
 ```Julia
 using Pkg
-Pkg.add("https://github.com/andreasdominik/NNHelferlein.jl.git")
-Pgk.add("https://github.com/denizyuret/AutoGrad.jl.git")
+Pkg.add(url="https://github.com/andreasdominik/NNHelferlein.jl.git")
+Pgk.add(url="https://github.com/denizyuret/AutoGrad.jl.git")
 ```
 
 
