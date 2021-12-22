@@ -353,7 +353,8 @@ end
 
 
 """
-    function seq_minibatch(x, [y,] batchsize; seq_len=nothing, pad=3, o...)
+    function seq_minibatch(x, [y,] batchsize; 
+                           seq_len=nothing, pad=3, o...)
 
 Return an iterator of type `Knet.Data` with sequence minibatches from a
 list of sequences.
@@ -436,6 +437,8 @@ function seq2seq_minibatch(x, y, batchsize; seq_len=nothing,
         seq_len = maximum((maximum(length.(x)), maximum(length.(y))))
     end
 
+    @show pad_x
+    @show pad_y
     x = pad_sequences(x, seq_len, pad_x)
     y = pad_sequences(y, seq_len, pad_y)
 
@@ -451,7 +454,7 @@ function pad_sequences(s, len, pad)
         if length(seq) > len        # if too long
             seq = seq[1:len]
         end
-        while length(seq) < len  # if too short
+        while length(seq) < len     # if too short
             push!(seq, pad)
         end
         data[:,i] = seq
