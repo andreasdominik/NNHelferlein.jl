@@ -170,5 +170,8 @@ function test_hamming()
              2  5  5  4  2
              0  0  0  0  0]
 
+        acc = hamming_dist(p,t)
+        hd = hamming_acc(p,t)
+
        return isapprox(acc, 0.6, atol=0.05) && isapprox(hd, 0.77, atol=0.05)
 end
