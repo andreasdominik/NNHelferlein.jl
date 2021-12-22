@@ -29,7 +29,7 @@ function test_df_loader()
 
         return first(mb1)[2] == UInt8[0x01  0x03  0x02  0x02] &&
                first(mb2)[2] == UInt8[0x01 0x01 0x01 0x01]    &&
-               mb3 == nothing
+               mb3 === nothing
 end
 
 
@@ -57,8 +57,8 @@ function test_df_errors()
     df1 = dataframe_read("../data/iris/iris150.ods")
     df2 = dataframe_read("../data/iris/iris150.dat")
 
-    return df1 == nothing &&
-           df2 == nothing
+    return df1 === nothing &&
+           df2 === nothing
 end
 
 # test NLP utils:

@@ -190,7 +190,7 @@ function WordTokenizer(texts; len=nothing, add_ctls=true)
 
     # limit vocab length to len:
     #
-    if len != nothing && len < length(counts)
+    if len !== nothing && len < length(counts)
         pairs = pairs[1:len]
     end
 
@@ -379,7 +379,7 @@ must be used.
 """
 function seq_minibatch(x, y, batchsize; seq_len=nothing, pad=3, o...)
 
-    if seq_len == nothing
+    if seq_len === nothing
         seq_len = maximum(length.(x))
     end
 
@@ -390,7 +390,7 @@ end
 
 function seq_minibatch(x, batchsize; seq_len=nothing, pad=0, o...)
 
-    if seq_len == nothing
+    if seq_len === nothing
         seq_len = maximum(length.(x))
     end
 
@@ -428,7 +428,7 @@ or padding with the token provided as `pad`.
 function seq2seq_minibatch(x, y, batchsize; seq_len=nothing,
                            pad_x=3, pad_y=3, o...)
 
-    if seq_len == nothing
+    if seq_len === nothing
         seq_len = maximum((maximum(length.(x)), maximum(length.(y))))
     end
 

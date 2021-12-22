@@ -233,7 +233,7 @@ function read_one_image(i, il)
         img = Float32.(Images.channelview(img))
     end
 
-    if il.pre_proc != nothing && il.pre_proc isa Function
+    if il.pre_proc !== nothing && il.pre_proc isa Function
         img = il.pre_proc(img)
     end
     return(img)
