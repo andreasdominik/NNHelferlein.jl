@@ -93,20 +93,14 @@ end
 """
     function convert2KnetArray(x)
 
-Convert an array `x` to a `KnetArray{Float32}` or `KnetArray{Int32}`` 
+Convert an array `x` to a `KnetArray{Float32}` 
 only in GPU context
-(if `CUDA.functional()`) or to an `Array{Float32}` / `Array{Int32}` otherwise.
+(if `CUDA.functional()`) or to an `Array{Float32}` otherwise.
 """
 function convert2KnetArray(x)
 
     # check if GPU and accept all type of Array-like x:
     #
-#    if eltype(x) <: Int
-#        out_type = Int32
-#    else 
-#        out_type = Float32
-#    end
-
     if CUDA.functional()
         return Knet.KnetArray{Float32}(Array(x))
     else
@@ -228,25 +222,45 @@ end
 
 
 """
-    function de_embed(x; remove_dim=true)
+    function de_embed(x)
 
 Replace the maximum of the first dimension of an n-dimensional array
 by its index (aka argmax()).
-If `remove_dim=false` the first dim is preserved with size=1; otherwise
-the returned array has the first dimension removed.
+The returned array has the first dimension removed.
+
+### Examples:
+```Julia
+x = [1,1,3,4,2]
+de_embed(x)
+> 4
+
+x = [1 1 1
+     2 1 1
+     1 2 1
+     1 1 2]
+de_embed(x)
+> [2 3 4]
+```
 """
-function de_embed(x; remove_dim=true)
-
-    siz = size(x)
-    depth = siz[1]
-    siz = siz[2:end]
-
-    x = reshape(x, depth, :)
-    x = softmax(x, dims=1)
-    x = [argmax(x[:,i]) for i in 1:size(x)[2]]
-    if remove_dim
-        return reshape(x, siz...)
-    else
-        return reshape(x, 1,siz...)
-    end
+function de_embed(x)
+    return getindex.(argmax(x, dims=1), 1)
 end
+
+# dead code:
+# function de_embed(x; remove_dim=true)
+# 
+#     siz = size(x)
+#     depth = siz[1]
+#     siz = siz[2:end]
+# 
+#     x = reshape(x, depth, :)
+#     x = softmax(x, dims=1)
+#     x = [argmax(x[:,i]) for i in 1:size(x)[2]]
+#     if remove_dim
+#         return reshape(x, siz...)
+#     else
+#         return reshape(x, 1,siz...)
+#     end
+# end
+# 
+
