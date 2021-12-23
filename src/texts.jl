@@ -437,8 +437,6 @@ function seq2seq_minibatch(x, y, batchsize; seq_len=nothing,
         seq_len = maximum((maximum(length.(x)), maximum(length.(y))))
     end
 
-    @show pad_x
-    @show pad_y
     x = pad_sequences(x, seq_len, pad_x)
     y = pad_sequences(y, seq_len, pad_y)
 
