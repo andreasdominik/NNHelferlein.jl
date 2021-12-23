@@ -226,7 +226,7 @@ end
 
 Replace the maximum of the first dimension of an n-dimensional array
 by its index (aka argmax()).
-The returned array has the first dimension removed.
+The returned array has the first dimension with size 1.
 
 ### Examples:
 ```Julia

@@ -38,5 +38,5 @@ end
 function test_de_embed()
     x = rand(8,4,12)
     y = de_embed(x)
-    return size(y) == (4,12)
+    return size(y) == (1,4,12)
 end
