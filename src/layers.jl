@@ -383,6 +383,12 @@ the index of the "one" in the vector has to be provided as Integer value
 ### Signatures:
 + `(l::Embed)(x) = l.actf.(w[:,x])` default
   embedding of input tensor x.
+
+### Value:
+The embedding is constructed by adding a first dimension to the input tensor
+with number of rows = embedding depth.
+If x is a column vector, the value is a matrix. If x is as row-vector or
+a matrix, the value is a 3-d array, etc.
 """
 struct Embed <: Layer
     w
