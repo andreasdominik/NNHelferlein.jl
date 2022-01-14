@@ -151,7 +151,7 @@ function test_decay_cp()
                         Dense(8,1, actf=identity))
 
         mlp = tb_train!(mlp, Adam, mb, epochs=2, acc_fun=nothing,
-                cp_freq=1, lr=0.01, lr_decay=0.99, l2=1e-6)
+                checkpoints=1, lr=0.01, lr_decay=0.001, l2=1e-6)
         acc = NNHelferlein.calc_acc(mlp, acc_fun, data=mb)
         return acc isa Real
 end
