@@ -33,8 +33,9 @@ The model is updated (in-place) and the trained model is returned.
         `lr` and final learning rate `lr_decay` are defined explicitly.
         Example: `lr=0.01, lr_decay=0.001` will reduce the lr from
         0.01 to 0.001 during the training (by default in 5 steps).
-+ `lrd_steps=5`: number of learning rate decay steps. Default is
-        to modify the lr 5 times during the training.
++ `lrd_steps=5`: number of learning rate decay steps. Default is `5`, i.e.
+        modify the lr 4 times during the training (resulting in 5 different 
+        leraning rates).
 + `lrd_linear=false`: type of learning rate decay;
         If `false`, lr is modified
         by a constant factor (e.g. 0.9) resulting in an exponential decay.
