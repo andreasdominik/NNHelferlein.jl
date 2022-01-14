@@ -384,10 +384,10 @@ end
 #
 function calc_d_η(η_start, η_end, lrd_linear, steps)
     if !lrd_linear
-        d = log(η_end/η_start) / steps
+        d = log(η_end/η_start) / (steps-1)
         d = exp(d)
     else
-        d = (η_end - η_start) / steps
+        d = (η_end - η_start) / (steps-1)
     end
     return d
 end
