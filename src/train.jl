@@ -111,10 +111,10 @@ function tb_train!(mdl, opti, trn, vld=nothing; epochs=1,
 
     # learning rate steps:
     #
-    if lrd_steps > epochs
-        lrd_steps = epochs
+    if lrd_steps > epochs * n_trn
+        lrd_steps = epochs * n_trn
     end
-    lr_nth = cld(epochs*n_trn, lrd_steps)
+    lr_nth = cld(epochs*n_trn, lrd_steps) 
 
     # check point rate:
     #
@@ -227,7 +227,7 @@ function tb_train!(mdl, opti, trn, vld=nothing; epochs=1,
 
         # lr decay:
         #
-        if (!isnothing(lr_decay)) && (i % lr_nth == 0)
+        if (!isnothing(lr_decay)) && i > 1 && ((i-1) % lr_nth == 0)
             lr = first(params(mdl)).opt.lr
             lr = lrd_linear ? lr + lr_decay : lr * lr_decay
             @printf("Setting learning rate to η=%.2e in epoch %.1f\n", lr, i/n_trn)
