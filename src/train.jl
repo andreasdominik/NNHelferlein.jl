@@ -5,7 +5,7 @@
                       eval_size=0.2, eval_freq=1,
                       acc_fun=nothing,
                       mb_loss_freq=100,
-                      cp_freq=nothing, cp_dir="checkpoints",
+                      chekcpoints=nothing, cp_dir="checkpoints",
                       tb_dir="logs", tb_name="run",
                       tb_text=\"\"\"Description of tb_train!() run.\"\"\",
                       opti_args...)
@@ -60,7 +60,7 @@ The model is updated (in-place) and the trained model is returned.
         means that 100 loss-values per epoch will be logged to TensorBoard.
         If mb_loss_freq is greater then the number of minibatches,
         loss is logged for each minibatch.
-+ `cp_epoch=nothing`: frequency of model checkpoints written to disk.
++ `checkpoints=nothing`: frequency of model checkpoints written to disk.
         Default is `nothing`, i.e. no checkpoints are written.
         To write the model after each epoch with
         name `model` use cp_epoch=1; to write every second epochs cp_epoch=2, 
@@ -82,7 +82,7 @@ function tb_train!(mdl, opti, trn, vld=nothing; epochs=1,
                   l2=0.0,
                   eval_size=0.2, eval_freq=1, acc_fun=nothing,
                   mb_loss_freq=100,
-                  cp_freq=nothing, cp_dir="checkpoints",
+                  checkpoints=nothing, cp_dir="checkpoints",
                   tb_dir="logs", tb_name="run",
                   tb_text="""Description of tb_train!() run.""",
                   opti_args...)
@@ -118,8 +118,8 @@ function tb_train!(mdl, opti, trn, vld=nothing; epochs=1,
 
     # check point rate:
     #
-    if !isnothing(cp_freq)
-        cp_nth = cld(n_trn, cp_freq)
+    if !isnothing(checkpoints)
+        cp_nth = n_trn * checkpoints
     end
 
 
@@ -159,7 +159,7 @@ function tb_train!(mdl, opti, trn, vld=nothing; epochs=1,
     log_text(tbl, tb_log_dir, tb_name, start_time, tb_text,
              opti, trn, vld, epochs,
              lr_decay, lrd_steps, l2,
-             cp_freq, opti_args)
+             checkpoints, opti_args)
     calc_and_report_loss(mdl, eval_trn, eval_vld, tbl, 0)
 
     if !isnothing(acc_fun)
@@ -221,7 +221,7 @@ function tb_train!(mdl, opti, trn, vld=nothing; epochs=1,
 
         # checkpoints:
         #
-        if (!isnothing(cp_freq)) && (i % cp_nth) == 0
+        if (!isnothing(checkpoints)) && (i % cp_nth) == 0
             write_cp(mdl, i, tb_log_dir)
         end
 
@@ -250,7 +250,7 @@ function tb_train!(mdl, opti, trn, vld=nothing; epochs=1,
 
     # save final model:
     #
-    if (!isnothing(cp_freq))
+    if (!isnothing(checkpoints))
         write_cp(mdl, n_trn*epochs+1, tb_log_dir)
     end
     return mdl
@@ -268,7 +268,7 @@ end
 function log_text(tbl, tb_log_dir, tb_name, start_time, tb_text,
                   opti, trn, vld, epochs,
                   lr_decay, lrd_steps, l2,
-                  cp_freq, opti_args)
+                  checkpoints, opti_args)
 
     if isnothing(vld)
         vld = []
@@ -297,8 +297,8 @@ function log_text(tbl, tb_log_dir, tb_name, start_time, tb_text,
     if l2 > 0
         tb_log_text *= "   <li>L2 regularisation: $l2</li>"
     end
-    if !isnothing(cp_freq)
-        tb_log_text *= "   <li>Checkpoints are saved $cp_freq times per epoch</li>"
+    if !isnothing(checkpoints)
+        tb_log_text *= "   <li>Checkpoints are saved $checkpoints times per epoch</li>"
     end
 
     for arg in keys(opti_args)
