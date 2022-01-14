@@ -113,7 +113,10 @@ function tb_train!(mdl, opti, trn, vld=nothing; epochs=1,
     if lrd_steps > epochs
         lrd_steps = epochs
     end
-    lr_nth = cld(epochs, lrd_steps)
+    lr_nth = cld(epochs*n_trn, lrd_steps)
+
+    # check point rate:
+    #
     if cp_freq !== nothing
         cp_nth = cld(n_trn, cp_freq)
     end
@@ -226,7 +229,7 @@ function tb_train!(mdl, opti, trn, vld=nothing; epochs=1,
         if (lr_decay !== nothing) && (i % lr_nth == 0)
             lr = first(params(mdl)).opt.lr
             lr = lrd_linear ? lr + lr_decay : lr * lr_decay
-            @printf("Setting learning rate to η=%.2e\n", lr)
+            @printf("Setting learning rate to η=%.2e in epoch %.1\n", lr, i/n_trn)
             set_learning_rate(mdl, lr)
         end
     end
