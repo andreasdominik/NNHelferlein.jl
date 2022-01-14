@@ -90,7 +90,7 @@ function tb_train!(mdl, opti, trn, vld=nothing; epochs=1,
     #
     n_trn = length(trn)
 
-    if vld === nothing
+    if isnothing(vld)
         n_vld = 0
         eval_vld = nothing
         n_eval = Int(ceil(n_trn * eval_size))
@@ -117,14 +117,14 @@ function tb_train!(mdl, opti, trn, vld=nothing; epochs=1,
 
     # check point rate:
     #
-    if cp_freq !== nothing
+    if !isnothing(cp_freq)
         cp_nth = cld(n_trn, cp_freq)
     end
 
 
     # do lr-decay only if lr is explicitly defined:
     #
-    if lr_decay !== nothing && haskey(opti_args, :lr)
+    if !isnothing(lr_decay) && haskey(opti_args, :lr)
        lr_decay = calc_d_η(opti_args[:lr], lr_decay, lrd_linear, lrd_steps)
     else
         lr_decay = nothing
@@ -141,7 +141,7 @@ function tb_train!(mdl, opti, trn, vld=nothing; epochs=1,
     #
     function echo_log()
         println("Training $epochs epochs with $n_trn minibatches/epoch")
-        if vld !== nothing
+        if !isnothing(vld)
             println("    (and $n_vld validation mbs).")
         end
         println("Evaluation is performed every $eval_nth minibatches (with $n_eval mbs).")
@@ -161,14 +161,14 @@ function tb_train!(mdl, opti, trn, vld=nothing; epochs=1,
              cp_freq, opti_args)
     calc_and_report_loss(mdl, eval_trn, eval_vld, tbl, 0)
 
-    if acc_fun !== nothing
+    if !isnothing(acc_fun)
         calc_and_report_acc(mdl, acc_fun, eval_trn, eval_vld, tbl, 0)
     end
 
 
     # set optimiser - only if not yet set:
     #
-    if first(params(mdl)).opt === nothing
+    if isnothing(first(params(mdl)).opt)
         for p in params(mdl)
             p.opt = opti(;opti_args...)
         end
@@ -204,7 +204,7 @@ function tb_train!(mdl, opti, trn, vld=nothing; epochs=1,
         if (i % eval_nth) == 0
             calc_and_report_loss(mdl, eval_trn, eval_vld, tbl, eval_nth)
 
-            if acc_fun !== nothing
+            if !isnothing(acc_fun)
                 calc_and_report_acc(mdl, acc_fun, eval_trn, eval_vld,
                                     tbl, eval_nth)
             end
@@ -220,13 +220,13 @@ function tb_train!(mdl, opti, trn, vld=nothing; epochs=1,
 
         # checkpoints:
         #
-        if (cp_freq !== nothing) && (i % cp_nth) == 0
+        if (!isnothing(cp_freq)) && (i % cp_nth) == 0
             write_cp(mdl, i, tb_log_dir)
         end
 
         # lr decay:
         #
-        if (lr_decay !== nothing) && (i % lr_nth == 0)
+        if (!isnothing(lr_decay)) && (i % lr_nth == 0)
             lr = first(params(mdl)).opt.lr
             lr = lrd_linear ? lr + lr_decay : lr * lr_decay
             @printf("Setting learning rate to η=%.2e in epoch %.1\n", lr, i/n_trn)
@@ -236,20 +236,20 @@ function tb_train!(mdl, opti, trn, vld=nothing; epochs=1,
 
     println("Training finished with:")
     println("Training loss:       $(calc_loss(mdl, data=trn))")
-    if acc_fun !== nothing
+    if !isnothing(acc_fun)
         println("Training accuracy:   $(calc_acc(mdl, acc_fun, data=trn))")
     end
 
-    if vld !== nothing
+    if !isnothing(vld)
         println("Validation loss:     $(calc_loss(mdl, data=vld))")
-        if acc_fun !== nothing
+        if !isnothing(acc_fun)
             println("Validation accuracy: $(calc_acc(mdl, acc_fun, data=vld))")
         end
     end
 
     # save final model:
     #
-    if (cp_freq !== nothing)
+    if (!isnothing(cp_freq))
         write_cp(mdl, n_trn*epochs+1, tb_log_dir)
     end
     return mdl
@@ -269,7 +269,7 @@ function log_text(tbl, tb_log_dir, tb_name, start_time, tb_text,
                   lr_decay, lrd_steps, l2,
                   cp_freq, opti_args)
 
-    if vld === nothing
+    if isnothing(vld)
         vld = []
     end
 
@@ -290,13 +290,13 @@ function log_text(tbl, tb_log_dir, tb_name, start_time, tb_text,
     "   <li>Optimiser: $opti</li>" *
     "   <li>Epochs: $epochs</li>"
 
-    if lr_decay !== nothing
+    if !isnothing(lr_decay)
         tb_log_text *= "   <li>learning rate is reduced to $lr_decay in $lrd_steps steps.</li>"
     end
     if l2 > 0
         tb_log_text *= "   <li>L2 regularisation: $l2</li>"
     end
-    if cp_freq !== nothing
+    if !isnothing(cp_freq)
         tb_log_text *= "   <li>Checkpoints are saved $cp_freq times per epoch</li>"
     end
 
@@ -349,7 +349,7 @@ function calc_and_report_loss(mdl, trn, vld, tbl, step)
 
     loss_trn = calc_loss(mdl, data=trn)
 
-    if vld !== nothing
+    if !isnothing(vld)
         loss_vld = calc_loss(mdl, data=vld)
         with_logger(tbl) do
             @info "Evaluation Loss" train=loss_trn valid=loss_vld log_step_increment=step
@@ -365,7 +365,7 @@ function calc_and_report_acc(mdl, acc_fun, trn, vld, tbl, step)
 
     acc_trn = calc_acc(mdl, acc_fun, data=trn)
 
-    if vld !== nothing
+    if !isnothing(vld)
         acc_vld = calc_acc(mdl, acc_fun, data=vld)
         with_logger(tbl) do
             @info "Evaluation Accuracy" train=acc_trn valid=acc_vld log_step_increment=step
@@ -404,7 +404,7 @@ function predict_top5(mdl, x; top_n=5, classes=nothing)
 
     y = predict(mdl, x, softmax=false)
 
-    if classes === nothing
+    if isnothing(classes)
         classes = repeat(["-"], size(y)[1])
     end
     for (i,o) in enumerate(eachcol(y))

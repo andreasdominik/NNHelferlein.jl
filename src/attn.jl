@@ -117,7 +117,7 @@ function (attn::AttnBahdanau)(h_t, h_enc; reset=false)
 
     # this is possible, because the Linear-layers are used:
     #
-    if reset || attn.projections === nothing
+    if reset || isnothing(attn.projections)
         attn.projections = attn.enc(h_encR)
     end
     score = attn.combine(tanh.(attn.projections .+ attn.dec(h_tR)))
@@ -169,7 +169,7 @@ function (attn::AttnLuong)(h_t, h_enc; reset=false)
     units, mb, steps = size(h_encR)
     h_tR = reshape(h_t, size(h_t)[1], :)
 
-    if reset || attn.projections === nothing
+    if reset || isnothing(attn.projections)
         attn.projections = attn.enc(h_encR)
     end
 

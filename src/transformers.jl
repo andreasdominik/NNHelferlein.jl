@@ -116,7 +116,7 @@ function dot_prod_attn(q, k, v; mask=nothing)
 
     score = bmm(k, q, transA=true) ./ Float32(sqrt(size(k)[1]))  # [s_v x s_k x mb]
 
-    if mask !== nothing
+    if !isnothing(mask)
         score = score .+ mask * Float32(-1e9)
     end
 

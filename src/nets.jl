@@ -217,7 +217,7 @@ function (vae::VAE)(x, y=nothing)
        
     # calc loss, if y given:
     #
-    if y === nothing
+    if isnothing(y)
         return x
     else
         n = length(x)

@@ -65,14 +65,14 @@ function dataframe_minibatches(data; size=16, ignore=[], teaching="y", o...)
     if !(ignore isa(AbstractArray))
         ignore = [ignore]
     end
-    if teaching !== nothing
+    if !isnothing(teaching)
         push!(ignore, teaching)
     end
     cols = filter(c->!(c in ignore), names(data))
     x = convert2KnetArray(data[!,cols])
     x = permutedims(x)
 
-    if teaching === nothing
+    if isnothing(teaching)
         return Knet.minibatch(x, size; o...)
     else
         # care for type of teaching column:
@@ -224,7 +224,7 @@ end
 #
 function Base.iterate(nr::MBNoiser, state)
     next_inner = iterate(nr.mbs, state)
-    if next_inner === nothing
+    if isnothing(next_inner)
         return nothing
     else
         next_mb, next_state = next_inner
