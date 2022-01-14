@@ -60,10 +60,11 @@ The model is updated (in-place) and the trained model is returned.
         means that 100 loss-values per epoch will be logged to TensorBoard.
         If mb_loss_freq is greater then the number of minibatches,
         loss is logged for each minibatch.
-+ `cp_freq=nothing`: frequency of model checkpoints written to disk.
++ `cp_epoch=nothing`: frequency of model checkpoints written to disk.
         Default is `nothing`, i.e. no checkpoints are written.
         To write the model after each epoch with
-        name `model` use freq=1; to write every 2 epochs freq=0.5.
+        name `model` use cp_epoch=1; to write every second epochs cp_epoch=2, 
+        etc.
 + `cp_dir="checkpoints"`: directory for checkpoints
 
 #### TensorBoard:
@@ -229,7 +230,7 @@ function tb_train!(mdl, opti, trn, vld=nothing; epochs=1,
         if (!isnothing(lr_decay)) && (i % lr_nth == 0)
             lr = first(params(mdl)).opt.lr
             lr = lrd_linear ? lr + lr_decay : lr * lr_decay
-            @printf("Setting learning rate to η=%.2e in epoch %.1\n", lr, i/n_trn)
+            @printf("Setting learning rate to η=%.2e in epoch %.1f\n", lr, i/n_trn)
             set_learning_rate(mdl, lr)
         end
     end
