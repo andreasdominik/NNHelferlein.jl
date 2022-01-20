@@ -2,6 +2,11 @@
 #
 # (c) A. Dominik, 2021
 
+const TOKEN_START = 1
+const TOKEN_END = 2
+const TOKEN_PAD = 3
+const TOKEN_UNKOWN = 4
+
 """
     mutable struct WordTokenizer
         len
@@ -13,6 +18,9 @@ Create a word-based vocabulary: every unique word of a String or
 a list of Strings is assigned to a unique number.
 The created object includes a list of words (`i2w`, ordered by their numbers) and
 a dictionary `w2i` with the words as keys.
+
+The constants `TOKEN_START, TOKEN_END, TOKEN_PAD` and `TOKEN_UNKOWN`
+are exported.
 
 ### Constructor:
 
@@ -351,7 +359,10 @@ function get_tatoeba_corpus(lang; force=false,
 end
 
 
-
+#################################################################################
+# 
+# deprecated seq minibatch!
+#
 """
     function seq_minibatch(x, [y,] batchsize; 
                            seq_len=nothing, pad=3, o...)
@@ -404,6 +415,7 @@ function seq_minibatch(x, batchsize; seq_len=nothing, pad=0, o...)
 end
 
 
+
 """
     function seq2seq_minibatch(x, y, batchsize; seq_len=nothing,
                 pad_x=3, pad_y=x, o...)
@@ -423,8 +435,9 @@ or padding with the token provided as `pad`.
 + `batchsize`: size of minibatches
 + `seq_len=nothing`: demanded length of sequences in the minibatches.
         If `nothing`, all sequences are padded to match with the longest
-        sequence.
-+ `opti=false`: if `false` minibatches with the giveb seqence length are created. 
+        sequence. In case of `opti == true` sequences are truncated to 
+        sqe_len.
++ `optimize=false`: if `false` minibatches with the giveb seqence length are created. 
         If `true` the sequence lengths are optimized to minimize padding, by sorting 
         the sequences by their length and restricting the seq-length of each minibatch
         to teh langest sequence of the minibatch.
@@ -435,42 +448,176 @@ or padding with the token provided as `pad`.
 + `o...`: any other keyword arguments of `Knet.minibatch()`, such as
         `shuffle=true` or `partial=true` can be provided.
 """
-function seq2seq_minibatch(x, y, batchsize; seq_len=nothing, opti=false,
+function seq2seq_minibatch(x, y, batchsize; seq_len=nothing, optimize=false,
                            pad_x=3, pad_y=pad_x, o...)
 
-    if opti
-        x,y = opti_minibatches(x,y, seq_len, pad_x, pad_y)
-    else
+    if optimize
+        return opti_minibatches(x,y, batch_size, seq_len, pad_x, pad_y, o...)
 
+    else
         if isnothing(seq_len)
             seq_len = maximum((maximum(length.(x)), maximum(length.(y))))
         end
 
         x = pad_sequences(x, seq_len, pad_x)
         y = pad_sequences(y, seq_len, pad_y)
-    end
     return Knet.minibatch(x, y, batchsize; o...)
-end
-
-function pad_sequences(s, len, pad)
-
-    elem_type = typeof(s[1][1])
-    data = Array{elem_type}(undef, len, length(s))
-
-    for (i,seq) in enumerate(s)
-        if length(seq) > len        # if too long
-            seq = seq[1:len]
-        end
-        while length(seq) < len     # if too short
-            push!(seq, pad)
-        end
-        data[:,i] = seq
     end
-    return data
+end
+#
+#
+#################################################################################
+
+
+
+"""
+    function sequence_minibatch(x, [y], batchsize; 
+                                pad=NNHelferlein.TOKEN_PAD, 
+                                seq2seq=true, pad_y=pad,
+                                shuffle=, partial=false)
+
+
+Return an iterator of type `DataLoader` with (x,y) sequence minibatches from
+two lists of sequences.
+
+All sequences within a minibatch in x and y are brought to the same length
+by truncating (if too long)
+or padding with the token provided as `pad`.
+
+The sequences are sorted by length before building minibatches in order to 
+reduce padding (i.e. sequences of the same length are combined to a minibatch).
+If the same seuence length is requested for all minibatches, the sequences
+must be truncted or padded before call of `sequence_minibatch()` 
+(see functions `truncate_seqence()` and `pad_sequence()`).
+
+### Arguments:
++ `x`: List of sequences of `Int`
++ `y`: List of sequences of `Int` or list of target values (i.r. teaching inpSut)
++ `batchsize`: size of minibatches
++ `pad=PAD_TOKEN`,
++ `pad_y=x`: token, used for padding. The token must be compatible
+        with the type of the sequence elements. If pad_y is omitted, pad_y is set 
+        equal to pad_x.
++ `shuffle=true`: The minibatches are shuffled as last step. If `false` the minibatches 
+        with short sequences will be at the beginning of the dataset.
++ `partial=false`: If `true`, a partial minibatch will be created if necessray to 
+        include all input data.
+"""
+function sequence_minibatch(x, batchsize; 
+                              pad=NNHelferlein.TOKEN_PAD, 
+                              shuffle=false, partial=false)
+
+    return sequence_minibatch(x, nothing, batchsize; 
+                       pad=pad, 
+                       shuffle=shuffle, partial=partial)
+end
+
+function sequence_minibatch(x, y, batchsize; 
+                              pad=NNHelferlein.TOKEN_PAD, 
+                              seq2seq=true, pad_y=pad,
+                              shuffle=false, partial=false)
+
+
+    # sort seqs by length (of input):
+    #
+    idx = sortperm(length.(x))
+
+    i = 1
+    xmbs = []
+    while i+batchsize-1 <= length(x)
+
+        j = i+batchsize-1
+        push!(xmbs, one_mb(x, y, seq2seq, idx, i, j, pad, pad_y))
+        i += batchsize
+    end
+
+    if partial && i <= length(x)
+        j = length(x)
+        push!(xmbs, one_mb(x, y, seq2seq, idx, i, j, pad, pad_y))
+    end
+
+    return SequenceData(xmbs, shuffle=shuffle)
+end
+
+function one_mb(x, y, seq2seq, idx, i, j, pad, pad_y)
+
+    xmb = mk_seq_mb(x[idx[i:j]], pad)
+    xmb = convert2KnetArray(xmb, Int32)
+
+    if !isnothing(y)
+    if seq2seq
+            ymb = mk_seq_mb(y[idx[i:j]], pad_y)
+            ymb = convert2KnetArray(ymb, Int32)
+        else
+            ymb = y[idx[i:j]]
+            if eltype(ymb) <: Int
+                ymb = convert2KnetArray(ymb, Int32)
+            else
+                ymb = convert2KnetArray(ymb)
+            end
+        end
+    end
+
+
+    if isnothing(y)
+       return xmb
+    else
+        return (xmb, ymb)
+    end
+end
+
+function mk_seq_mb(x, pad)
+
+    l = maximum(length.(x))
+    x = pad_sequence.(x, l, token=pad)
+
+    return hcat(x...)
 end
 
 
-#function opti_minibatches(x, y, seq_len, pad_x, pad_y)
+
+"""
+    function pad_sequence(s, len; token=NNHelferlein.TOKEN_PAD)
+
+Strech a sequence to length `len` by adding the padding token.
+"""
+function pad_sequence(s, len; token=NNHelferlein.TOKEN_PAD)
+
+    s = deepcopy(s)
+    if length(s) < len
+        append!(s, repeat([token], len-length(s)))
+    end
+    return s
+end
+
+"""
+    function truncate_sequence(s, len; end_token=nothing)
+
+Truncate a sequence to the length `len`. 
+If not `isnothing(end_token)`, the last token of the sequenceis 
+overwritten by the token.
+"""
+function truncate_sequence(s, len; end_token=nothing)
+
+    s = deepcopy(s)
+    # only do something if too long
+    #
+    if length(s) > len        
+        s = s[1:len]
+    end
+
+    # add <end> token if demanded:
+    #
+    if !isnothing(end_token)
+        s[end] = end_token
+    end
+    return s
+end
+
+
+
+
+
 
 
 """

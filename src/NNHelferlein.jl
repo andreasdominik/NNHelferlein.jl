@@ -38,7 +38,8 @@ include("imagenet.jl")
 DATA_DIR = normpath(joinpath(dirname(pathof(@__MODULE__)), "..", "data"))
 
 export DNN, Classifier, Regressor, Chain, VAE,          # chains
-       ImageLoader, DataLoader, preproc_imagenet,
+       DataLoader, SequenceData,
+       ImageLoader, preproc_imagenet,
        get_class_labels,
        iterate, length,
        Layer, Dense, Conv, Pool, Flat, PyFlat,         # layers
@@ -66,7 +67,7 @@ export DNN, Classifier, Regressor, Chain, VAE,          # chains
        image2array, array2image, array2RGB,
        clean_sentence, WordTokenizer,                    # texts
        get_tatoeba_corpus,
-       seq_minibatch, seq2seq_minibatch,
+       sequence_minibatch, pad_sequence, truncate_sequence, 
        crop_array, init0, convert2KnetArray,             # utils
        blowup_array, recycle_array,
        de_embed,

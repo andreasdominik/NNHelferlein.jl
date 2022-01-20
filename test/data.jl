@@ -99,9 +99,23 @@ function test_seq_mb_xy()
          tok("Peter loves Julia and Scala", split_words=true)]
 
     y = [1 1 2]
-    mb = seq_minibatch(t, y, 2, seq_len=4)
-    return first(mb)[2] == [1 1]
+    mb = sequence_minibatch(t, y, 2, partial=true, shuffle=false)
+    o = [m[1] for m in mb]
+    return first(mb)[2] == [1 1] && length(o) == 2
 end
+
+function test_pad()
+    s = [5,3,2]
+    s = pad_sequence(s, 10)
+    return length(s) == 10
+end
+
+function test_trunc()
+    s = [9,5,7,8,9,6,7,9]
+    s = truncate_sequence(s, 3, end_token=20)
+    return length(s) == 3 && s[3] == 20
+end
+
 
 
 # test tatoeba on tiny dataset Galician:

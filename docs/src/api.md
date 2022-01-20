@@ -138,8 +138,9 @@ array2RGB
 ```@docs
 WordTokenizer
 get_tatoeba_corpus
-seq_minibatch
-seq2seq_minibatch
+sequence_minibatch
+pad_sequence
+truncate_sequence
 ```
 
 
