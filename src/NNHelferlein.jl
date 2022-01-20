@@ -68,6 +68,7 @@ export DNN, Classifier, Regressor, Chain, VAE,          # chains
        clean_sentence, WordTokenizer,                    # texts
        get_tatoeba_corpus,
        sequence_minibatch, pad_sequence, truncate_sequence, 
+       TOKEN_START, TOKEN_END, TOKEN_PAD, TOKEN_UNKOWN,
        crop_array, init0, convert2KnetArray,             # utils
        blowup_array, recycle_array,
        de_embed,
