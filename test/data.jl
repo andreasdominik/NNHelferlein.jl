@@ -129,11 +129,10 @@ function test_seq2seq_mb()
      en,glg = get_tatoeba_corpus("glg")
      ven = WordTokenizer(en)
      vglg = WordTokenizer(glg)
-     mb = seq2seq_minibatch(ven.(en, split_words=true),
+     mb = sequence_minibatch(ven.(en, split_words=true),
             vglg.(glg, split_words=true),
-            32, seq_len=20,
-            pad_x=ven("<pad>"), pad_y=vglg("<pad>"))
+            32)
 
-    mb1 = first(mb)[1]
-    return size(mb1) == (20,32)
+    mb1 = first(mb)
+    return mb1 isa Tuple
 end
