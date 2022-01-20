@@ -85,8 +85,8 @@ function test_seq_mb()
          tok("Peter loves Python", split_words=true),
          tok("Peter loves Julia and Scala", split_words=true)]
 
-    mb = seq_minibatch(t, 2, seq_len=4)
-    return size(first(mb)) == (4,2)
+    mb = sequence_minibatch(t, 2, shuffle=false)
+    return size(first(mb)) == (3,2)
 end
 
 function test_seq_mb_xy()
