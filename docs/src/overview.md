@@ -106,10 +106,9 @@ Some utilities are provided for NLP data handling:
 + `get_tatoeba_corpus`: download dual-language corpi and provide
         corresponding lists of sentences in two languages.
 
-`seq_minibatch()` and `seq2seq_minibatch()` functions return iterators
-to sequences (incl. truncating or padding of the sequences to a common
-length). The functions are not restricted to tokenised strings as
-sequence elements can be on any type.
+`sequence_minibatch()` function returns an iterator
+to sequence or sequence-to-secuence minibatches.
+Also helpers for padding and truncating sequences are provided.
 
 
 ## Working with pretrained networks

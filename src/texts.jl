@@ -581,7 +581,7 @@ end
 """
     function pad_sequence(s, len; token=NNHelferlein.TOKEN_PAD)
 
-Strech a sequence to length `len` by adding the padding token.
+Stretch a sequence to length `len` by adding the padding token.
 """
 function pad_sequence(s, len; token=NNHelferlein.TOKEN_PAD)
 
