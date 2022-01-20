@@ -494,10 +494,12 @@ must be truncted or padded before call of `sequence_minibatch()`
 + `x`: List of sequences of `Int`
 + `y`: List of sequences of `Int` or list of target values (i.r. teaching inpSut)
 + `batchsize`: size of minibatches
-+ `pad=PAD_TOKEN`,
++ `pad=NNHelferlein.PAD_TOKEN`,
 + `pad_y=x`: token, used for padding. The token must be compatible
         with the type of the sequence elements. If pad_y is omitted, pad_y is set 
         equal to pad_x.
++ `seq2seq=true`: if `true` and `y` is provided, sequence-to-sequence minibatches are 
+        created. Otherwise `y` is treated as scalar teaching input.
 + `shuffle=true`: The minibatches are shuffled as last step. If `false` the minibatches 
         with short sequences will be at the beginning of the dataset.
 + `partial=false`: If `true`, a partial minibatch will be created if necessray to 
