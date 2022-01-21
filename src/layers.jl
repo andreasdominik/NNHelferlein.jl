@@ -623,12 +623,13 @@ of `Knet.RNN` may be provided.
 
 ### Signatures:
 
-    function (rnn::Recurrent)(x, all_hidden=false)
+    function (rnn::Recurrent)(x; cell_states=nothing, return_all=false)
 
 The layer is called ither with a 2-dimensional array of the shape
 [fan-in, steps] 
 or a 3-dimensional array of [fan-in, steps, batchsize].    
-If `all_hidden == true` an array wich all hidden states of all steps is returned
+If `cell_states != nothing`, use cell_states as initial states.
+If `return_all == true` an array wich all hidden states of all steps is returned
 ([units, time-steps, samples]).
 Otherwise only the hidden states of the last step is returned
 ([units, samples]).
@@ -645,12 +646,17 @@ struct Recurrent <: Layer
             new(n_inputs, n_units, u_type, Knet.RNN(n_inputs, n_units; rnnType=u_type, o...))
 end
 
-function (rnn::Recurrent)(x; all_hidden=false)
+function (rnn::Recurrent)(x; cell_states=nothing, return_all=false)
     n_time_steps = size(x)[2]
     x = reshape(x, rnn.n_inputs, n_time_steps, :)
     x = permutedims(x, (1,3,2))
+    
+    if !isnothing(cell_states)
+        rnn.c = cell_states
+    end
+
     x = rnn.rnn(x)
-    if all_hidden
+    if return_all
         return permutedims(x, (1,3,2)) # [units, time-steps, samples]
     else
         x[:,:,end]     # [units, samples]

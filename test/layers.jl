@@ -132,7 +132,7 @@ function test_layer_seq_tagger()
     depth, seq, units, mb = 16, 5, 8, 10
     l = Recurrent(depth, units)
     x = convert2KnetArray(rand(depth, seq, mb))
-    y = l(x, all_hidden=true)
+    y = l(x, return_all=true)
     return size(y) == (units, seq, mb)
 end
 
