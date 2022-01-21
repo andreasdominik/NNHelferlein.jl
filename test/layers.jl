@@ -130,16 +130,16 @@ end
 
 function test_layer_seq_tagger()
     depth, seq, units, mb = 16, 5, 8, 10
-    l = RSeqTagger(depth, units)
-    x = rand(depth, seq, mb)
-    y = l(x)
+    l = Recurrent(depth, units)
+    x = convert2KnetArray(rand(depth, seq, mb))
+    y = l(x, all_hidden=true)
     return size(y) == (units, seq, mb)
 end
 
 function test_layer_seq_classi()
     depth, seq, units, mb = 16, 5, 8, 10
-    l = RSeqClassifier(depth, units)
-    x = rand(depth, seq, mb)
+    l = Recurrent(depth, units)
+    x = convert2KnetArray(rand(depth, seq, mb))
     y = l(x)
     return size(y) == (units, mb)
 end
@@ -147,8 +147,8 @@ end
 
 function test_layer_H_rnn()
     depth, seq, units, mb = 16, 5, 8, 10
-    l = RSeqClassifier(depth, units; h=0, c=0)
-    x = rand(depth, seq, mb)
+    l = Recurrent(depth, units; h=0, c=0)
+    x = convert2KnetArray(rand(depth, seq, mb))
     y = l(x)
 
     h = hidden_states(l)
@@ -159,7 +159,7 @@ end
 function test_layer_K_rnn()
     depth, seq, units, mb = 16, 5, 8, 10
     l = RNN(depth, units; rnnType=:lstm, h=0, c=0)
-    x = rand(depth, mb, seq)
+    x = convert2KnetArray(rand(depth, mb, seq))
     y = l(x)
 
     h = hidden_states(l)
@@ -185,8 +185,7 @@ function test_summary()
             Dropout(0.1),
             BatchNorm(trainable=true, channels=16),
             LayerNorm(128),
-            RSeqTagger(100, 16),
-            RSeqClassifier(100, 16)
+            Recurrent(100, 16),
             )
     n = print_network(ch)
     return n == 16

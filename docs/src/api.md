@@ -40,8 +40,7 @@ UnPool
 ## Recurrent
 
 ```@docs
-RSeqClassifier
-RSeqTagger
+Recurrent
 hidden_states
 cell_states
 ```

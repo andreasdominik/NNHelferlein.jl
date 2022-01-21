@@ -602,9 +602,9 @@ end
 
 
 """
-    struct RSeqTagger <: Layer
+    struct Recurrent <: Layer
 
-One layer RNN sequence classifyer that works with minimatches of (time) series data.
+One layer RNN that works with minimatches of (time) series data.
 minibatch can be a 2- or 3-dimensional Array.
 If 2-d, inputs for one step are in one column and the Array has as
 many colums as steps.
@@ -614,80 +614,54 @@ Result is an array matrix with the output of the units of all
 steps for all smaples of the minibatch (with model depth as first and samples of the minimatch as last dimension).
 
 ### Constructors:
-+ `RSeqTagger(n_inputs::Int, n_units::Int; u_type=:lstm, o...)`: with
-    number of inputs, number of units and unit type.
-    Internally the type `Knet.RNN` is used and all keyword arguments
-    of `Knet.RNN` may be provided.
+
+    Recurrent(n_inputs::Int, n_units::Int; u_type=:lstm, o...)
+
+with number of inputs, number of units and unit type.
+Internally the type `Knet.RNN` is used and all keyword arguments
+of `Knet.RNN` may be provided.
+
+### Signatures:
+
+    function (rnn::Recurrent)(x, all_hidden=false)
+
+The layer is called ither with a 2-dimensional array of the shape
+[fan-in, steps] 
+or a 3-dimensional array of [fan-in, steps, batchsize].    
+If `all_hidden == true` an array wich all hidden states of all steps is returned
+([units, time-steps, samples]).
+Otherwise only the hidden states of the last step is returned
+([units, samples]).
+
+Hidden states and cell states can be accessed from the object 
+with the functions `hidden_states()` and `cell_states()`.
 """
-struct RSeqTagger <: Layer
+struct Recurrent <: Layer
     n_inputs
     n_units
     unit_type
     rnn
-    RSeqTagger(n_inputs::Int, n_units::Int; u_type=:lstm, o...) =
+    Recurrent(n_inputs::Int, n_units::Int; u_type=:lstm, o...) =
             new(n_inputs, n_units, u_type, Knet.RNN(n_inputs, n_units; rnnType=u_type, o...))
 end
 
-function (rnn::RSeqTagger)(x)
+function (rnn::Recurrent)(x; all_hidden=false)
     n_time_steps = size(x)[2]
     x = reshape(x, rnn.n_inputs, n_time_steps, :)
     x = permutedims(x, (1,3,2))
     x = rnn.rnn(x)
-    return permutedims(x, (1,3,2)) # [units, time-steps, samples]
+    if all_hidden
+        return permutedims(x, (1,3,2)) # [units, time-steps, samples]
+    else
+        x[:,:,end]     # [units, samples]
+    end
 end
 
-function Base.summary(l::RSeqTagger; indent=0)
+function Base.summary(l::Recurrent; indent=0)
     n = get_n_params(l)
-    s1 = "RSeqTagger layer, $(l.n_inputs) → $(l.n_units) of type $(l.unit_type),"
+    s1 = "Recurrent layer, $(l.n_inputs) → $(l.n_units) of type $(l.unit_type),"
     return print_summary_line(indent, s1, n)
 end
-
-
-
-"""
-    struct RSeqClassifier <: Layer
-
-One layer RNN sequence classifyer that works with minimatches of (time) series data.
-minibatch can be a 2- or 3-dimensional Array.
-If 2-d, inputs for one step are in one column and the Array has as
-many colums as steps.
-If 3-d, the last dimension iterates the samples of the minibatch.
-
-Result is always a 2-d matrix with the output of the units of the last
-step in each column and one column per sample of the minibatch.
-
-### Constructors:
-+ `RSeqClassifer(n_inputs::Int, n_units::Int; u_type=:lstm, o...)`: with
-    number of inputs, number of units and unit type.
-    Internally the type `Knet.RNN` is used and all keyword arguments
-    of `Knet.RNN` may be provided.
-"""
-struct RSeqClassifier <: Layer
-    n_inputs
-    n_units
-    unit_type
-    rnn
-    RSeqClassifier(n_inputs::Int, n_units::Int; u_type=:lstm, o...) =
-            new(n_inputs, n_units, u_type, Knet.RNN(n_inputs, n_units; rnnType=u_type, o...))
-end
-
-
-
-function (rnn::RSeqClassifier)(x)
-    n_time_steps = size(x)[2]
-    x = reshape(x, rnn.n_inputs, n_time_steps, :)
-    x = permutedims(x, (1,3,2))
-    x = rnn.rnn(x)
-    return x[:,:,end]     # [units, samples]
-end
-
-function Base.summary(l::RSeqClassifier; indent=0)
-    n = get_n_params(l)
-    s1 = "RSeqClassifyer layer, $(l.n_inputs) → $(l.n_units) of type $(l.unit_type),"
-    return print_summary_line(indent, s1, n)
-end
-
-
 
 """
     function hidden_states(l::<RNN_Type>)
@@ -696,8 +670,8 @@ Return the hidden states of one or more layers of an RNN.
 `<RNN_Type>` is one of `RSeqClassifier`, `RSeqTagger`,
 `Knet.RNN`.
 """
-function hidden_states(l::Union{RSeqClassifier, RSeqTagger, Knet.RNN})
-    if l isa Union{RSeqClassifier, RSeqTagger}
+function hidden_states(l::Union{Recurrent, Knet.RNN})
+    if l isa Recurrent
         return l.rnn.h
     elseif l isa Knet.RNN
         return l.h
@@ -714,8 +688,8 @@ it is a LSTM.
 `<RNN_Type>` is one of `RSeqClassifier`, `RSeqTagger`,
 `Knet.RNN`.
 """
-function cell_states(l::Union{RSeqClassifier, RSeqTagger, Knet.RNN})
-    if l isa Union{RSeqClassifier, RSeqTagger} &&
+function cell_states(l::Union{Recurrent, Knet.RNN})
+    if l isa Recurrent
        l.unit_type == :lstm
         return l.rnn.c
     elseif l isa Knet.RNN && l.mode == 2  # i.e. :lstm
@@ -724,6 +698,8 @@ function cell_states(l::Union{RSeqClassifier, RSeqTagger, Knet.RNN})
         return nothing
     end
 end
+
+
 
 
 # return number of params:

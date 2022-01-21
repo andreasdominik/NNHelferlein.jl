@@ -41,6 +41,9 @@ Several layers are predefined with executable signatures:
         The utilitys include methods for array manipulation, such as
         clipping arrays or adding dimensions.
 
++ **Recurrent Layers:** a `Recurrent` layer is defined as wrapper 
+        around the basic Knet RNN type.
+
 + **Others:** additional layers include (please see the API-section for
         a complete list!):
         `Softmax`, `Dropout`, trainable `BatchNorm`, trainable `LayerNorm`.
