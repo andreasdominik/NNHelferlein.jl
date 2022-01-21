@@ -188,7 +188,7 @@ function test_summary()
             Recurrent(100, 16),
             )
     n = print_network(ch)
-    return n == 16
+    return n == 15
 end
 
 function test_print()
