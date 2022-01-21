@@ -635,7 +635,7 @@ Otherwise only the hidden states of the last step is returned
 ([units, samples]).
 
 Hidden states and cell states can be accessed from the object 
-with the functions `hidden_states()` and `cell_states()`.
+with the functions respective setter- and getter-functions.
 """
 struct Recurrent <: Layer
     n_inputs
