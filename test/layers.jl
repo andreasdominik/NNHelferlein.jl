@@ -151,8 +151,8 @@ function test_layer_H_rnn()
     x = convert2KnetArray(rand(depth, seq, mb))
     y = l(x)
 
-    h = hidden_states(l)
-    c = cell_states(l)
+    h = get_hidden_states(l)
+    c = get_cell_states(l)
     return size(h) == (units,mb,1) && size(c) == (units,mb,1)
 end
 
@@ -162,10 +162,29 @@ function test_layer_K_rnn()
     x = convert2KnetArray(rand(depth, mb, seq))
     y = l(x)
 
-    h = hidden_states(l)
-    c = cell_states(l)
+    h = get_hidden_states(l)
+    c = get_cell_states(l)
     return size(h) == (units,mb,1) && size(c) == (units,mb,1)
 end
+
+function test_get_set_rnn()
+    depth, seq, units, mb = 16, 5, 8, 10
+    l = RNN(depth, units; rnnType=:lstm)
+
+    set_hidden_states(l, 0)
+    set_cell_states(l, 0)
+
+    x = convert2KnetArray(rand(depth, mb, seq))
+    y = l(x)
+
+    reset_hidden_states(l)
+    reset_cell_states(l)
+
+    return get_hidden_states(l) == 0 && get_cell_states(l) == 0
+end
+
+
+
 
 
 function test_summary()

@@ -41,8 +41,12 @@ UnPool
 
 ```@docs
 Recurrent
-hidden_states
-cell_states
+get_hidden_states
+get_cell_states
+set_hidden_states
+set_cell_states
+reset_hidden_states
+reset_cell_states
 ```
 
 ## Others

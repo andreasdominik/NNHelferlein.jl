@@ -77,6 +77,7 @@ include("layers.jl")
 @test test_layer_seq_classi()
 @test test_layer_H_rnn()
 @test test_layer_K_rnn()
+@test test_get_set_rnn()
 
 
 # utils:

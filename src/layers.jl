@@ -643,7 +643,8 @@ struct Recurrent <: Layer
     unit_type
     rnn
     Recurrent(n_inputs::Int, n_units::Int; u_type=:lstm, o...) =
-            new(n_inputs, n_units, u_type, Knet.RNN(n_inputs, n_units; rnnType=u_type, o...))
+            new(n_inputs, n_units, u_type, 
+                Knet.RNN(n_inputs, n_units; rnnType=u_type, h=0, c=0, o...))
 end
 
 function (rnn::Recurrent)(x; cell_states=nothing, return_all=false)
@@ -670,13 +671,12 @@ function Base.summary(l::Recurrent; indent=0)
 end
 
 """
-    function hidden_states(l::<RNN_Type>)
+    function get_hidden_states(l::<RNN_Type>)
 
 Return the hidden states of one or more layers of an RNN.
-`<RNN_Type>` is one of `RSeqClassifier`, `RSeqTagger`,
-`Knet.RNN`.
+`<RNN_Type>` is one of `NNHelderlein.Recurrent`, `Knet.RNN`.
 """
-function hidden_states(l::Union{Recurrent, Knet.RNN})
+function get_hidden_states(l::Union{Recurrent, Knet.RNN})
     if l isa Recurrent
         return l.rnn.h
     elseif l isa Knet.RNN
@@ -686,15 +686,16 @@ function hidden_states(l::Union{Recurrent, Knet.RNN})
     end
 end
 
+
 """
-    function cell_states(l::<RNN_Type>)
+    function get_cell_states(l::<RNN_Type>)
 
 Return the cell states of one or more layers of an RNN only if
 it is a LSTM.
 `<RNN_Type>` is one of `RSeqClassifier`, `RSeqTagger`,
 `Knet.RNN`.
 """
-function cell_states(l::Union{Recurrent, Knet.RNN})
+function get_cell_states(l::Union{Recurrent, Knet.RNN})
     if l isa Recurrent
        l.unit_type == :lstm
         return l.rnn.c
@@ -704,6 +705,69 @@ function cell_states(l::Union{Recurrent, Knet.RNN})
         return nothing
     end
 end
+
+
+"""
+    function set_hidden_states(l::<RNN_Type>, h)
+
+Set the hidden states of one or more layers of an RNN
+to h.
+"""
+function set_hidden_states(l::Union{Recurrent, Knet.RNN}, h)
+    if l isa Recurrent
+        l.rnn.h = h
+    elseif l isa Knet.RNN
+        l.h = h
+    end
+end
+
+"""
+    function set_cell_states(l::<RNN_Type>, c)
+
+Set the cell states of one or more layers of an RNN
+to c.
+"""
+function set_cell_states(l::Union{Recurrent, Knet.RNN}, c)
+    if l isa Recurrent
+        l.rnn.c = c
+    elseif l isa Knet.RNN
+        l.c = c
+    end
+end
+
+
+
+"""
+    function reset_hidden_states(l::<RNN_Type>)
+
+Reset the hidden states of one or more layers of an RNN
+to 0.
+"""
+function reset_hidden_states(l::Union{Recurrent, Knet.RNN})
+    if l isa Recurrent
+        l.rnn.h = 0
+    elseif l isa Knet.RNN
+        l.h = 0
+    end
+end
+
+"""
+    function reset_cell_states(l::<RNN_Type>)
+
+Reset the cell states of one or more layers of an RNN
+to 0.
+"""
+function reset_cell_states(l::Union{Recurrent, Knet.RNN})
+    if l isa Recurrent
+        l.rnn.c = 0
+    elseif l isa Knet.RNN
+        l.c = 0
+    end
+end
+
+
+
+
 
 
 
