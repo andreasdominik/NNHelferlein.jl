@@ -544,17 +544,19 @@ end
 function one_mb(x, y, seq2seq, idx, i, j, pad, pad_y)
 
     xmb = mk_seq_mb(x[idx[i:j]], pad)
-    xmb = convert2KnetArray(xmb, Int32)
+    if eltype(xmb) <: AbstractFloat
+        xmb = convert2KnetArray(xmb)
+    end
 
     if !isnothing(y)
     if seq2seq
             ymb = mk_seq_mb(y[idx[i:j]], pad_y)
-            ymb = convert2KnetArray(ymb, Int32)
+            if eltype(ymb) <: AbstractFloat 
+                ymb = convert2KnetArray(ymb)
+            end
         else
             ymb = y[idx[i:j]]
-            if eltype(ymb) <: Int
-                ymb = convert2KnetArray(ymb, Int32)
-            else
+            if eltype(ymb) <: AbstractFloat
                 ymb = convert2KnetArray(ymb)
             end
         end
