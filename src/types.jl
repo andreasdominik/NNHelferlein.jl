@@ -47,6 +47,23 @@ Base.length(it::SequenceData) = it.l
 Base.eltype(it::SequenceData) = eltype(first(it.mbs))
 
 
+"""
+    struct PartialIterator <: DataLoader
+
+The PartialIterator wraps any iterator and will only iterate the states
+specified in the list `indices`. 
+
+### Constuctors
+
+    PartialIterator(inner, indices; shuffle=true) 
+
+Type of the states must match
+the states of the wrapped iterator `inner`. A `nothing` element may be 
+given to specify the first iterator element.
+
+If `shuffle==true`, the list of indices are shuffled every time the
+PartialIterator is started.
+"""
 mutable struct PartialIterator <: DataLoader
     inner
     indices
