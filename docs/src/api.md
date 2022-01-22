@@ -82,9 +82,10 @@ PositionalEncoding
 # Data providers
 
 ```@docs
-DataLoader
+DataLoade
+PartialIterator
+split_minibatches
 ```
-
 
 ## Tabular data
 
