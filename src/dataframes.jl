@@ -237,3 +237,65 @@ end
 #
 Base.length(it::MBNoiser) = length(it.mbs)
 
+
+
+"""
+    function split_minibatches(it, at=0.8; shuffle=true)
+
+Return 2 iterators od type `PartialIterator` which iterate only parts of the 
+states of the iterator it. 
+Be aware that the partial iterators will not contain copies of the data
+but instead forward the data provided by the iterator `it`.
+
+The function can be used to split an iterator of minibatches into train- 
+and validation iterators, without copying any data.
+As the PartialIterator objects work with teh states of the inner iterator,
+it is important *not* to shuffle the inner iterator (in this case the 
+composition of the partial iterators would change!).
+
+### Arguments:
++ `it`: Iterator to be splitted. The list of allowed states is created by
+        performing a full iteration once.
++ `at`: Split point. The first returned iterator will include the given 
+        fraction (default: 80%) of the states.
++ `shuffle`: If true, the elements are shuffled at each restart of the iterator.
+"""
+function split_minibatches(it, at=0.8; shuffle=true)
+    
+    # collect all valid states of it
+    # ann nothing for the first state and remove last state 
+    # (that delivers nothing)
+    #
+    states = []
+    push!(states, nothing)
+    e = iterate(it)
+    while !isnothing(e)
+        state = e[2]
+        push!(states, state)
+        e = iterate(it, state)
+    end
+    pop!(states)
+    
+    # shuffle indices if demanded:
+    #
+    if shuffle
+        Random.shuffle!(states)
+    end
+    
+    # create index lists for trn and vld:
+    #
+    n_trn = Int(round(length(states) * at))
+        
+    if n_trn == 0
+        trn_idx = []
+        vld_idx = states
+    elseif n_trn == length(states)
+        trn_idx = states
+        vld_idx = []
+    else
+        trn_idx = states[1:n_trn]
+        vld_idx = states[n_trn+1:end]
+    end
+    
+    return PartialIterator(it, trn_idx, shuffle=shuffle), PartialIterator(it, vld_idx, shuffle=shuffle) 
+end

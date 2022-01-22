@@ -46,3 +46,34 @@ end
 Base.length(it::SequenceData) = it.l
 Base.eltype(it::SequenceData) = eltype(first(it.mbs))
 
+
+mutable struct PartialIterator <: DataLoader
+    inner
+    indices
+    l
+    shuffle
+    PartialIterator(inner, indices; shuffle=true) = new(inner, indices, length(indices), shuffle)
+end
+
+function Base.iterate(it::PartialIterator, state=0)
+    
+    if it.shuffle && state == 0
+        it.indices = shuffle(it.indices)
+    end
+    
+    if state >= it.l
+        return nothing
+    else
+        state += 1
+        inner_state = it.indices[state]
+        
+        if inner_state == nothing
+            return iterate(it.inner,)[1], state
+        else
+            return iterate(it.inner, inner_state)[1], state
+        end
+    end
+end
+
+Base.length(it::PartialIterator) = it.l
+Base.eltype(it::PartialIterator) = eltype(first(it.inner))
