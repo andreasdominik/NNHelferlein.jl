@@ -1,5 +1,5 @@
 """
-    function tb_train!(mdl, opti, trn, vld=nothing; epochs=1,
+    function tb_train!(mdl, opti, trn, vld=nothing; epochs=1, split=nothing,
                       lr_decay=nothing, lrd_steps=5, lrd_linear=false,
                       l2=0.0,
                       eval_size=0.2, eval_freq=1,
@@ -46,6 +46,10 @@ The model is updated (in-place) and the trained model is returned.
         (i.e. `lr`, `gamma`, ...).
 
 #### Model evaluation:
++ `split=nothing`: if no validation data is specified and split is a 
+        fraction (between 0.0 and 1.0), the training dataset is splitted at the
+        specified point (e.g.: if ) `split=0.8`, 80% of the minibatches are used 
+        for training and 20% for validation.
 + `eval_size=0.2`: fraction of validation data to be used for calculating
         loss and accuracy for train and validation data during training.
 + `eval_freq=1`: frequency of evaluation; default=1 means evaluation is
@@ -79,6 +83,7 @@ TensorBoard log-directory is created from 3 parts:
         to be included in the TensorBoard log as *text* log.
 """
 function tb_train!(mdl, opti, trn, vld=nothing; epochs=1,
+                  split=nothing,
                   lr_decay=nothing, lrd_steps=5, lrd_linear=false,
                   l2=0.0,
                   eval_size=0.2, eval_freq=1, acc_fun=nothing,
@@ -87,6 +92,13 @@ function tb_train!(mdl, opti, trn, vld=nothing; epochs=1,
                   tb_dir="logs", tb_name="run",
                   tb_text="""Description of tb_train!() run.""",
                   opti_args...)
+
+
+    # split training data if split given:
+    #
+    if isnothing(vld) && !isnothing(split)
+        trn, vld = split_minibatches(trn, split, shuffle=true)
+    end
 
     # use every n-th mb for evaluation (based on vld if defined):
     #
