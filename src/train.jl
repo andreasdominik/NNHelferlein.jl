@@ -98,6 +98,7 @@ function tb_train!(mdl, opti, trn, vld=nothing; epochs=1,
     #
     if isnothing(vld) && !isnothing(split)
         trn, vld = split_minibatches(trn, split, shuffle=true)
+        println("Splitting dataset for training ($(Int(round(split*100)))%) and validation ($(Int(round((1-split)*100)))%).")
     end
 
     # use every n-th mb for evaluation (based on vld if defined):
@@ -154,12 +155,15 @@ function tb_train!(mdl, opti, trn, vld=nothing; epochs=1,
     # echo log:
     #
     function echo_log()
-        println("Training $epochs epochs with $n_trn minibatches/epoch")
+        print("Training $epochs epochs with $n_trn minibatches/epoch")
         if !isnothing(vld)
-            println("    (and $n_vld validation mbs).")
+            println(" and $n_vld validation mbs.")
+        else
+            println(".")
         end
-        println("Evaluation is performed every $eval_nth minibatches (with $n_eval mbs).")
-        println("Watch the progress with TensorBoard at: $tb_log_dir")
+        println("Evaluation is performed every $eval_nth minibatches with $n_eval mbs.")
+        println("Watch the progress with TensorBoard at:")
+        println(tb_log_dir)
         flush(stdout)
     end
     echo_log()
@@ -220,7 +224,7 @@ function tb_train!(mdl, opti, trn, vld=nothing; epochs=1,
 
             if !isnothing(acc_fun)
                 calc_and_report_acc(mdl, acc_fun, eval_trn, eval_vld,
-                                    tbl, eval_nth)
+                                    tbl, 0)
             end
         end
 

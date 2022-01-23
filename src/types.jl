@@ -75,7 +75,7 @@ end
 function Base.iterate(it::PartialIterator, state=0)
     
     if it.shuffle && state == 0
-        it.indices = shuffle(it.indices)
+        Random.shuffle!(it.indices)
     end
     
     if state >= it.l
