@@ -48,8 +48,8 @@ The model is updated (in-place) and the trained model is returned.
 #### Model evaluation:
 + `split=nothing`: if no validation data is specified and split is a 
         fraction (between 0.0 and 1.0), the training dataset is splitted at the
-        specified point (e.g.: if ) `split=0.8`, 80% of the minibatches are used 
-        for training and 20% for validation.
+        specified point (e.g.: if `split=0.8`, 80% of the minibatches are used 
+        for training and 20% for validation).
 + `eval_size=0.2`: fraction of validation data to be used for calculating
         loss and accuracy for train and validation data during training.
 + `eval_freq=1`: frequency of evaluation; default=1 means evaluation is
