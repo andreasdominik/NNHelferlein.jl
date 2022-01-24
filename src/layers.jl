@@ -623,12 +623,15 @@ of `Knet.RNN` may be provided.
 
 ### Signatures:
 
-    function (rnn::Recurrent)(x; cell_states=nothing, return_all=false)
+    function (rnn::Recurrent)(x; cell_states=0, hidden_states=0, return_all=false)
 
-The layer is called ither with a 2-dimensional array of the shape
+The layer is called either with a 2-dimensional array of the shape
 [fan-in, steps] 
 or a 3-dimensional array of [fan-in, steps, batchsize].    
-If `cell_states != nothing`, use cell_states as initial states.
+If `cell_states == 0` or `hidden_states == 0`, states are resetted; 
+if `nothing`, existing states are kept; 
+otherwise use supplied states as initial states.
+
 If `return_all == true` an array wich all hidden states of all steps is returned
 ([units, time-steps, samples]).
 Otherwise only the hidden states of the last step is returned
@@ -647,13 +650,16 @@ struct Recurrent <: Layer
                 Knet.RNN(n_inputs, n_units; rnnType=u_type, h=0, c=0, o...))
 end
 
-function (rnn::Recurrent)(x; cell_states=nothing, return_all=false)
+function (rnn::Recurrent)(x; cell_states=0, hidden_states=0, return_all=false)
     n_time_steps = size(x)[2]
     x = reshape(x, rnn.n_inputs, n_time_steps, :)
     x = permutedims(x, (1,3,2))
     
-    if !isnothing(cell_states)
-        rnn.c = cell_states
+    if hasproperty(rnn.rnn, :c) && !isnothing(cell_states)
+        rnn.rnn.c = cell_states
+    end
+    if hasproperty(rnn.rnn, :h) && !isnothing(hidden_states)
+        rnn.rnn.h = hidden_states
     end
 
     x = rnn.rnn(x)
