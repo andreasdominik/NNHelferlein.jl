@@ -474,7 +474,8 @@ end
     function sequence_minibatch(x, [y], batchsize; 
                                 pad=NNHelferlein.TOKEN_PAD, 
                                 seq2seq=true, pad_y=pad,
-                                shuffle=, partial=false)
+                                x_padding=false,
+                                shuffle=true, partial=false)
 
 
 Return an iterator of type `DataLoader` with (x,y) sequence minibatches from
@@ -504,19 +505,26 @@ must be truncted or padded before call of `sequence_minibatch()`
         with short sequences will be at the beginning of the dataset.
 + `partial=false`: If `true`, a partial minibatch will be created if necessray to 
         include all input data.
++ `x_padding=false`: if `true`, pad sequences in x to make minibatches of the demanded size, 
+        even if there are not
+        enougth sequences of the same length in x.
+        If `false`, partial minibatches are built (if partial == `true`) or remaining 
+        sequneces are skipped (if partial == `false`).
 """
 function sequence_minibatch(x, batchsize; 
                               pad=NNHelferlein.TOKEN_PAD, 
+                              x_padding=false,
                               shuffle=false, partial=false)
 
     return sequence_minibatch(x, nothing, batchsize; 
-                       pad=pad, 
+                       pad=pad, x_padding=x_padding,
                        shuffle=shuffle, partial=partial)
 end
 
 function sequence_minibatch(x, y, batchsize; 
                               pad=NNHelferlein.TOKEN_PAD, 
                               seq2seq=true, pad_y=pad,
+                              x_padding=false,
                               shuffle=false, partial=false)
 
 
@@ -526,17 +534,45 @@ function sequence_minibatch(x, y, batchsize;
 
     i = 1
     xmbs = []
-    while i+batchsize-1 <= length(x)
 
-        j = i+batchsize-1
-        push!(xmbs, one_mb(x, y, seq2seq, idx, i, j, pad, pad_y))
-        i += batchsize
+    # set next mb from i to j:
+    #
+    while i <= length(x)
+        if x_padding
+            j = i+batchsize-1
+            if j > length(x)
+                j = length(x)
+            end
+        else # no padding for x_padding
+            mb_seq_len = length(x[idx[i]])
+            j = i
+            while j+1 < i+batchsize && j+1 <= length(x) && length(x[idx[j+1]]) == mb_seq_len
+                j += 1
+            end
+        end
+
+        if j-i+1 == batchsize || partial
+            push!(xmbs, one_mb(x, y, seq2seq, idx, i, j, pad, pad_y))
+        end
+
+        i = j + 1
     end
 
-    if partial && i <= length(x)
-        j = length(x)
-        push!(xmbs, one_mb(x, y, seq2seq, idx, i, j, pad, pad_y))
-    end
+
+
+
+
+#     while i+batchsize-1 <= length(x)
+# 
+#         j = i+batchsize-1
+#         push!(xmbs, one_mb(x, y, seq2seq, idx, i, j, pad, pad_y))
+#         i += batchsize
+#     end
+# 
+#     if partial && i <= length(x)
+#         j = length(x)
+#         push!(xmbs, one_mb(x, y, seq2seq, idx, i, j, pad, pad_y))
+#     end
 
     return SequenceData(xmbs, shuffle=shuffle)
 end
@@ -606,13 +642,13 @@ function truncate_sequence(s, len; end_token=nothing)
     s = deepcopy(s)
     # only do something if too long
     #
-    if length(s) > len        
+    if length(s) > len && !isempty(s)
         s = s[1:len]
     end
 
     # add <end> token if demanded:
     #
-    if !isnothing(end_token)
+    if !isnothing(end_token) && !isempty(s)
         s[end] = end_token
     end
     return s

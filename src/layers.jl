@@ -623,19 +623,23 @@ of `Knet.RNN` may be provided.
 
 ### Signatures:
 
-    function (rnn::Recurrent)(x; cell_states=0, hidden_states=0, return_all=false)
+    function (rnn::Recurrent)(x; cell_states=nothing, hidden_states=nothing, return_all=false, o...)
 
 The layer is called either with a 2-dimensional array of the shape
 [fan-in, steps] 
 or a 3-dimensional array of [fan-in, steps, batchsize].    
-If `cell_states == 0` or `hidden_states == 0`, states are resetted; 
-if `nothing`, existing states are kept; 
-otherwise use supplied states as initial states.
+If `cell_states = nothing` or `hidden_states = nothing`, states keep their values; 
+if `cell_states = 0` or `hidden_states = 0`, the states are reseted to `0`;
+otherwise an array of states of the correct dimensions can be supplied 
+to be used as initial states.
 
 If `return_all == true` an array wich all hidden states of all steps is returned
 ([units, time-steps, samples]).
 Otherwise only the hidden states of the last step is returned
 ([units, samples]).
+
+Bidirectional layers can be constructed by specifying `bidirectional==true`. 
+Please be aware that the actual number of units is twice n_units.
 
 Hidden states and cell states can be accessed from the object 
 with the functions respective setter- and getter-functions.
@@ -650,23 +654,38 @@ struct Recurrent <: Layer
                 Knet.RNN(n_inputs, n_units; rnnType=u_type, h=0, c=0, o...))
 end
 
-function (rnn::Recurrent)(x; cell_states=0, hidden_states=0, return_all=false)
-    n_time_steps = size(x)[2]
-    x = reshape(x, rnn.n_inputs, n_time_steps, :)
-    x = permutedims(x, (1,3,2))
+function (rnn::Recurrent)(x; cell_states=nothing, hidden_states=nothing, 
+                          return_all=false)
+    
+    dims = length(size(x))    # x is [fan-in, steps, mb]
+    if dims == 3
+        fanin, steps, mb = size(x)
+    else
+        fanin, steps = size(x)
+        mb = 1
+        x = reshape(x, fanin, steps, mb)
+    end
+    @assert fanin == rnn.n_inputs "input does not match the fan-in of rnn layer"
+
+    if steps == 1
+        x = reshape(x, fanin, mb)
+    else 
+        x = permutedims(x, (1,3,2))   # make [fanin, mb, steps] for Knet
+    end
+
     
     if hasproperty(rnn.rnn, :c) && !isnothing(cell_states)
         rnn.rnn.c = cell_states
     end
-    if hasproperty(rnn.rnn, :h) && !isnothing(hidden_states)
+    if !isnothing(hidden_states)
         rnn.rnn.h = hidden_states
     end
 
-    x = rnn.rnn(x)
+    h = rnn.rnn(x)
     if return_all
-        return permutedims(x, (1,3,2)) # [units, time-steps, samples]
+        return permutedims(h, (1,3,2)) # h of all steps: [units, time-steps, mb]
     else
-        x[:,:,end]     # [units, samples]
+        h[:,:,end]     # last h: [units, mb]
     end
 end
 
