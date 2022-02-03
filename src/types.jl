@@ -84,7 +84,7 @@ function Base.iterate(it::PartialIterator, state=0)
         state += 1
         inner_state = it.indices[state]
         
-        if inner_state == nothing
+        if isnothing(inner_state)
             return iterate(it.inner,)[1], state
         else
             return iterate(it.inner, inner_state)[1], state
