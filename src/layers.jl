@@ -535,9 +535,10 @@ function init_bn_params(x)
         channels = 0
     end
     p = Knet.bnparams(Float32, channels)
-    if !(p isa Param)
-        p = Param(p)
-    end
+    # p = KnetArray(p)
+    # if !(p isa Param)
+    #     p = Param(p)
+    # end
     return p
 end
 

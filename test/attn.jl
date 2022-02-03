@@ -4,8 +4,8 @@ using Knet, NNHelferlein
 
 depth, mb, t = 3, 4, 6
 
-h_enc = randn(Float32, depth, mb, t)
-h_t = randn(Float32, depth, mb)
+h_enc = convert2KnetArray(randn(Float32, depth, mb, t))
+h_t = convert2KnetArray(randn(Float32, depth, mb))
 
 function test_attn(attn)
     a = attn(depth, depth)
@@ -52,7 +52,7 @@ function test_masks()
     seqs_e = el(seqs)
 
     pl = PositionalEncoding()
-    pos_enc = pl(seqs)   # asser 4x6
+    pos_enc = pl(seqs)   # assert 4x6
 
     peek_ah = mk_peek_ahead_mask(seqs)
     padd = mk_padding_mask(seqs)

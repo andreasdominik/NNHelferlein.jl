@@ -11,14 +11,15 @@ function test_lenet()
                 balanced=false, shuffle=true,
                 train=true,
                 aug_pipl=augm, pre_proc=preproc_imagenet)
+        println("bbb")
 
     lenet = Classifier(Conv(5,5,3,20),
                     Pool(),
                     BatchNorm(),
                     Conv(5,5,20,50),
-                    BatchNorm(trainable=true, channels = 50),
+                    BatchNorm(trainable=false, channels = 50),
                     Pool(),
-                    BatchNorm(trainable=true),
+                    BatchNorm(trainable=false),
                     Flat(),
                     Dense(800,512),
                     Linear(512, 512, actf=relu),
@@ -115,16 +116,16 @@ function test_signatures()
                          Dense(8,1, actf=identity))
         mlp = tb_train!(mlp, Adam, mb, epochs=1, acc_fun=nothing)
 
-        y = mlp(rand(Float32, 8,4))
+        y = mlp(convert2KnetArray(rand(Float32, 8,4)))
         test_sign = size(y) == (1,4)
 
-        loss = mlp(rand(Float32, 8,4), rand(Float32, 1,4))
+        loss = mlp(convert2KnetArray(rand(Float32, 8,4)), convert2KnetArray(rand(Float32, 1,4)))
         test_sign = test_sign && typeof(loss) <: Real
 
         loss = mlp(mb)
         test_sign = test_sign && typeof(loss) <: Real
 
-        loss = mlp(first(mb))
+        loss = mlp(first(mb)...)
         test_sign = test_sign && typeof(loss) <: Real
 
         x,y = first(mb)
