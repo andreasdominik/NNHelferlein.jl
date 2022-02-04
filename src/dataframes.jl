@@ -68,6 +68,7 @@ function dataframe_minibatches(data; size=16, ignore=[], teaching="y", o...)
     if !isnothing(teaching)
         push!(ignore, teaching)
     end
+    ignore = String.(ignore)
     cols = filter(c->!(c in ignore), names(data))
     x = convert2KnetArray(data[!,cols])
     x = permutedims(x)
