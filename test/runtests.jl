@@ -10,7 +10,7 @@ using Statistics: mean
 
 # test attention mechanisms:
 #
-include("attn.jl")
+@show include("attn.jl")
 @test test_attn(AttnBahdanau)
 @test test_attn(AttnLuong)
 @test test_attnDot()
@@ -20,30 +20,28 @@ include("attn.jl")
 @test test_dpa()
 @test test_masks()
 @test test_dotp_attn()
-println("attn tested!")
 
 
 
 # data loader:
 #
-include("data.jl")
+@show include("data.jl")
 @test test_read_df()
 @test test_df_loader()
 @test test_df_split()
 @test test_df_class_ids()
 @test test_df_minibatch()
 @test test_df_errors()
-println("data tested!")
 
 # image loader:
 #
-include("images.jl")
-test_image_loader()
-test_image_preload()
-test_image2arr()
-test_array2image()
-test_preproc_imagenet()
-test_in_classes()
+@show include("images.jl")
+@test test_image_loader()
+@test test_image_preload()
+@test test_image2arr()
+@test test_array2image()
+@test test_preproc_imagenet()
+@test test_in_classes()
 
 # text loader:
 #
@@ -56,7 +54,7 @@ test_in_classes()
 
 # test all layers:
 #
-include("layers.jl")
+@show include("layers.jl")
 @test test_layer_dense()
 @test test_layer_pred()
 @test test_dense_hdf5()
@@ -84,7 +82,7 @@ include("layers.jl")
 
 # utils:
 #
-include("util.jl")
+@show include("util.jl")
 @test test_crop_array()
 @test test_init0()
 @test test_convertKA()
@@ -94,13 +92,13 @@ include("util.jl")
 
 # other funs:
 #
-include("funs.jl")
+@show include("funs.jl")
 @test test_leaky()
 
 
 # test Conv, Dense and tb_train():
 #
-include("nets.jl")
+@show include("nets.jl")
 @test test_lenet()
 @test test_mlp()
 @test test_signatures()
