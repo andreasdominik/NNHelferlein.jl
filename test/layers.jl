@@ -1,3 +1,5 @@
+using Pkg
+Pkg.add("HDF5")
 using HDF5
 
 # test layers:

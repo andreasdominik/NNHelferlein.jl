@@ -1,3 +1,5 @@
+using Pkg
+Pkg.add("DataFrames")
 using DataFrames
 
 # dataframes:

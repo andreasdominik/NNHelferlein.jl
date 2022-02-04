@@ -20,6 +20,7 @@ include("attn.jl")
 @test test_dpa()
 @test test_masks()
 @test test_dotp_attn()
+println("attn tested!")
 
 
 
@@ -32,6 +33,7 @@ include("data.jl")
 @test test_df_class_ids()
 @test test_df_minibatch()
 @test test_df_errors()
+println("data tested!")
 
 # image loader:
 #
