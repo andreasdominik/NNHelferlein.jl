@@ -30,6 +30,11 @@ All examples are at [GitHub/examples](https://github.com/andreasdominik/NNHelfer
   Example for a simple VAE utilising the NNHelferlein-type `VAE` and demonstrating the
   fascinating regularisation of a VAE.
 
++ [`Simple sequence-to-sequence network`]
+  (https://github.com/andreasdominik/NNHelferlein.jl/blob/main/examples/60-s2s-nlp-gru.ipynb):
+  Simple s2s network to demonstrate how to setup macghine translation with 
+  a rnn.
+
 
 + [`Pretrained VGG16`]
   (https://github.com/andreasdominik/NNHelferlein.jl/blob/main/examples/70-pretrained_vgg.ipynb):
