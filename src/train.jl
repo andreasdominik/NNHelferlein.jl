@@ -239,7 +239,7 @@ function tb_train!(mdl, opti, trn, vld=nothing; epochs=1,
         # checkpoints:
         #
         if (!isnothing(checkpoints)) && (i % cp_nth) == 0
-            write_cp(mdl, i, joinpath(tb_log_dir, cp_dir)
+            write_cp(mdl, i, joinpath(tb_log_dir, cp_dir))
         end
 
         # lr decay:
