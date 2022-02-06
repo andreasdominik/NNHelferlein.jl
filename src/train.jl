@@ -5,7 +5,7 @@
                       eval_size=0.2, eval_freq=1,
                       acc_fun=nothing,
                       mb_loss_freq=100,
-                      chekcpoints=nothing, cp_dir="checkpoints",
+                      checkpoints=nothing, cp_dir="checkpoints",
                       tb_dir="logs", tb_name="run",
                       tb_text=\"\"\"Description of tb_train!() run.\"\"\",
                       opti_args...)
@@ -239,7 +239,7 @@ function tb_train!(mdl, opti, trn, vld=nothing; epochs=1,
         # checkpoints:
         #
         if (!isnothing(checkpoints)) && (i % cp_nth) == 0
-            write_cp(mdl, i, tb_log_dir)
+            write_cp(mdl, i, joinpath(tb_log_dir, cp_dir)
         end
 
         # lr decay:
@@ -331,11 +331,10 @@ end
 
 function write_cp(model, step, dir)
 
-    dir_name = joinpath(dir, "checkpoints")
-    if !isdir(dir_name)
-        mkdir(dir_name)
+    if !isdir(dir)
+        mkdir(dir)
     end
-    fname = joinpath(dir_name, "checkpoint_$step.jld2")
+    fname = joinpath(dir, "checkpoint_$step.jld2")
     JLD2.@save fname model
 end
 
