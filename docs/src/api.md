@@ -198,4 +198,5 @@ de_embed
 ```@docs
 init0
 convert2KnetArray
+emptyKnetArray
 ```

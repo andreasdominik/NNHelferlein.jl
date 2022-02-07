@@ -110,6 +110,36 @@ function convert2KnetArray(x, innerType=Float32)
 end
 
 
+"""
+    function emptyKnetArray(size...=(0,0);innerType=Float32)
+    
+Return an empty KnetArray with the specified dimensions. The 
+array may be empty (i.e. one dimension 0) or elements will be undefined.
+
+By default an empty matrix is returned.
+
+### Examples:
+```julia
+>>> emptyKnetArray(0,0)
+0×0 Knet.KnetArrays.KnetMatrix{Float32}
+
+>>> emptyKnetArray()
+0×0 Knet.KnetArrays.KnetMatrix{Float32}
+
+>>> emptyKnetArray(0)
+0-element Knet.KnetArrays.KnetVector{Float32}
+```
+"""
+function emptyKnetArray(size...=(0,0);innerType=Float32)
+
+    if CUDA.functional()
+        return KnetArray{innerType}(undef, size...)
+    else
+        return Array{innerType}(undef, size...)
+    end
+end
+
+
 
 """
 function blowup_array(x, n)
@@ -119,8 +149,8 @@ and repeat the content of the array `n` times.
 
 ### Arguments:
 + `x`: Array of any dimension
-+ `n`: number of repeats. ´n == 1´ will return an
-array with an addritional dimension of size 1.
++ `n`: number of repeats. ´n=1´ will return an
+array with an additional dimension of size 1.
 
 
 ### Examples:
