@@ -24,7 +24,7 @@ The one-argument version can be used, if encoder dimensions and decoder
 dimensions are the same.
 
 ## Common Signatures:
-    function (attn::AttentionMechanism)(h_t, h_enc; reset=false)
+    function (attn::AttentionMechanism)(h_t, h_enc; reset=false, mask=nothing)
     function (attn::AttentionMechanism)(; reset=false)
 
 ### Arguments:
@@ -35,6 +35,9 @@ dimensions are the same.
 + `h_enc`:  encoder hidden states, 2d or 3d. If ``h_{enc}`` is a
             matrix [units, steps] with the hidden states of all encoder steps.
             If 3d: [units, mb, steps] encoder states for all minibatches.
++ `mask`:   optional mask (e.g. padding mask) for masking input steps
+            of dimensions [mb, steps]. Attentions factors for masked steps 
+            will be set to 0.0.
 + `reset=false`: If the keyword argument is set to `true`, projections of
             the encoder states are computed. By default projections are
             stored in the object and reused until the object is resetted.
@@ -106,7 +109,7 @@ mutable struct AttnBahdanau <: AttentionMechanism
                                 scale=scale)
 end
 
-function (attn::AttnBahdanau)(h_t, h_enc; reset=false)
+function (attn::AttnBahdanau)(h_t, h_enc; reset=false, mask=nothing)
                                     # h_t is a (n_units, <n_mb>),
                                     # h_enc is (n_units, <n_mb>, n_steps)
     # make all 3d:
@@ -115,6 +118,8 @@ function (attn::AttnBahdanau)(h_t, h_enc; reset=false)
     units, mb, steps = size(h_encR)
     h_tR = reshape(h_t, size(h_t)[1], :)
 
+    mask = resize_attn_mask(mask)
+
     # this is possible, because the Linear-layers are used:
     #
     if reset || isnothing(attn.projections)
@@ -122,6 +127,7 @@ function (attn::AttnBahdanau)(h_t, h_enc; reset=false)
     end
     score = attn.combine(tanh.(attn.projections .+ attn.dec(h_tR)))
     score *= attn.scale
+    score = score .+ mask .* Float32(-1e9)
     α = softmax(score, dims=3)
 
     # calc. context from encoder states:
@@ -134,6 +140,25 @@ function (attn::AttnBahdanau)(h_t, h_enc; reset=false)
     α = reshape(α, mb, steps)
     return c, α
 end
+
+
+# make the attention mask fit to the shape of the scores
+# or 0.0 if nothing:
+#
+function resize_attn_mask(mask)
+
+    # add first dimension to mask:
+    #
+    if isnothing(mask)
+        mask = convert2KnetArray([0])
+    else
+        mask = reshape(mask, :,size(mask)...)
+    end
+
+    return mask
+end
+
+
 
 """
     mutable struct AttnLuong <: AttentionMechanism
@@ -162,12 +187,14 @@ mutable struct AttnLuong <: AttentionMechanism
     AttnLuong(units; scale=true) = AttnLuong(units, units, scale=scale)
 end
 
-function (attn::AttnLuong)(h_t, h_enc; reset=false)
+function (attn::AttnLuong)(h_t, h_enc; reset=false, mask=nothing)
     # make all 3d:
     #
     h_encR = reshape(h_enc, size(h_enc)[1], :, size(h_enc)[ndims(h_enc)])
     units, mb, steps = size(h_encR)
     h_tR = reshape(h_t, size(h_t)[1], :)
+
+    mask = resize_attn_mask(mask)
 
     if reset || isnothing(attn.projections)
         attn.projections = attn.enc(h_encR)
@@ -175,6 +202,7 @@ function (attn::AttnLuong)(h_t, h_enc; reset=false)
 
     score = sum(attn.projections .* h_tR, dims=1)
     score *= attn.scale
+    score = score .+ mask .* Float32(-1e9)
     α = softmax(score, dims=3)
 
     # calc. context from encoder states:
@@ -206,17 +234,20 @@ mutable struct AttnDot <: AttentionMechanism
     AttnDot(;scale=true) = new(scale)
 end
 
-function (attn::AttnDot)(h_t, h_enc; reset=false)
+function (attn::AttnDot)(h_t, h_enc; reset=false, mask=nothing)
     # make all 3d:
     #
     h_encR = reshape(h_enc, size(h_enc)[1], :, size(h_enc)[ndims(h_enc)])
     units, mb, steps = size(h_encR)
     h_tR = reshape(h_t, size(h_t)[1], :)
 
-    score = sum(h_encR .* h_tR, dims=1)
+    mask = resize_attn_mask(mask)
+
+    @show score = sum(h_encR .* h_tR, dims=1)
     if attn.scale
         score = score ./ Float32(sqrt(units))
     end
+    score = score .+ mask .* Float32(-1e9)
     α = softmax(score, dims=3)
 
     # calc. context from encoder states:
@@ -258,17 +289,24 @@ mutable struct AttnLocation <: AttentionMechanism
                                                 len, scale)
 end
 
-function (attn::AttnLocation)(h_t, h_enc)
+function (attn::AttnLocation)(h_t, h_enc; reset=false, mask=nothing)
     # make all 3d:
     #
     h_encR = reshape(h_enc, size(h_enc)[1], :, size(h_enc)[ndims(h_enc)])
     units, mb, steps = size(h_encR)
     h_tR = reshape(h_t, size(h_t)[1], :)
 
-    score = attn.dec(h_tR)
+    if isnothing(mask)
+        mask = convert2KnetArray([0])
+    else 
+        mask = permutedims(mask, (2,1))
+    end
+
+    @show score = attn.dec(h_tR)
     if attn.scale
         score = score ./ sqrt(units)
     end
+    score = score .+ mask .* Float32(-1e9)
     α = softmax(score, dims=1)
 
     if attn.len > steps
@@ -278,7 +316,9 @@ function (attn::AttnLocation)(h_t, h_enc)
     end
 
     α = permutedims(α, (2,1))
-    α = reshape(α, :, mb, steps)
+
+    @show α = reshape(α, :, mb, steps)
+
 
     # calc. context from encoder states:
     #
@@ -319,7 +359,7 @@ next input token.
 
 
 ### Signature:
-    function (attn::AttnInFeed)(h_t, inp, h_enc)
+    function (attn::AttnInFeed)(h_t, inp, h_enc; mask=nothing)
 
 + `h_t`:    decoder hidden state. If ``h_t`` is a vector, its length
             equals the number of decoder units. If it is a matrix,
@@ -330,6 +370,7 @@ next input token.
 + `h_enc`:  encoder hidden states, 2d or 3d. If ``h_{enc}`` is a
             matrix [units, steps] with the hidden states of all encoder steps.
             If 3d: [units, mb, steps] encoder states for all minibatches.
++ `mask`:   Optional mask for input states of shape [mb, steps].
 """
 mutable struct AttnInFeed <: AttentionMechanism
     dec
@@ -342,17 +383,24 @@ mutable struct AttnInFeed <: AttentionMechanism
                         len, scale)
 end
 
-function (attn::AttnInFeed)(h_t, inp, h_enc)
+function (attn::AttnInFeed)(h_t, inp, h_enc; mask=nothing)
     # make all 3d:
     #
     h_encR = reshape(h_enc, size(h_enc)[1], :, size(h_enc)[ndims(h_enc)])
     units, mb, steps = size(h_encR)
     h_tR = reshape(h_t, size(h_t)[1], :)
 
+    if isnothing(mask)
+        mask = convert2KnetArray([0])
+    else 
+        mask = permutedims(mask, (2,1))
+    end
+
     score = attn.dec(h_tR) .+ attn.emb(inp)
     if attn.scale
         score = score ./ sqrt(units)
     end
+    score = score .+ mask .* Float32(-1e9)
     α = softmax(score, dims=1)
 
     if attn.len > steps
