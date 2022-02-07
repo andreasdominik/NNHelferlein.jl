@@ -49,21 +49,33 @@ end
 
 
 """
-    function mk_padding_mask(x; pad=3)
+    function mk_padding_mask(x; pad=TOKEN_PAD, add_dims=false)
 
 Make a padding mask; i.e. return an Array of type
 `KnetArray{Float32}` (or `Array{Float32}`) similar to `x` but with
-two additional dimension of size 1 in teh middle (this will represent the
+two additional dimension of size 1 in the middle (this will represent the
 2nd seq_len and the number of heads) in multi-head attention
 and the
 value `1.0` at each position where `x` is `pad` and `0.0` otherwise.
 
 The function can be used for creating padding masks for attention
 mechanisms.
-"""
-function mk_padding_mask(x; pad=3)
 
-    return reshape(convert2KnetArray(x .== pad), size(x)[1],1,1,size(x)[2])
+### Arguments:
++ `x`: Array of sequences (typically a matrix with n_cols sequences
+    of length n_rows)
++ `pad`: value for the token to be masked
++ `add_dims`: if `true`, 2 additional dimensions are inserted to 
+    return a 4-D-array as needed for transformer architectures. Otherwise
+    the size of teh returned array is similar to x.
+"""
+function mk_padding_mask(x; pad=TOKEN_PAD, add_dims=false)
+
+    if add_dims
+       return reshape(convert2KnetArray(x .== pad), size(x)[1],1,1,size(x)[2])
+    else
+       return convert2KnetArray(x .== pad)
+    end
 end
 
 
