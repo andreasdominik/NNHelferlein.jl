@@ -717,7 +717,6 @@ function (rnn::Recurrent)(x; cell_states=nothing, hidden_states=nothing,
         for i in 1:steps
             if !isnothing(attn)
                 ctx, α = attn(rnn.rnn.h, h_enc, mask=mask_enc)      # ctx is [units, mb], a is [mb, steps]
-                display(α)
                 rnn.rnn.h = reshape(ctx, size(ctx)...,1)            # make ctx [unis, mb, 1] (last step)
             end
 
@@ -725,9 +724,12 @@ function (rnn::Recurrent)(x; cell_states=nothing, hidden_states=nothing,
 
             # h and c with masking:
             #
-            m_step = mask[[i],:]
+            m_step = recycle_array(mask[[i],:], rnn.n_units, dims=1)
             h_step = h_dec[:,:,[end]] .* m_step + h_step .* (1 .- m_step)
+            h_step = h_dec[:,:,[end]]
             rnn.rnn.h = h_step
+
+            # println("hstep($i): $(size(h_step)), mstep($i): $(size(m_step))")
 
             if rnn.unit_type == :lstm
                 c_step = rnn.rnn.c
