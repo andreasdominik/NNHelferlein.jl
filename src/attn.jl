@@ -112,7 +112,8 @@ end
 function (attn::AttnBahdanau)(h_t, h_enc; reset=false, mask=nothing)
                                     # h_t is a (n_units, <n_mb>),
                                     # h_enc is (n_units, <n_mb>, n_steps)
-    # make all 3d:
+                                    # mask is (<n_mb>, n_steps)
+    # make all 3d/2d:
     #
     h_encR = reshape(h_enc, size(h_enc)[1], :, size(h_enc)[ndims(h_enc)])
     units, mb, steps = size(h_encR)
@@ -147,15 +148,17 @@ end
 #
 function resize_attn_mask(mask)
 
-    # add first dimension to mask:
+    # add first dimensions to mask or 0
     #
-    if isnothing(mask)
-        mask = convert2KnetArray([0])
+    if ndims(mask) == 3
+        return mask
+    elseif ndims(mask) == 2
+        return reshape(mask, 1,size(mask)...)
+    elseif ndims(mask) == 1
+        return reshape(mask, 1,1,size(mask)...)
     else
-        mask = reshape(mask, :,size(mask)...)
+        return convert2KnetArray([0])
     end
-
-    return mask
 end
 
 

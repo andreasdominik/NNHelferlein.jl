@@ -656,7 +656,9 @@ struct Recurrent <: Layer
 end
 
 function (rnn::Recurrent)(x; cell_states=nothing, hidden_states=nothing, 
-                          return_all=false)
+                          return_all=false,
+                          attn=nothing, mask=nothing,
+                          h_enc=nothing, mask_enc=nothing)
     
     dims = length(size(x))    # x is [fan-in, steps, mb]
     if dims == 3
@@ -675,14 +677,72 @@ function (rnn::Recurrent)(x; cell_states=nothing, hidden_states=nothing,
     end
 
     
-    if hasproperty(rnn.rnn, :c) && !isnothing(cell_states)
+    if rnn.unit_type == :lstm && !isnothing(cell_states)
         rnn.rnn.c = cell_states
     end
     if !isnothing(hidden_states)
         rnn.rnn.h = hidden_states
     end
 
-    h = rnn.rnn(x)
+    # life is easy without masking or attention;
+    # otherwise step-by-step loop is needed:
+    #
+    if isnothing(attn) && isnothing(mask)
+        h = rnn.rnn(x)
+    else
+        if isnothing(mask)         
+            mask = init0(steps, mb)
+        end
+
+        if isnothing(h_enc)    # attn only, if h_enc given
+            attn = nothing
+        end
+        if !isnothing(attn)
+            attn(;reset=true)
+
+            # permute encoder mask to [mb,steps]
+            # build back h_enc from [units,steps,mb] to [units,mb,steps]:
+            #
+            if isnothing(mask_enc)
+                #enc_units, enc_steps, enc_mb = size(h_enc)
+                #mask_enc = init0(enc_mb, enc_steps)
+                mask_enc = convert2KnetArray([0])
+            else
+                mask_enc = permutedims(mask_enc, (2,1))
+            end
+            h_enc = permutedims(h_enc, (1,3,2))
+        end
+
+        # init h and c with a 0-timestep ... must be removed at the end!
+        #
+        h_dec = c_dec = init0(rnn.n_units, mb, 1)
+        for i in 1:steps
+            if !isnothing(attn)
+                ctx, α = attn(rnn.rnn.h, h_enc, mask=mask_enc)      # ctx is [units, mb], a is [mb, steps]
+                display(α)
+                rnn.rnn.h = reshape(ctx, size(ctx)...,1)            # make ctx [unis, mb, 1] (last step)
+            end
+
+            h_step = rnn.rnn(reshape(x[:,:,i], fanin, mb, 1))               # run one step only
+
+            # h and c with masking:
+            #
+            m_step = mask[[i],:]
+            h_step = h_dec[:,:,[end]] .* m_step + h_step .* (1 .- m_step)
+            rnn.rnn.h = h_step
+
+            if rnn.unit_type == :lstm
+                c_step = rnn.rnn.c
+                c_step = c_dec[:,:,[end]] .* m_step + c_step .* (1 .-m_step)
+                rnn.rnn.c = c_step
+            end
+
+            h_dec = cat(h_dec, h_step, dims=3)
+        end
+
+        h = h_dec[:,:,2:end]
+    end
+
     if return_all
         return permutedims(h, (1,3,2)) # h of all steps: [units, time-steps, mb]
     else
@@ -718,14 +778,11 @@ end
 
 Return the cell states of one or more layers of an RNN only if
 it is a LSTM.
-`<RNN_Type>` is one of `RSeqClassifier`, `RSeqTagger`,
-`Knet.RNN`.
 """
 function get_cell_states(l::Union{Recurrent, Knet.RNN})
-    if l isa Recurrent
-       l.unit_type == :lstm
+    if l isa Recurrent 
         return l.rnn.c
-    elseif l isa Knet.RNN && l.mode == 2  # i.e. :lstm
+    elseif l isa Knet.RNN 
         return l.c
     else
         return nothing
