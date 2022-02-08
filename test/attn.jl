@@ -55,7 +55,7 @@ function test_masks()
     pos_enc = pl(seqs)   # assert 4x6
 
     peek_ah = mk_peek_ahead_mask(seqs)
-    padd = mk_padding_mask(seqs)
+    padd = mk_padding_mask(seqs, add_dims=true)
 
     return size(pos_enc) == (4,6) &&
            size(peek_ah) == (4,4) &&
