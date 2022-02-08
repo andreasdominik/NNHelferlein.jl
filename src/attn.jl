@@ -150,7 +150,9 @@ function resize_attn_mask(mask)
 
     # add first dimensions to mask or 0
     #
-    if ndims(mask) == 3
+    if isnothing(mask)
+        return convert2KnetArray([0])
+    elseif ndims(mask) == 3
         return mask
     elseif ndims(mask) == 2
         return reshape(mask, 1,size(mask)...)
