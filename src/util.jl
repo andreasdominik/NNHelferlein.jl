@@ -192,17 +192,19 @@ end
 
 
 """
-function recycle_array(x, n)
+function recycle_array(x, n; dims=dims(x))
 
-Recycle an array `x` along the last dimension
+Recycle an array `x` along the specified dimension 
+(default the last dimension)
 and repeat the content of the array `n` times.
 The number of dims stays unchanged, but the array
 valueas are repeated `n` times.
 
 ### Arguments:
 + `x`: Array of any dimension
-+ `n`: number of repeats. ´n == 1´ will return an unchanged
-        array.
++ `n`: number of repeats. ´n=1´ will return an unchanged
+        array
++ `dims`: dimension to be repeated.
 
 ### Examples:
 
@@ -225,15 +227,20 @@ julia> recycle_array(x,3)
 2×6 Array{Int64,2}:
  1  2  1  2  1  2
  3  4  3  4  3  4
+
+julia> recycle_array([1 2 3],3, dims=1)
+3x3 Array{Int64,2}:
+ 1 2 3
+ 1 2 3
+ 1 2 3
 ```
 """
-function recycle_array(x, n)
+function recycle_array(x, n; dims=dims(x))
 
-    dim = ndims(x)
     out = x
     i = 1
     while i < n
-        out = cat(out,x, dims=dim)
+        out = cat(out,x, dims=dims)
         i += 1
     end
     return out
