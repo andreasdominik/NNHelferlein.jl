@@ -76,7 +76,7 @@ function test_dotp_attn()
     el = Embed(16,8)
     emb = el(seqs)
     heads = separate_heads(emb, 2)
-    padd = mk_padding_mask(seqs)
+    padd = mk_padding_mask(seqs, add_dims=true)
 
     dpa = dot_prod_attn(heads, heads, heads, mask=padd)
 

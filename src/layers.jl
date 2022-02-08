@@ -704,8 +704,6 @@ function (rnn::Recurrent)(x; cell_states=nothing, hidden_states=nothing,
             # build back h_enc from [units,steps,mb] to [units,mb,steps]:
             #
             if isnothing(mask_enc)
-                #enc_units, enc_steps, enc_mb = size(h_enc)
-                #mask_enc = init0(enc_mb, enc_steps)
                 mask_enc = convert2KnetArray([0])
             else
                 mask_enc = permutedims(mask_enc, (2,1))
