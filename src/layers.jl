@@ -684,7 +684,7 @@ function (rnn::Recurrent)(x; cell_states=nothing, hidden_states=nothing,
         rnn.rnn.h = hidden_states
     end
 
-    #α = init0(1)
+    α = init0(1)
 
     # life is easy without masking or attention;
     # otherwise step-by-step loop is needed:
