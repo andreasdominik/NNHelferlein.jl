@@ -235,7 +235,7 @@ julia> recycle_array([1 2 3],3, dims=1)
  1 2 3
 ```
 """
-function recycle_array(x, n; dims=dims(x))
+function recycle_array(x, n; dims=ndims(x))
 
     out = x
     i = 1
