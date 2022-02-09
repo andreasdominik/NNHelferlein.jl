@@ -657,7 +657,7 @@ end
 
 function (rnn::Recurrent)(x; cell_states=nothing, hidden_states=nothing, 
                           return_all=false,
-                          attn=nothing, mask=nothing,
+                          attn=nothing, last_a=false, mask=nothing,
                           h_enc=nothing, mask_enc=nothing)
     
     dims = length(size(x))    # x is [fan-in, steps, mb]
@@ -683,6 +683,8 @@ function (rnn::Recurrent)(x; cell_states=nothing, hidden_states=nothing,
     if !isnothing(hidden_states)
         rnn.rnn.h = hidden_states
     end
+
+    #α = init0(1)
 
     # life is easy without masking or attention;
     # otherwise step-by-step loop is needed:
@@ -717,6 +719,8 @@ function (rnn::Recurrent)(x; cell_states=nothing, hidden_states=nothing,
         #
         h_dec = c_dec = init0(rnn.n_units, mb, 1)
         for i in 1:steps
+            println("stepping: $i")
+
             if !isnothing(attn)
                 ctx, α = attn(rnn.rnn.h, h_enc, mask=mask_enc)      # ctx is [units, mb], a is [mb, steps]
                 rnn.rnn.h = reshape(ctx, size(ctx)...,1)            # make ctx [unis, mb, 1] (last step)
@@ -737,9 +741,10 @@ function (rnn::Recurrent)(x; cell_states=nothing, hidden_states=nothing,
             # println("hstep($i): $(size(h_step)), mstep($i): $(size(m_step))")
 
             if rnn.unit_type == :lstm
-                c_step = rnn.rnn.c
+                c_step = value(rnn.rnn.c)
                 c_step = c_dec[:,:,[end]] .* m_step + c_step .* (1 .-m_step)
                 rnn.rnn.c = c_step
+                c_dec = cat(c_dec, c_step, dims=3)
             end
 
             h_dec = cat(h_dec, h_step, dims=3)
@@ -753,9 +758,15 @@ function (rnn::Recurrent)(x; cell_states=nothing, hidden_states=nothing,
     end
 
     if return_all
-        return permutedims(h, (1,3,2)) # h of all steps: [units, time-steps, mb]
+        h = permutedims(h, (1,3,2)) # h of all steps: [units, time-steps, mb]
     else
-        h[:,:,end]     # last h: [units, mb]
+        h = h[:,:,end]     # last h: [units, mb]
+    end
+
+    if last_a
+        return h, [42, 17] #α
+    else
+        return h
     end
 end
 
