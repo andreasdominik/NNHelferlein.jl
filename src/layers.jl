@@ -701,14 +701,16 @@ function (rnn::Recurrent)(x; cell_states=nothing, hidden_states=nothing,
             attn(;reset=true)
 
             # permute encoder mask to [mb,steps]
-            # build back h_enc from [units,steps,mb] to [units,mb,steps]:
             #
             if isnothing(mask_enc)
                 mask_enc = convert2KnetArray([0])
             else
                 mask_enc = permutedims(mask_enc, (2,1))
             end
-            h_enc = permutedims(h_enc, (1,3,2))
+            # unbox h_enc to clean tape and
+            # build back h_enc from [units,steps,mb] to [units,mb,steps]:
+            #
+            h_enc = permutedims(value(h_enc), (1,3,2))
         end
 
         # init h and c with a 0-timestep ... must be removed at the end!
@@ -724,9 +726,12 @@ function (rnn::Recurrent)(x; cell_states=nothing, hidden_states=nothing,
 
             # h and c with masking:
             #
-            m_step = recycle_array(mask[[i],:], rnn.n_units, dims=1)
-            h_step = h_dec[:,:,[end]] .* m_step + h_step .* (1 .- m_step)
-            h_step = h_dec[:,:,[end]]
+            # m_step = recycle_array(mask[[i],:], rnn.n_units, dims=1)
+            m_step = mask[[i],:]
+            
+            # h_dec unboxed to avoid confusiong tape:
+            #
+            h_step = value(h_dec[:,:,[end]]) .* m_step + h_step .* (1 .- m_step)
             rnn.rnn.h = h_step
 
             # println("hstep($i): $(size(h_step)), mstep($i): $(size(m_step))")
@@ -738,6 +743,10 @@ function (rnn::Recurrent)(x; cell_states=nothing, hidden_states=nothing,
             end
 
             h_dec = cat(h_dec, h_step, dims=3)
+
+            # println("i: $i") ; flush(stdout)
+            # display(m_step) ; flush(stdout)
+            # display(h_dec) ; flush(stdout)
         end
 
         h = h_dec[:,:,2:end]
