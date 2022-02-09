@@ -719,7 +719,6 @@ function (rnn::Recurrent)(x; cell_states=nothing, hidden_states=nothing,
         #
         h_dec = c_dec = init0(rnn.n_units, mb, 1)
         for i in 1:steps
-            println("stepping: $i")
 
             if !isnothing(attn)
                 ctx, α = attn(rnn.rnn.h, h_enc, mask=mask_enc)      # ctx is [units, mb], a is [mb, steps]
@@ -764,7 +763,7 @@ function (rnn::Recurrent)(x; cell_states=nothing, hidden_states=nothing,
     end
 
     if last_a
-        return h, [42, 17] #α
+        return h, α
     else
         return h
     end
