@@ -224,7 +224,7 @@ function tb_train!(mdl, opti, trn, vld=nothing; epochs=1,
 
             if !isnothing(acc_fun)
                 calc_and_report_acc(mdl, acc_fun, eval_trn, eval_vld,
-                                    tbl, 0)
+                                    tbl, eval_nth)
             end
         end
 
