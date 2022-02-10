@@ -868,7 +868,7 @@ end
 Set the cell states of one or more layers of an RNN
 to c.
 """
-function set_cell_states(l::Union{Recurrent, Knet.RNN}, c)
+function set_cell_states!(l::Union{Recurrent, Knet.RNN}, c)
     if l isa Recurrent
         l.rnn.c = c
     elseif l isa Knet.RNN
@@ -884,7 +884,7 @@ end
 Reset the hidden states of one or more layers of an RNN
 to 0.
 """
-function reset_hidden_states(l::Union{Recurrent, Knet.RNN})
+function reset_hidden_states!(l::Union{Recurrent, Knet.RNN})
     if l isa Recurrent
         l.rnn.h = 0
     elseif l isa Knet.RNN
@@ -893,12 +893,12 @@ function reset_hidden_states(l::Union{Recurrent, Knet.RNN})
 end
 
 """
-    function reset_cell_states(l::<RNN_Type>)
+    function reset_cell_states!(l::<RNN_Type>)
 
 Reset the cell states of one or more layers of an RNN
 to 0.
 """
-function reset_cell_states(l::Union{Recurrent, Knet.RNN})
+function reset_cell_states!(l::Union{Recurrent, Knet.RNN})
     if l isa Recurrent
         l.rnn.c = 0
     elseif l isa Knet.RNN
