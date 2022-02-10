@@ -656,7 +656,7 @@ struct Recurrent <: Layer
 end
 
 function (rnn::Recurrent)(x; cell_states=nothing, hidden_states=nothing, 
-                          return_all=false,
+                          return_all=false, 
                           attn=nothing, last_a=false, mask=nothing,
                           h_enc=nothing, mask_enc=nothing)
     
@@ -669,12 +669,16 @@ function (rnn::Recurrent)(x; cell_states=nothing, hidden_states=nothing,
         x = reshape(x, fanin, steps, mb)
     end
     @assert fanin == rnn.n_inputs "input does not match the fan-in of rnn layer"
-
-    if steps == 1
-        x = reshape(x, fanin, mb)
-    else 
-        x = permutedims(x, (1,3,2))   # make [fanin, mb, steps] for Knet
+    if rnn.rnn.direction == 1 # bidirectional only if no mask and no attn!
+        @assert isnothing(mask) && isnothing(attn) "Bidirectional is only possible without masking and attention"
     end
+
+    # if steps == 1
+    #     x = reshape(x, fanin, mb)
+    # else 
+    #     x = permutedims(x, (1,3,2))   # make [fanin, mb, steps] for Knet
+    # end
+    x = permutedims(x, (1,3,2))   # make [fanin, mb, steps] for Knet
 
     
     if rnn.unit_type == :lstm && !isnothing(cell_states)
