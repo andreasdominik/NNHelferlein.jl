@@ -704,7 +704,7 @@ function (rnn::Recurrent)(x; cell_states=nothing, hidden_states=nothing,
             attn = nothing
         end
         if !isnothing(attn)
-            attn(;reset=true)
+            #attn(;reset=true)
 
             # permute encoder mask to [mb,steps]
             #
@@ -773,6 +773,7 @@ function (rnn::Recurrent)(x; cell_states=nothing, hidden_states=nothing,
     end
 end
 
+
 function Base.summary(l::Recurrent; indent=0)
     n = get_n_params(l)
     s1 = "Recurrent layer, $(l.n_inputs) → $(l.n_units) of type $(l.unit_type),"
@@ -780,32 +781,51 @@ function Base.summary(l::Recurrent; indent=0)
 end
 
 """
-    function get_hidden_states(l::<RNN_Type>)
+    function get_hidden_states(l::<RNN_Type>; flatten=true)
 
 Return the hidden states of one or more layers of an RNN.
 `<RNN_Type>` is one of `NNHelderlein.Recurrent`, `Knet.RNN`.
+
+### Arguments:
++ `flatten=true`: if the states tensor is 3d with a 3rd dim > 1, the 
+        array is transformed to [units, mb, 1] to represent all current states
+        after the last step.
 """
-function get_hidden_states(l::Union{Recurrent, Knet.RNN})
-    if l isa Recurrent
-        return l.rnn.h
-    elseif l isa Knet.RNN
-        return l.h
+function get_hidden_states(l::Union{Recurrent, Knet.RNN}; flatten=true)
+    
+    if l isa Recurrent 
+        h = l.rnn.h
+    elseif l isa Knet.RNN 
+        h = l.h
     else
-        return nothing
+        h = nothing
     end
+
+    if !isnothing(h)
+        if flatten && ndims(h) == 3 && size(h)[3] > 1
+            units, mb, bi = size(h)
+            h = reshape(permutedims(h, (1,3,2)), units*bi, mb, :)
+        end
+    end
+    return h
 end
 
-
 """
-    function get_cell_states(l::<RNN_Type>; unbox=true)
+    function get_cell_states(l::<RNN_Type>; unbox=true, flatten=true)
 
 Return the cell states of one or more layers of an RNN only if
 it is a LSTM.
-By default, c is unboxed when called in `@diff` context (while AutoGrad 
-is recording) to avoid unwanted dependencies of the computation graph
-(backprop should run via the hidden states, not the cell states).
+
+### Arguments:
++ `unbox=true`: By default, c is unboxed when called in `@diff` context (while AutoGrad 
+        is recording) to avoid unwanted dependencies of the computation graph
+        s2s.attn(reset=true)
+        (backprop should run via the hidden states, not the cell states).
++ `flatten=true`: if the states tensor is 3d with a 3rd dim > 1, the 
+        array is transformed to [units, mb, 1] to represent all current states
+        after the last step.
 """
-function get_cell_states(l::Union{Recurrent, Knet.RNN}; unbox=true)
+function get_cell_states(l::Union{Recurrent, Knet.RNN}; unbox=true, flatten=true)
     if l isa Recurrent 
         c = l.rnn.c
     elseif l isa Knet.RNN 
@@ -813,21 +833,28 @@ function get_cell_states(l::Union{Recurrent, Knet.RNN}; unbox=true)
     else
         c = nothing
     end
-    if unbox
-        return value(c)
-    else
-        return c
+
+    if !isnothing(c)
+        if unbox
+            c = value(c)
+        end
+        if flatten && ndims(c) == 3 && size(c)[3] > 1
+            println("hallo")
+            units, mb, bi = size(c)
+            c = reshape(permutedims(c, (1,3,2)), units*bi, mb, :)
+        end
     end
+    return c
 end
 
 
 """
-    function set_hidden_states(l::<RNN_Type>, h)
+    function set_hidden_states!(l::<RNN_Type>, h)
 
 Set the hidden states of one or more layers of an RNN
 to h.
 """
-function set_hidden_states(l::Union{Recurrent, Knet.RNN}, h)
+function set_hidden_states!(l::Union{Recurrent, Knet.RNN}, h)
     if l isa Recurrent
         l.rnn.h = h
     elseif l isa Knet.RNN
@@ -836,7 +863,7 @@ function set_hidden_states(l::Union{Recurrent, Knet.RNN}, h)
 end
 
 """
-    function set_cell_states(l::<RNN_Type>, c)
+    function set_cell_states!(l::<RNN_Type>, c)
 
 Set the cell states of one or more layers of an RNN
 to c.
@@ -852,7 +879,7 @@ end
 
 
 """
-    function reset_hidden_states(l::<RNN_Type>)
+    function reset_hidden_states!(l::<RNN_Type>)
 
 Reset the hidden states of one or more layers of an RNN
 to 0.
