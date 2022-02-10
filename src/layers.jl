@@ -793,19 +793,26 @@ end
 
 
 """
-    function get_cell_states(l::<RNN_Type>)
+    function get_cell_states(l::<RNN_Type>; unbox=true)
 
 Return the cell states of one or more layers of an RNN only if
 it is a LSTM.
+By default, c is unboxed when called in `@diff` context (while AutoGrad 
+is recording) to avoid unwanted dependencies of the computation graph
+(backprop should run via the hidden states, not the cell states).
 """
-function get_cell_states(l::Union{Recurrent, Knet.RNN})
+function get_cell_states(l::Union{Recurrent, Knet.RNN}; unbox=true)
     if l isa Recurrent 
-        return l.rnn.c
+        c = l.rnn.c
     elseif l isa Knet.RNN 
-        return l.c
+        c = l.c
     else
-        return nothing
+        c = nothing
     end
+    if unbox
+        return value(c)
+    else
+        return c
 end
 
 
