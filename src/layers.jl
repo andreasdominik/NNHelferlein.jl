@@ -813,6 +813,7 @@ function get_cell_states(l::Union{Recurrent, Knet.RNN}; unbox=true)
         return value(c)
     else
         return c
+    end
 end
 
 
