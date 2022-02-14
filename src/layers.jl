@@ -694,8 +694,10 @@ function (rnn::Recurrent)(x; cell_states=nothing, hidden_states=nothing,
     # otherwise step-by-step loop is needed:
     #
     if isnothing(attn) && isnothing(mask)
+        println("Knet")
         h = rnn.rnn(x)
     else
+        println("manual")
         if isnothing(mask)         
             mask = init0(steps, mb)
         end
@@ -736,15 +738,20 @@ function (rnn::Recurrent)(x; cell_states=nothing, hidden_states=nothing,
             # m_step = recycle_array(mask[[i],:], rnn.n_units, dims=1)
             m_step = mask[[i],:]
             
-            # h_dec unboxed to avoid confusiong tape:
+            # h_dec unboxed to avoid confusing tape:
             #
+            #h_step = value(h_dec[:,:,[end]]) .* m_step + h_step .* (1 .- m_step)
+            #@show h_step
+            #@show h_dec
+            #@show h_dec[:,:,[end]]
             h_step = value(h_dec[:,:,[end]]) .* m_step + h_step .* (1 .- m_step)
             rnn.rnn.h = h_step
 
             # println("hstep($i): $(size(h_step)), mstep($i): $(size(m_step))")
 
             if rnn.unit_type == :lstm
-                c_step = value(rnn.rnn.c)
+                #c_step = value(rnn.rnn.c)
+                c_step = rnn.rnn.c
                 c_step = c_dec[:,:,[end]] .* m_step + c_step .* (1 .-m_step)
                 rnn.rnn.c = c_step
                 c_dec = cat(c_dec, c_step, dims=3)
