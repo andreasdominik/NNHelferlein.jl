@@ -697,7 +697,7 @@ function (rnn::Recurrent)(x; cell_states=nothing, hidden_states=nothing,
         println("Knet")
         h = rnn.rnn(x)
     else
-        println("manual")
+        #println("manual")
         if isnothing(mask)         
             mask = init0(steps, mb)
         end
