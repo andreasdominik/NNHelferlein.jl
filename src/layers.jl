@@ -698,7 +698,7 @@ function (rnn::Recurrent)(x; c=nothing, h=nothing,
 
     x = permutedims(x, (1,3,2))   # make [fanin, mb, steps] for Knet
     
-    if haspropertiy(rnn.rnn, :c)
+    if hasproperty(rnn.rnn, :c)
         rnn.rnn.c = c
     end
     if !isnothing(h)

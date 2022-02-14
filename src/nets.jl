@@ -28,7 +28,7 @@ end
 """
     struct Classifier <: DNN
 
-Classifyer with nll loss.
+Classifier with nll loss.
 
 ### Signatures:
     (m::Classifier)(x,y) = nll(m(x), y)
