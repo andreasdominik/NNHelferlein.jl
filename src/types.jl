@@ -94,3 +94,28 @@ end
 
 Base.length(it::PartialIterator) = it.l
 Base.eltype(it::PartialIterator) = eltype(first(it.inner))
+
+
+
+""" 
+    abstract type RecurrentUnit end
+
+Supertype for all recurrent unit types.
+Self-defined recurrent units which are a child of `RecurrentUnit`
+can be used inside the 'Recurrent' layer.
+
+### Interface
+All subtypes of `RecurrentUnit` must provide the followning:
++ a constructor with signature `Type(n_inputs, n_units; kwargs)` and
+    arbitrary keyword arguments.
++ an implementation of signature `(o::Recurrent)(x)`
+    where `x` is a 3d- or 2d-array of shape [fan-in, mb-size, 1] or 
+    [fan-in, mb-size].
+    The function must return the result of one forward 
+    computation for one step and return the hidden state
+    and set the internal fields `h` and optionally `c`.
++ a field `h` (to store the last hidden state)
++ an optional field `c`, if the cell state is to be stored
+    such as in a lstm unit.
+"""
+abstract type RecurrentUnit end

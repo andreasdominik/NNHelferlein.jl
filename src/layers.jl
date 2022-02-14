@@ -618,32 +618,54 @@ steps for all smaples of the minibatch (with model depth as first and samples of
 
     Recurrent(n_inputs::Int, n_units::Int; u_type=:lstm, o...)
 
-with number of inputs, number of units and unit type.
-Internally the type `Knet.RNN` is used and all keyword arguments
-of `Knet.RNN` may be provided.
++ `n_inputs`: number of inputs
++ `n_units`:  number of units 
++ `u_type` :  unit type can be one of the Knet unit types
+        (`:relu, :tanh, :lstm, :gru`) or a type which must be a 
+        subtype of `RecurrentUnit` and fulfill the repective interface 
+        (see the docs for `RecurentUnit`).
+Any keyword argument of `Knet.RNN` or 
+a self-defined `RecurrentUnit` type may be provided.
 
 ### Signatures:
 
-    function (rnn::Recurrent)(x; cell_states=nothing, hidden_states=nothing, return_all=false, o...)
+    function (rnn::Recurrent)(x; c=nothing, h=nothing, return_all=false, 
+              mask=nothing,
+              attn=nothing, last_a=false, h_enc=nothing, mask_enc=nothing, o...)
 
 The layer is called either with a 2-dimensional array of the shape
 [fan-in, steps] 
 or a 3-dimensional array of [fan-in, steps, batchsize].    
-If `cell_states = nothing` or `hidden_states = nothing`, states keep their values; 
-if `cell_states = 0` or `hidden_states = 0`, the states are reseted to `0`;
-otherwise an array of states of the correct dimensions can be supplied 
-to be used as initial states.
 
-If `return_all == true` an array wich all hidden states of all steps is returned
-([units, time-steps, samples]).
-Otherwise only the hidden states of the last step is returned
-([units, samples]).
+#### Arguments:
 
-Bidirectional layers can be constructed by specifying `bidirectional==true`. 
-Please be aware that the actual number of units is twice n_units.
++ `c=nothing`, `h=nothing`: inits the hidden and cell state.
+    If `nothing`,  states `h` or `c` keep their values. 
+    If `c=0` or `h=0`, the states are reseted to `0`;
+    otherwise an array of states of the correct dimensions can be supplied 
+    to be used as initial states.
++ `return_all=true`: if `true` an array with all hidden states of all steps 
+    is returned (size is [units, time-steps, minibatch]).
+    Otherwise only the hidden states of the last step is returned
+    ([units, minibatch]).
++ `mask`: optional mask for the input sequence minibatch of shape 
+    [steps, minibatch]. Values in the mask must be 1.0 for masked positions
+    or 0.0 otherwise. Appropriate masks can be generated with the NNHelferlein function 
+    `mk_padding_mask()`.
++ `attn`: optional attention mechanism as object of 
+    type `NNHelferlein.AttentionMechanism`.
++ `last_a`: if true, the attention weights α of teh last step will be returned 
+    in addition to h.
++ `h_enc`: hidden states of the encoder for the complete sequence. `h_enc` is used
+    only by the attention mechanism. Attention is possibleonly with the 
+    encoder hidden states.
++ `masK_enc`: optional mask for the encoder sequence. Attentions factors
+    for masked positions will be set to 0.0.
 
-Hidden states and cell states can be accessed from the object 
-with the functions respective setter- and getter-functions.
+Bidirectional layers can be constructed by specifying `bidirectional=true`, if
+the unit-type supports it. 
+Please be aware that the actual number of units is twice n_units for 
+    bidirectional layers.
 """
 struct Recurrent <: Layer
     n_inputs
@@ -655,7 +677,7 @@ struct Recurrent <: Layer
                 Knet.RNN(n_inputs, n_units; rnnType=u_type, h=0, c=0, o...))
 end
 
-function (rnn::Recurrent)(x; cell_states=nothing, hidden_states=nothing, 
+function (rnn::Recurrent)(x; c=nothing, h=nothing, 
                           return_all=false, 
                           attn=nothing, last_a=false, mask=nothing,
                           h_enc=nothing, mask_enc=nothing)
@@ -669,23 +691,18 @@ function (rnn::Recurrent)(x; cell_states=nothing, hidden_states=nothing,
         x = reshape(x, fanin, steps, mb)
     end
     @assert fanin == rnn.n_inputs "input does not match the fan-in of rnn layer"
+
     if rnn.rnn.direction == 1 # bidirectional only if no mask and no attn!
         @assert isnothing(mask) && isnothing(attn) "Bidirectional is only possible without masking and attention"
     end
 
-    # if steps == 1
-    #     x = reshape(x, fanin, mb)
-    # else 
-    #     x = permutedims(x, (1,3,2))   # make [fanin, mb, steps] for Knet
-    # end
     x = permutedims(x, (1,3,2))   # make [fanin, mb, steps] for Knet
-
     
-    if rnn.unit_type == :lstm && !isnothing(cell_states)
-        rnn.rnn.c = cell_states
+    if haspropertiy(rnn.rnn, :c)
+        rnn.rnn.c = c
     end
-    if !isnothing(hidden_states)
-        rnn.rnn.h = hidden_states
+    if !isnothing(h)
+        rnn.rnn.h = h
     end
 
     α = init0(1)
@@ -693,7 +710,7 @@ function (rnn::Recurrent)(x; cell_states=nothing, hidden_states=nothing,
     # life is easy without masking or attention;
     # otherwise step-by-step loop is needed:
     #
-    if isnothing(attn) && isnothing(mask)
+    if rnn.rnn isa Knet.RNN && isnothing(attn) && isnothing(mask)
         #println("Knet")
         h = rnn.rnn(x)
     else
@@ -723,8 +740,8 @@ function (rnn::Recurrent)(x; cell_states=nothing, hidden_states=nothing,
 
         # init h and c with a 0-timestep ... must be removed at the end!
         #
-        h_all = init0(rnn.n_units, mb, 1)
-        c_all = init0(rnn.n_units, mb, 1)
+        h = init0(rnn.n_units, mb, 1)
+        c = init0(rnn.n_units, mb, 1)
         for i in 1:steps
 
             if !isnothing(attn)
@@ -741,36 +758,21 @@ function (rnn::Recurrent)(x; cell_states=nothing, hidden_states=nothing,
             
             # h_dec unboxed to avoid confusing tape:
             #
-            h_step = value(h_all[:,:,[end]]) .* m_step + h_step .* (1 .- m_step)
-            # @show h_step
-            # @show h_all
-            # @show h_all[:,:,[end]]
-            # @show h_1 = reshape(h_all[:,:,[end]], size(h_all)[1:2]...)
-            # @show step_1 = reshape(h_step, rnn.n_units, mb)
-            # @show m_1 = m_step
-            # @show h_step = h_1 .* m_1 + step_1 .* (1 .- step_1)
-            # @show h_step = reshape(h_step, size(h_step)..., 1)
+            h_step = value(h[:,:,[end]]) .* m_step + h_step .* (1 .- m_step)
 
             rnn.rnn.h = h_step
 
-            # println("hstep($i): $(size(h_step)), mstep($i): $(size(m_step))")
-
             if rnn.unit_type == :lstm
-                #c_step = value(rnn.rnn.c)
                 c_step = rnn.rnn.c
-                c_step = value(c_all[:,:,[end]]) .* m_step + c_step .* (1 .-m_step)
+                c_step = value(c[:,:,[end]]) .* m_step + c_step .* (1 .-m_step)
                 rnn.rnn.c = c_step
-                c_all = cat(c_all, c_step, dims=3)
+                c = cat(c, c_step, dims=3)
             end
 
-            h_all = cat(h_all, h_step, dims=3)  # TODO: copy(h_step)?
-
-            # println("i: $i") ; flush(stdout)
-            # display(m_step) ; flush(stdout)
-            # display(h_dec) ; flush(stdout)
+            h = cat(h, h_step, dims=3)  # TODO: copy(h_step)?
         end
 
-        h = h_all[:,:,2:end]
+        h = h[:,:,2:end]
     end
 
     if return_all
