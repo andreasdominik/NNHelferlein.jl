@@ -723,7 +723,8 @@ function (rnn::Recurrent)(x; cell_states=nothing, hidden_states=nothing,
 
         # init h and c with a 0-timestep ... must be removed at the end!
         #
-        h_dec = c_dec = init0(rnn.n_units, mb, 1)
+        h_all = init0(rnn.n_units, mb, 1)
+        c_all = init0(rnn.n_units, mb, 1)
         for i in 1:steps
 
             if !isnothing(attn)
@@ -740,11 +741,16 @@ function (rnn::Recurrent)(x; cell_states=nothing, hidden_states=nothing,
             
             # h_dec unboxed to avoid confusing tape:
             #
-            #h_step = value(h_dec[:,:,[end]]) .* m_step + h_step .* (1 .- m_step)
-            #@show h_step
-            #@show h_dec
-            #@show h_dec[:,:,[end]]
-            h_step = value(h_dec[:,:,[end]]) .* m_step + h_step .* (1 .- m_step)
+            h_step = value(h_all[:,:,[end]]) .* m_step + h_step .* (1 .- m_step)
+            # @show h_step
+            # @show h_all
+            # @show h_all[:,:,[end]]
+            # @show h_1 = reshape(h_all[:,:,[end]], size(h_all)[1:2]...)
+            # @show step_1 = reshape(h_step, rnn.n_units, mb)
+            # @show m_1 = m_step
+            # @show h_step = h_1 .* m_1 + step_1 .* (1 .- step_1)
+            # @show h_step = reshape(h_step, size(h_step)..., 1)
+
             rnn.rnn.h = h_step
 
             # println("hstep($i): $(size(h_step)), mstep($i): $(size(m_step))")
@@ -752,19 +758,19 @@ function (rnn::Recurrent)(x; cell_states=nothing, hidden_states=nothing,
             if rnn.unit_type == :lstm
                 #c_step = value(rnn.rnn.c)
                 c_step = rnn.rnn.c
-                c_step = c_dec[:,:,[end]] .* m_step + c_step .* (1 .-m_step)
+                c_step = value(c_all[:,:,[end]]) .* m_step + c_step .* (1 .-m_step)
                 rnn.rnn.c = c_step
-                c_dec = cat(c_dec, c_step, dims=3)
+                c_all = cat(c_all, c_step, dims=3)
             end
 
-            h_dec = cat(h_dec, h_step, dims=3)
+            h_all = cat(h_all, h_step, dims=3)  # TODO: copy(h_step)?
 
             # println("i: $i") ; flush(stdout)
             # display(m_step) ; flush(stdout)
             # display(h_dec) ; flush(stdout)
         end
 
-        h = h_dec[:,:,2:end]
+        h = h_all[:,:,2:end]
     end
 
     if return_all
