@@ -694,7 +694,7 @@ function (rnn::Recurrent)(x; cell_states=nothing, hidden_states=nothing,
     # otherwise step-by-step loop is needed:
     #
     if isnothing(attn) && isnothing(mask)
-        println("Knet")
+        #println("Knet")
         h = rnn.rnn(x)
     else
         #println("manual")
