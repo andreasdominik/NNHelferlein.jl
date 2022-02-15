@@ -482,22 +482,21 @@ Return an iterator of type `DataLoader` with (x,y) sequence minibatches from
 two lists of sequences.
 
 All sequences within a minibatch in x and y are brought to the same length
-by truncating (if too long)
-or padding with the token provided as `pad`.
+by padding with the token provided as `pad`.
 
 The sequences are sorted by length before building minibatches in order to 
-reduce padding (i.e. sequences of the same length are combined to a minibatch).
-If the same seuence length is requested for all minibatches, the sequences
+reduce padding (i.e. sequences of similar length are combined to a minibatch).
+If the same sequence length is needed for all minibatches, the sequences
 must be truncted or padded before call of `sequence_minibatch()` 
 (see functions `truncate_seqence()` and `pad_sequence()`).
 
 ### Arguments:
 + `x`: List of sequences of `Int`
-+ `y`: List of sequences of `Int` or list of target values (i.r. teaching inpSut)
++ `y`: List of sequences of `Int` or list of target values (i.e. teaching input)
 + `batchsize`: size of minibatches
 + `pad=NNHelferlein.PAD_TOKEN`,
 + `pad_y=x`: token, used for padding. The token must be compatible
-        with the type of the sequence elements. If pad_y is omitted, pad_y is set 
+        with the type of the sequence elements. If `pad_y` is omitted, it is set 
         equal to pad_x.
 + `seq2seq=true`: if `true` and `y` is provided, sequence-to-sequence minibatches are 
         created. Otherwise `y` is treated as scalar teaching input.
