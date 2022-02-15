@@ -723,10 +723,9 @@ function (rnn::Recurrent)(x; c=nothing, h=nothing,
             attn = nothing
         end
         if !isnothing(attn)
-            #attn(;reset=true)
-
             # permute encoder mask to [mb,steps]
             #
+
             if isnothing(mask_enc)
                 mask_enc = convert2KnetArray([0])
             else

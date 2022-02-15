@@ -157,9 +157,9 @@ end
 
 function test_layer_H_rnn()
     depth, seq, units, mb = 16, 5, 8, 10
-    l = Recurrent(depth, units; h=0, c=0)
+    l = Recurrent(depth, units)
     x = convert2KnetArray(rand(depth, seq, mb))
-    y = l(x)
+    y = l(x, h=0, c=0)
 
     h = get_hidden_states(l)
     c = get_cell_states(l)
