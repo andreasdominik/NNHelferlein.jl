@@ -40,13 +40,14 @@ UnPool
 ## Recurrent
 
 ```@docs
+RecurrentUnit
 Recurrent
 get_hidden_states
 get_cell_states
 set_hidden_states!
 set_cell_states!
-reset_hidden_states
-reset_cell_states
+reset_hidden_states!
+reset_cell_states!
 ```
 
 ## Others
@@ -82,7 +83,7 @@ PositionalEncoding
 # Data providers
 
 ```@docs
-DataLoade
+DataLoader
 PartialIterator
 split_minibatches
 ```
