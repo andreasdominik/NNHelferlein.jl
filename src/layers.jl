@@ -622,7 +622,7 @@ steps for all smaples of the minibatch (with model depth as first and samples of
 + `n_units`:  number of units 
 + `u_type` :  unit type can be one of the Knet unit types
         (`:relu, :tanh, :lstm, :gru`) or a type which must be a 
-        subtype of `RecurrentUnit` and fulfill the repective interface 
+        subtype of `RecurrentUnit` and fullfill the repective interface 
         (see the docs for `RecurentUnit`).
 Any keyword argument of `Knet.RNN` or 
 a self-defined `RecurrentUnit` type may be provided.
@@ -630,12 +630,11 @@ a self-defined `RecurrentUnit` type may be provided.
 ### Signatures:
 
     function (rnn::Recurrent)(x; c=nothing, h=nothing, return_all=false, 
-              mask=nothing,
-              attn=nothing, last_a=false, h_enc=nothing, mask_enc=nothing, o...)
+              mask=nothing)
 
 The layer is called either with a 2-dimensional array of the shape
 [fan-in, steps] 
-or a 3-dimensional array of [fan-in, steps, batchsize].    
+or a 3-dimensional array of [fan-in, steps, batchsize].
 
 #### Arguments:
 
@@ -650,37 +649,36 @@ or a 3-dimensional array of [fan-in, steps, batchsize].
     ([units, minibatch]).
 + `mask`: optional mask for the input sequence minibatch of shape 
     [steps, minibatch]. Values in the mask must be 1.0 for masked positions
-    or 0.0 otherwise. Appropriate masks can be generated with the NNHelferlein function 
+    or 0.0 otherwise and of type `Float32` or `KnetArray{Float32}` for GPU context. 
+    Appropriate masks can be generated with the NNHelferlein function 
     `mk_padding_mask()`.
-+ `attn`: optional attention mechanism as object of 
-    type `NNHelferlein.AttentionMechanism`.
-+ `last_a`: if true, the attention weights α of teh last step will be returned 
-    in addition to h.
-+ `h_enc`: hidden states of the encoder for the complete sequence. `h_enc` is used
-    only by the attention mechanism. Attention is possibleonly with the 
-    encoder hidden states.
-+ `masK_enc`: optional mask for the encoder sequence. Attentions factors
-    for masked positions will be set to 0.0.
 
 Bidirectional layers can be constructed by specifying `bidirectional=true`, if
-the unit-type supports it. 
-Please be aware that the actual number of units is twice n_units for 
-    bidirectional layers.
+the unit-type supports it (Knet.RNN does.). 
+Please be aware that the actual number of units is 2*n_units for 
+bidirectional layers and the output dimension is [2*units, steps, mb] or
+[2*units, mb].
 """
 struct Recurrent <: Layer
     n_inputs
     n_units
     unit_type
     rnn
-    Recurrent(n_inputs::Int, n_units::Int; u_type=:lstm, o...) =
-            new(n_inputs, n_units, u_type, 
-                Knet.RNN(n_inputs, n_units; rnnType=u_type, h=0, c=0, o...))
+    has_c
+    function Recurrent(n_inputs::Int, n_units::Int; u_type=:lstm, o...)
+        if u_type isa Symbol 
+            rnn = Knet.RNN(n_inputs, n_units; rnnType=u_type, h=0, c=0, o...)
+        elseif u_type isa RecurrentUnit
+            rnn = u_type(n_inputs, n_units, o...)
+        else
+            rnn = Knet.RNN(n_inputs, n_units; rnnType=:lstm, h=0, c=0, o...)
+        end
+        return new(n_inputs, n_units, u_type, rnn, hasproperty(rnn, :c))
+    end
 end
 
 function (rnn::Recurrent)(x; c=nothing, h=nothing, 
-                          return_all=false, 
-                          attn=nothing, last_a=false, mask=nothing,
-                          h_enc=nothing, mask_enc=nothing)
+                          return_all=false, mask=nothing)
     
     dims = length(size(x))    # x is [fan-in, steps, mb]
     if dims == 3
@@ -692,61 +690,45 @@ function (rnn::Recurrent)(x; c=nothing, h=nothing,
     end
     @assert fanin == rnn.n_inputs "input does not match the fan-in of rnn layer"
 
-    if rnn.rnn.direction == 1 # bidirectional only if no mask and no attn!
-        @assert isnothing(mask) && isnothing(attn) "Bidirectional is only possible without masking and attention"
-    end
-
     x = permutedims(x, (1,3,2))   # make [fanin, mb, steps] for Knet
     
-    if hasproperty(rnn.rnn, :c)
-        rnn.rnn.c = c
-    end
+    # init h and c fields:
+    #
     if !isnothing(h)
         rnn.rnn.h = h
     end
+    if rnn.rnn.h == 0 || rnn.rnn.h == nothing
+        rnn.rnn.h = init0(rnn.n_units, mb, 1)
+    end
 
-    α = init0(1)
+    if rnn.has_c
+        if !isnothing(c)
+            rnn.rnn.c = c
+        end
+        if rnn.rnn.c == 0 || rnn.rnn.c == nothing
+            rnn.rnn.c = init0(rnn.n_units, mb, 1)
+        end
+    end
 
-    # life is easy without masking or attention;
+    # life is easy without masking and if Knet.RNN
     # otherwise step-by-step loop is needed:
     #
-    if rnn.rnn isa Knet.RNN && isnothing(attn) && isnothing(mask)
-        #println("Knet")
+    if rnn.rnn isa Knet.RNN && isnothing(mask)
+        println("Knet")
         h = rnn.rnn(x)
     else
-        #println("manual")
+        println("manual")
         if isnothing(mask)         
             mask = init0(steps, mb)
         end
 
-        if isnothing(h_enc)    # attn only, if h_enc given
-            attn = nothing
-        end
-        if !isnothing(attn)
-            # permute encoder mask to [mb,steps]
-            #
-
-            if isnothing(mask_enc)
-                mask_enc = convert2KnetArray([0])
-            else
-                mask_enc = permutedims(mask_enc, (2,1))
-            end
-            # unbox h_enc to clean tape and
-            # build back h_enc from [units,steps,mb] to [units,mb,steps]:
-            #
-            h_enc = permutedims(value(h_enc), (1,3,2))
-        end
-
         # init h and c with a 0-timestep ... must be removed at the end!
         #
-        h = init0(rnn.n_units, mb, 1)
-        c = init0(rnn.n_units, mb, 1)
+        h = deepcopy(rnn.rnn.h)
+        if rnn.has_c 
+            c = deepcopy(rnn.rnn.c)
+        end
         for i in 1:steps
-
-            if !isnothing(attn)
-                ctx, α = attn(rnn.rnn.h, h_enc, mask=mask_enc)      # ctx is [units, mb], a is [mb, steps]
-                rnn.rnn.h = reshape(ctx, size(ctx)...,1)            # make ctx [unis, mb, 1] (last step)
-            end
 
             h_step = rnn.rnn(reshape(x[:,:,i], fanin, mb, 1))               # run one step only
 
@@ -758,32 +740,24 @@ function (rnn::Recurrent)(x; c=nothing, h=nothing,
             # h_dec unboxed to avoid confusing tape:
             #
             h_step = value(h[:,:,[end]]) .* m_step + h_step .* (1 .- m_step)
-
             rnn.rnn.h = h_step
+            h = cat(h, h_step, dims=3)  
 
-            if rnn.unit_type == :lstm
+            if rnn.has_c
                 c_step = rnn.rnn.c
                 c_step = value(c[:,:,[end]]) .* m_step + c_step .* (1 .-m_step)
                 rnn.rnn.c = c_step
                 c = cat(c, c_step, dims=3)
             end
 
-            h = cat(h, h_step, dims=3)  # TODO: copy(h_step)?
         end
-
-        h = h[:,:,2:end]
+        h = h[:,:,2:end]   # remove 0-timestep
     end
 
     if return_all
         h = permutedims(h, (1,3,2)) # h of all steps: [units, time-steps, mb]
     else
         h = h[:,:,end]     # last h: [units, mb]
-    end
-
-    if last_a
-        return h, α
-    else
-        return h
     end
 end
 
