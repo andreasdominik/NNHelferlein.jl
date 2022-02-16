@@ -714,10 +714,10 @@ function (rnn::Recurrent)(x; c=nothing, h=nothing,
     # otherwise step-by-step loop is needed:
     #
     if rnn.rnn isa Knet.RNN && isnothing(mask)
-        println("Knet")
+        #println("Knet")
         h = rnn.rnn(x)
     else
-        println("manual")
+        #println("manual")
         if isnothing(mask)         
             mask = init0(steps, mb)
         end
