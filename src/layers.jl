@@ -673,6 +673,9 @@ struct Recurrent <: Layer
         else
             rnn = Knet.RNN(n_inputs, n_units; rnnType=:lstm, h=0, c=0, o...)
         end
+        if haskey(o, :bidirectional)
+            n_units *= 2
+        end
         return new(n_inputs, n_units, u_type, rnn, hasproperty(rnn, :c))
     end
 end
@@ -697,17 +700,8 @@ function (rnn::Recurrent)(x; c=nothing, h=nothing,
     if !isnothing(h)
         rnn.rnn.h = h
     end
-    if rnn.rnn.h == 0 || rnn.rnn.h == nothing
-        rnn.rnn.h = init0(rnn.n_units, mb, 1)
-    end
-
-    if rnn.has_c
-        if !isnothing(c)
-            rnn.rnn.c = c
-        end
-        if rnn.rnn.c == 0 || rnn.rnn.c == nothing
-            rnn.rnn.c = init0(rnn.n_units, mb, 1)
-        end
+    if rnn.has_c && !isnothing(c)
+        rnn.rnn.c = c
     end
 
     # life is easy without masking and if Knet.RNN
@@ -718,6 +712,14 @@ function (rnn::Recurrent)(x; c=nothing, h=nothing,
         h = rnn.rnn(x)
     else
         #println("manual")
+        # init h and c fields and mask:
+        #
+        if rnn.rnn.h == 0 || rnn.rnn.h == nothing
+            rnn.rnn.h = init0(rnn.n_units, mb, 1)
+        end
+        if rnn.has_c && (rnn.rnn.c == 0 || rnn.rnn.c == nothing)
+                rnn.rnn.c = init0(rnn.n_units, mb, 1)
+        end
         if isnothing(mask)         
             mask = init0(steps, mb)
         end
