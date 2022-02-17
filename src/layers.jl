@@ -714,10 +714,10 @@ function (rnn::Recurrent)(x; c=nothing, h=nothing,
         #println("manual")
         # init h and c fields and mask:
         #
-        if rnn.rnn.h == 0 || rnn.rnn.h == nothing
+        if rnn.rnn.h == 0 || isnothing(rnn.rnn.h)
             rnn.rnn.h = init0(rnn.n_units, mb, 1)
         end
-        if rnn.has_c && (rnn.rnn.c == 0 || rnn.rnn.c == nothing)
+        if rnn.has_c && (rnn.rnn.c == 0 || isnothing(rnn.rnn.c))
                 rnn.rnn.c = init0(rnn.n_units, mb, 1)
         end
         if isnothing(mask)         
@@ -829,7 +829,6 @@ function get_cell_states(l::Union{Recurrent, Knet.RNN}; unbox=true, flatten=true
             c = value(c)
         end
         if flatten && ndims(c) == 3 && size(c)[3] > 1
-            println("hallo")
             units, mb, bi = size(c)
             c = reshape(permutedims(c, (1,3,2)), units*bi, mb, :)
         end
