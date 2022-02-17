@@ -707,7 +707,7 @@ function (rnn::Recurrent)(x; c=nothing, h=nothing,
     # life is easy without masking and if Knet.RNN
     # otherwise step-by-step loop is needed:
     #
-    if rnn.rnn isa Knet.RNN && isnothing(mask) && false
+    if rnn.rnn isa Knet.RNN && isnothing(mask) 
         #println("Knet")
         h = rnn.rnn(x)
     else
