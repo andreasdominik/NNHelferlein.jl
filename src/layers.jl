@@ -707,7 +707,7 @@ function (rnn::Recurrent)(x; c=nothing, h=nothing,
     # life is easy without masking and if Knet.RNN
     # otherwise step-by-step loop is needed:
     #
-    if rnn.rnn isa Knet.RNN && isnothing(mask)
+    if rnn.rnn isa Knet.RNN && isnothing(mask) && false
         #println("Knet")
         h = rnn.rnn(x)
     else
@@ -724,11 +724,13 @@ function (rnn::Recurrent)(x; c=nothing, h=nothing,
             mask = init0(steps, mb)
         end
 
-        # init h and c with a 0-timestep ... must be removed at the end!
+        # init h and c with a 0-timestep ... 2 steps must be removed at the end!
         #
-        h = deepcopy(rnn.rnn.h)
+        h = init0(rnn.n_units, mb, 1)
+        h = cat(h, rnn.rnn.h, dims=3)
         if rnn.has_c 
-            c = deepcopy(rnn.rnn.c)
+            c = init0(rnn.n_units, mb, 1)
+            c = cat(c, rnn.rnn.c, dims=3)
         end
         for i in 1:steps
 
@@ -753,7 +755,7 @@ function (rnn::Recurrent)(x; c=nothing, h=nothing,
             end
 
         end
-        h = h[:,:,2:end]   # remove 0-timestep
+        h = h[:,:,3:end]   # remove 0-timestep an dkleading zeros
     end
 
     if return_all
