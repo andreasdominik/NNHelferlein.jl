@@ -40,7 +40,8 @@ end
 
 
 """
-    dataframe_minibatches(data::DataFrames.DataFrame; size=256, ignore=[], teaching="y", o...)
+    dataframe_minibatches(data::DataFrames.DataFrame; size=256, ignore=[], teaching="y", 
+                          verbose=1, o...)
 
 Make Knet-conform minibatches of type `Knet.data` from a dataframe
 with one sample per row.
@@ -57,13 +58,15 @@ with one sample per row.
                 order can be created by calling `mk_class_ids(data.y)[2]`.
                 If teaching is a scalar value, regression context is assumed,
                 and the value is used unchanged for training.
++ `verbose=1`: if > 0, a summary of how the dataframe is used is echoed.
 + other keyword arguments: all keyword arguments accepted by
                 `Knet.minibatch()` may be used.
 
 Allowed column definitions for `ignore` and `teaching` include names (as Strings),
 column names (as Symbols) or column indices (as Integer values).
 """
-function dataframe_minibatches(data; size=16, ignore=[], teaching="y", o...)
+function dataframe_minibatches(data; size=16, ignore=[], teaching="y", 
+                               verbose=1, o...)
 
     if !(ignore isa(AbstractArray))
         ignore = [ignore]
@@ -83,12 +86,14 @@ function dataframe_minibatches(data; size=16, ignore=[], teaching="y", o...)
     end
     cols = filter(c->!(c in ignore), names(data))
     
-    println("make minibatches")
-    println("... number of records used:  $(Base.size(data,1))")
-    println("... teaching input y is:     $teaching")
-    println("... number of classes:       $(length(unique(data[!,teaching])))")
-    println("... number of columns used:  $(length(cols))")
-    println("... data columns:            $cols")
+    if verbose > 0
+        println("make minibatches")
+        println("... number of records used:  $(Base.size(data,1))")
+        println("... teaching input y is:     $teaching")
+        println("... number of classes:       $(length(unique(data[!,teaching])))")
+        println("... number of columns used:  $(length(cols))")
+        println("... data columns:            $cols")
+    end
 
     x = convert2KnetArray(data[!,cols])
     x = permutedims(x)
