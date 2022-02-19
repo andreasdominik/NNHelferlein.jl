@@ -52,24 +52,44 @@ with one sample per row.
                 If `Int`, the teaching input is interpreted as
                 class ids and directly used for training (this assumes that
                 the values range from 1..n). If type is a String, values are
-                interpreted as class labels and convertet to numeric class IDs
+                interpreted as class labels and converted to numeric class IDs
                 by calling `mk_class_ids()`. The list of valid lables and their
                 order can be created by calling `mk_class_ids(data.y)[2]`.
                 If teaching is a scalar value, regression context is assumed,
                 and the value is used unchanged for training.
 + other keyword arguments: all keyword arguments accepted by
                 `Knet.minibatch()` may be used.
+
+Allowed column definitions for `ignore` and `teaching` include names (as Strings),
+column names (as Symbols) or column indices (as Integer values).
 """
 function dataframe_minibatches(data; size=16, ignore=[], teaching="y", o...)
 
     if !(ignore isa(AbstractArray))
         ignore = [ignore]
     end
+    if eltype(ignore) <: Int
+        ignore = names(data)[ignore]
+    elseif eltype(ignore) <: Symbol
+        ignore = String.(ignore)
+    end
     if !isnothing(teaching)
+        if teaching isa Int
+            teaching = names(data)[teaching]
+        elseif teaching isa Symbol
+            teaching = String(teaching)
+        end
         push!(ignore, teaching)
     end
-    ignore = String.(ignore)
     cols = filter(c->!(c in ignore), names(data))
+    
+    println("make minibatches")
+    println("... number of records used:  $(Base.size(data,1))")
+    println("... teaching input y is:     $teaching")
+    println("... number of classes:       $(length(unique(data[!,teaching])))")
+    println("... number of columns used:  $(length(cols))")
+    println("... data columns:            $cols")
+
     x = convert2KnetArray(data[!,cols])
     x = permutedims(x)
 
