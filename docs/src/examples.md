@@ -35,6 +35,11 @@ All examples are at [GitHub/examples](https://github.com/andreasdominik/NNHelfer
   Simple s2s network to demonstrate how to setup macghine translation with 
   a rnn.
 
++ [`Sequence-to-sequence RNN for machine translation`]
+  (https://github.com/andreasdominik/NNHelferlein.jl/blob/main/examples/61-RNN_bi_attn.ipynb):
+  RNN to demonstrate how to setup machine translation with 
+  a bidirectional encoder RNN and attention.
+
 
 + [`Pretrained VGG16`]
   (https://github.com/andreasdominik/NNHelferlein.jl/blob/main/examples/70-pretrained_vgg.ipynb):
