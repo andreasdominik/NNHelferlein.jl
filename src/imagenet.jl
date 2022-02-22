@@ -57,8 +57,7 @@ Return a list of all 1000 ImageNet class labels.
 """
 function get_imagenet_classes()
 
-    IMAGENET_CLASSES = joinpath(@__DIR__, "..",
-                             "data", "imagenet", "classes.txt")
+    IMAGENET_CLASSES = joinpath(NNHelferlein.DATA_DIR, "imagenet", "classes.txt")
 
     if isfile(IMAGENET_CLASSES)
         classes = readlines(IMAGENET_CLASSES)
