@@ -610,7 +610,8 @@ function mk_seq_mb(x, pad)
     l = maximum(length.(x))
     x = pad_sequence.(x, l, token=pad)
 
-    return hcat(x...)
+    # return hcat(x...)
+    return cat(x..., dims=ndims(x[1])+1)
 end
 
 
