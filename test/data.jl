@@ -100,10 +100,10 @@ function test_seq_mb_xy()
          tok("Peter loves Python", split_words=true),
          tok("Peter loves Julia and Scala", split_words=true)]
 
-    y = [1 1 2]
+    y = [1,1,2]
     mb = sequence_minibatch(t, y, 2, partial=true, shuffle=false)
     o = [m[1] for m in mb]
-    return first(mb)[2] == [1 1] && length(o) == 2
+    return first(mb)[2] == [1;1] && length(o) == 2
 end
 
 function test_pad()

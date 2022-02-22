@@ -590,7 +590,8 @@ function one_mb(x, y, seq2seq, idx, i, j, pad, pad_y)
                 ymb = convert2KnetArray(ymb)
             end
         else
-            ymb = y[idx[i:j]]
+            #ymb = y[idx[i:j]]
+            ymb = cat(y[idx[i:j]]..., dims=ndims(y[i])+1)
             if eltype(ymb) <: AbstractFloat
                 ymb = convert2KnetArray(ymb)
             end
