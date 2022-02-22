@@ -4,7 +4,7 @@ import Pkg; Pkg.add("Augmentor"); using Augmentor
 
 function test_image_loader()
     augm = CropSize(28,28)
-    trn, vld = mk_image_minibatch("../data/flowers",
+    trn, vld = mk_image_minibatch(joinpath("data", "flowers"),
                 4; split=true, fr=0.2,
                 balanced=true, shuffle=true,
                 train=true,
@@ -18,7 +18,7 @@ end
 
 
 function test_image_preload()
-    tst = mk_image_minibatch("../data/flowers",
+    tst = mk_image_minibatch(joinpath("data", "flowers"),
                 4; split=false, fr=0.2,
                 balanced=false, shuffle=false,
                 train=false, pre_load=true,
@@ -29,7 +29,7 @@ end
 
 
 function test_image2arr()
-        img = load("../data/elecat/cat.jpg")
+        img = load(joinpath("data", "elecat", "cat.jpg"))
         x = image2array(img)
         return size(x) == (1024, 1001, 3) && eltype(x) == Float32
 end

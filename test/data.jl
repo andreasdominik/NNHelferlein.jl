@@ -5,7 +5,7 @@ using DataFrames
 # dataframes:
 #
 function test_read_df()
-    df = dataframe_read("../data/iris/iris150.csv")
+    df = dataframe_read(joinpath("data", "iris150.csv"))
     return nrow(df) == 150
 end
 
@@ -37,20 +37,20 @@ end
 
 
 function test_df_split()
-    df = dataframe_read("../data/iris/iris150.csv")
+    df = dataframe_read(joinpath("data", "iris150.csv"))
     t,v = dataframe_split(df, fr=0.5, shuffle=true,
           teaching="species", balanced=true)
     return nrow(v) == 75
 end
 
 function test_df_class_ids()
-    df = dataframe_read("../data/iris/iris150.csv")
+    df = dataframe_read(joinpath("data", "iris150.csv"))
     c = mk_class_ids(df.species)
     return c[2] == ["setosa", "versicolor", "virginica"]
 end
 
 function test_df_minibatch()
-    df = dataframe_read("../data/iris/iris150.csv")
+    df = dataframe_read(joinpath("data", "iris150.csv"))
     mb = dataframe_minibatches(df, size=10, teaching="species")
     return size(first(mb)[1]) == (4,10)
 end

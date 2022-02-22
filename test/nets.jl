@@ -6,7 +6,7 @@ using DataFrames
 function test_lenet()
 
     augm = CropSize(28,28)
-    trn, vld = mk_image_minibatch("../data/flowers",
+    trn, vld = mk_image_minibatch(joinpath("data", "flowers"),
                 4; split=true, fr=0.2,
                 balanced=false, shuffle=true,
                 train=true,
@@ -33,7 +33,7 @@ function test_lenet()
 
     acc = accuracy(mdl, data=vld)
 
-    tst = mk_image_minibatch("../data/flowers",
+    tst = mk_image_minibatch(joinpath("data", "flowers"),
                 4; split=false, fr=0.2,
                 balanced=false, shuffle=true,
                 train=false,

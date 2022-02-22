@@ -20,7 +20,7 @@ function test_layer_pred()
 end
 
 function test_dense_hdf5()
-    h5file = h5open("../data/testdata/dummykeras.h5")
+    h5file = h5open(joinpath("data", "testdata","dummykeras.h5"))
     l = Dense(h5file, "dense", trainable=true)
 
     i,o,mb = 3136, 128, 16
@@ -47,7 +47,7 @@ function test_layer_conv()
 end
 
 function test_conv_hdf5()
-    h5file = h5open("../data/testdata/dummykeras.h5")
+    h5file = h5open(joinpath("data", "testdata","dummykeras.h5"))
     l = Conv(h5file, "conv2d", trainable=true) # 3x3x16, inp: 28x28x1
     x = convert2KnetArray(rand(Float32, 28,28,1,8))
     y = l(x)
