@@ -11,6 +11,5 @@ data/Tatoeba
 test/logs
 codecov.token
 logs
-data
 .vscode
 try
