@@ -33,6 +33,7 @@ include("dataframes.jl")
 include("texts.jl")
 include("train.jl")
 include("imagenet.jl")
+include("data.jl")
 
 
 DATA_DIR = normpath(joinpath(dirname(pathof(@__MODULE__)), "..", "data"))
@@ -78,6 +79,6 @@ export DNN, Classifier, Regressor, Chain, VAE,          # chains
        blowup_array, recycle_array,
        de_embed,
        print_network,
-       DATA_DIR
+       DATA_DIR, download_example_data, download_pretrained
 
 end # module
