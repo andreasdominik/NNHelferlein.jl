@@ -23,6 +23,9 @@ It is assumed that peaks in `y` are marked by a single value
 higher as the limit (typically 1.0). Peaks in `p` may be 
 broader; and are defined as local maxima with a value above
 the limit.
+If the tolerance ist set to >0, it may happen that the peaks at the first 
+or last step are not evaluated (because evaluation stopss at 
+`end-tolerance`).
 
 If requested, *f1*, *G-mean* and *intersection over union* 
 are calulated from the raw values .
@@ -121,7 +124,9 @@ end
 function peak_finder_acc(mdl; data=data, o...)
 
     acc = []
+    i = 1
     for (x,y) in data
+        println("running $i") ; i += 1
         p = mdl(x)
         push!(acc, peak_finder_acc(p, y; o...))
     end
