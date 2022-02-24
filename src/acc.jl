@@ -93,28 +93,6 @@ function peak_finder_acc(p, t; ret=:f1, verbose=0,
             end
         end
     end
-    ## for mb in 1:size(t,2)
-    ##     len = minimum((length(p[:,mb]), length(t[:,mb])))
-    ##     for i in 1+tolerance:len-tolerance
-
-    ##         # find FN:
-    ##         #
-    ##         if t[i,mb] > limit  # peak in y
-    ##             peaks += 1
-    ##             if maximum(p[i-tolerance:i+tolerance,mb]) >= limit  # peak in p
-    ##                 tp += 1
-    ##             else
-    ##                 fn += 1
-    ##             end
-    ##         end
-
-    ##         if p[i,mb] > limit && p[i,mb] > p[i-1,mb] && p[i,mb] > p[i+1,mb] # local maximum > limit
-    ##             if maximum(t[i-tolerance:i+tolerance,mb]) < limit
-    ##                 fp += 1
-    ##             end
-    ##         end
-    ##     end
-    ## end
 
     recall = tp / ( tp+fn)
     precision = tp / (tp+fp)
