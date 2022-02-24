@@ -528,8 +528,13 @@ function sequence_minibatch(x, y, batchsize;
 
 
     # sort seqs by length (of input):
+    # only if shuffle!
     #
-    idx = sortperm(length.(x))
+    if shuffle 
+        idx = sortperm(length.(x))
+    else
+        idx = collect(1:length(x))
+    end
 
     i = 1
     xmbs = []
