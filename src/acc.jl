@@ -126,7 +126,7 @@ function peak_finder_acc(mdl; data=data, o...)
     acc = []
     i = 1
     for (x,y) in data
-        println("running $i") ; i += 1
+        println("running $i") ; flush(stdout); i += 1
         p = mdl(x)
         push!(acc, peak_finder_acc(p, y; o...))
     end
