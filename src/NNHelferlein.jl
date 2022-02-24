@@ -68,6 +68,7 @@ export DNN, Classifier, Regressor, Chain, VAE,          # chains
        tb_train!,
        predict_top5, predict_imagenet,
        predict, hamming_dist, hamming_acc,
+       peak_finder_acc,
        get_imagenet_classes,                    # images
        image2array, array2image, array2RGB,
        clean_sentence, WordTokenizer,                    # texts
