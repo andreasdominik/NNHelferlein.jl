@@ -31,8 +31,10 @@ If requested, *f1*, *G-mean* and *intersection over union*
 are calulated from the raw values .
 
 ### Arguments:
-+ `p`, `t`: Predictions and teaching input (i.e. `y`) are 1-d series
-            of data 
++ `p`, `t`: Predictions and teaching input (i.e. `y`) are mini-batches of
+            1-d series of data. The sequence must be in the 1st dimension
+            (column). All other dims are treated as separate windows
+            of length size(p/t,1).
 + `ret`: return value as `Symbol`; one of 
         `:peaks`, `:recall`, `:precision`, `:miss_rate`, `:f1`,
         `:g_mean`, `:iou` or `:all`.
@@ -47,31 +49,72 @@ are calulated from the raw values .
 function peak_finder_acc(p, t; ret=:f1, verbose=0, 
                                tolerance=1, limit=0.5)
 
-    len = minimum((length(p), length(t)))
     peaks = 0
+    pred_peaks = 0
     tp = 0
     fp = 0
     fn = 0
 
-    for i in 1+tolerance:len-tolerance
+    p = Array(reshape(p, size(p, 1), :))
+    t = reshape(t, size(t, 1), :)
+    len = minimum((size(p,1), size(t,1)))
 
-        # find FN:
+    for mb in 1:size(t,2)
+        
+        t_peaks = findall(x->x>=limit, t[:,mb])
+        p_peaks = findall(x->x>=limit, p[:,mb])
+
+        # find TP and FN:
         #
-        if t[i] > limit  # peak in y
-            peaks += 1
-            if maximum(p[i-tolerance:i+tolerance]) >= limit  # peak in p
-                tp += 1
-            else
-                fn += 1
+        for i in t_peaks
+            if i > tolerance && i <= len-tolerance  # do not consider the border 
+                peaks += 1
+                if maximum(p[i-tolerance:i+tolerance,mb]) >= limit  # peak in p
+                    tp += 1
+                else
+                    fn += 1
+                end
             end
         end
 
-        if p[i] > limit && p[i] > p[i-1] && p[i] > p[i+1] # local maximum > limit
-            if maximum(t[i-tolerance:i+tolerance]) < limit
-                fp += 1
+        # find FP:
+        #
+        for i in p_peaks
+            if i > tolerance && i <= len-tolerance  # do not consider the border 
+                
+                # check if point is maximum and t-peak is in range:
+                #
+                if p[i,mb] > p[i-1,mb] && p[i,mb] > p[i+1,mb]
+                    pred_peaks += 1
+                    if maximum(t[i-tolerance:i+tolerance,mb]) < limit
+                        fp += 1
+                    end
+                end
             end
         end
     end
+    ## for mb in 1:size(t,2)
+    ##     len = minimum((length(p[:,mb]), length(t[:,mb])))
+    ##     for i in 1+tolerance:len-tolerance
+
+    ##         # find FN:
+    ##         #
+    ##         if t[i,mb] > limit  # peak in y
+    ##             peaks += 1
+    ##             if maximum(p[i-tolerance:i+tolerance,mb]) >= limit  # peak in p
+    ##                 tp += 1
+    ##             else
+    ##                 fn += 1
+    ##             end
+    ##         end
+
+    ##         if p[i,mb] > limit && p[i,mb] > p[i-1,mb] && p[i,mb] > p[i+1,mb] # local maximum > limit
+    ##             if maximum(t[i-tolerance:i+tolerance,mb]) < limit
+    ##                 fp += 1
+    ##             end
+    ##         end
+    ##     end
+    ## end
 
     recall = tp / ( tp+fn)
     precision = tp / (tp+fp)
@@ -82,6 +125,7 @@ function peak_finder_acc(p, t; ret=:f1, verbose=0,
     iou = tp / (tp + fp + fn)
     
     r = (peaks = peaks,
+        pred_peaks = pred_peaks,
         recall = recall,
         precision = precision,
         miss_rate = miss_rate,
@@ -92,6 +136,7 @@ function peak_finder_acc(p, t; ret=:f1, verbose=0,
 
     if verbose > 2
         println("Number of Peaks: $peaks")
+        println("Predicted Peaks: $pred_peaks")
         println("True Positives:  $tp")
         println("False Positives: $fp")
         println("False Negatives: $fn")
@@ -126,7 +171,6 @@ function peak_finder_acc(mdl; data=data, o...)
     acc = []
     i = 1
     for (x,y) in data
-        println("running $i") ; flush(stdout); i += 1
         p = mdl(x)
         push!(acc, peak_finder_acc(p, y; o...))
     end
