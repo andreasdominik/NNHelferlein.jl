@@ -32,6 +32,7 @@ include("images.jl")
 include("dataframes.jl")
 include("texts.jl")
 include("train.jl")
+include("acc.jl")
 include("imagenet.jl")
 include("data.jl")
 
