@@ -44,7 +44,7 @@ are calulated from the raw values .
 function peak_finder_acc(p, t; ret=:f1, verbose=0, 
                                tolerance=1, limit=0.5)
 
-    len = minimum((length(p), length(y)))
+    len = minimum((length(p), length(t)))
     peaks = 0
     tp = 0
     fp = 0
