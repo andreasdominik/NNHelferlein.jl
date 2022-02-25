@@ -55,7 +55,6 @@ function peak_finder_acc(p, t; ret=:f1, verbose=0,
     fp = 0
     fn = 0
 
-    println("bla")
     if p isa KnetArray
         p = Array(p)
     end
@@ -91,7 +90,7 @@ function peak_finder_acc(p, t; ret=:f1, verbose=0,
                 
                 # check if point is maximum and t-peak is in range:
                 #
-                if p[i,mb] > p[i-1,mb] && p[i,mb] > p[i+1,mb]
+                if p[i,mb] >= maximum(p[i-tolerance:i+tolerance,mb])
                     pred_peaks += 1
                     if maximum(t[i-tolerance:i+tolerance,mb]) < limit
                         fp += 1
