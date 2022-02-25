@@ -133,7 +133,7 @@ function test_seq2seq_mb()
      vglg = WordTokenizer(glg)
      mb = sequence_minibatch(ven.(en, split_words=true),
             vglg.(glg, split_words=true),
-            32)
+            32, shuffle=true)
 
     mb1 = first(mb)
     return mb1 isa Tuple
