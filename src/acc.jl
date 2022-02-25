@@ -47,7 +47,7 @@ are calulated from the raw values .
 + `limit=0.5`: Only maxima with values above the limit are considered.
 """
 function peak_finder_acc(p, t; ret=:f1, verbose=0, 
-                               tolerance=1, limit=0.5)
+                               tolerance=2, limit=0.5)
 
     peaks = 0
     pred_peaks = 0
@@ -55,7 +55,14 @@ function peak_finder_acc(p, t; ret=:f1, verbose=0,
     fp = 0
     fn = 0
 
-    p = Array(reshape(p, size(p, 1), :))
+    println("bla")
+    if p isa KnetArray
+        p = Array(p)
+    end
+    if t isa KnetArray
+        t = Array(t)
+    end
+    p = reshape(p, size(p, 1), :)
     t = reshape(t, size(t, 1), :)
     len = minimum((size(p,1), size(t,1)))
 
