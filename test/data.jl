@@ -159,3 +159,21 @@ function test_noiser()
     
     return i == length(noise) && isapprox(s, 1, atol=0.1)
 end
+
+
+
+function test_split_mbs()
+    x = ones(Float32, 64, 1000)
+    y = rand(1:10, 1000)
+    mbs = minibatch(x, y, 128)
+    
+    dtrn, dvld = split_minibatches(mbs, 0.8)
+    tl1 = length(dtrn)    # 6
+    vl1 = length(dvld)    # 1
+
+    dtrn, dvld = split_minibatches(mbs, 0.0)
+    tl2 = length(dtrn)    # 0
+    vl2 = length(dvld)    # 7
+    
+    return tl1 == 6 && vl1 == 1 && tl2 == 0 && vl2 == 7
+end

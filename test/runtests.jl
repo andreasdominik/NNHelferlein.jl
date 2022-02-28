@@ -33,6 +33,7 @@ using Statistics: mean
 @test test_df_minibatch()
 @test test_df_errors()
 @test test_noiser()
+@test test_split_mbs()
 
 # image loader:
 #
