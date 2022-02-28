@@ -91,6 +91,8 @@ using Statistics: mean
 @show include("acc.jl")
 @test test_peak_finder()
 @test test_peak_finder_acc()
+@test test_hamming()
+@test test_hamming_acc()
 
 
 # utils:
@@ -119,7 +121,6 @@ using Statistics: mean
 
 @test test_vae()
 
-@test test_hamming()
 
 @test test_summary()
 @test test_print()

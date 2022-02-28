@@ -28,3 +28,44 @@ function test_peak_finder_acc()
 end
 
 
+
+function test_hamming()
+
+        p = [0  0  0  0  0
+             4  4  3  4  5
+             2  2  2  2  5
+             1  3  1  3  3
+             0  0  0  0  0]
+        t = [0  0  0  0  0
+             4  4  5  3  4
+             3  1  2  4  4
+             2  5  5  4  2
+             0  0  0  0  0]
+
+        acc = hamming_dist(p,t)
+        hd = hamming_acc(p,t)
+
+       return isapprox(acc, 0.6, atol=0.05) && isapprox(hd, 0.77, atol=0.05)
+end
+
+
+function test_hamming_acc()
+
+        p = [0  0  0  0  0
+             4  4  3  4  5
+             2  2  2  2  5
+             1  3  1  3  3
+             0  0  0  0  0]
+        t = [0  0  0  0  0
+             4  4  5  3  4
+             3  1  2  4  4
+             2  5  5  4  2
+             0  0  0  0  0]
+
+        d = [(p,t), (p,t)]
+        mdl(x) = x
+
+        acc = hamming_acc(mdl, data=d)
+        
+       return isapprox(acc, 0.76, atol=0.1)
+end
