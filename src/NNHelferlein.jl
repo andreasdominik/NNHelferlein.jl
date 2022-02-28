@@ -42,6 +42,7 @@ DATA_DIR = normpath(joinpath(dirname(pathof(@__MODULE__)), "..", "data"))
 export DNN, Classifier, Regressor, Chain, VAE,          # chains
        DataLoader, SequenceData, PartialIterator,
        RecurrentUnit,
+       add_layer,
        split_minibatches,
        ImageLoader, preproc_imagenet,
        get_class_labels,

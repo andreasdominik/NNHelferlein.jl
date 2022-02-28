@@ -35,7 +35,7 @@ Classifier with nll loss.
 """
 struct Classifier <: DNN
     layers
-    Classifier(layers...) = new(layers)
+    Classifier(layers...) = new(Any[layers...])
 end
 (m::Classifier)(x,y) = Knet.nll(m(x), y)
 
@@ -53,7 +53,7 @@ Regression network with square loss.
 """
 struct Regressor <: DNN
     layers
-    Regressor(layers...) = new(layers)
+    Regressor(layers...) = new(Any[layers...])
 end
 (m::Regressor)(x,y) = sum(abs2, m(x) .- y)
 
@@ -67,8 +67,17 @@ Simple wrapper to chain layers and execute them one after another.
 """
 struct Chain <: DNN
     layers
-    Chain(layers...) = new(layers)
+    Chain(layers...) = new(Any[layers...])
 end
+
+# sequencial interface:
+#
+import Base: push!
+push!(n::NNHelferlein.DNN, l) = push!(n.layers, l)
+add_layer(n::NNHelferlein.DNN, l) = push!(n.layers, l)
+
+
+
 
 
 
