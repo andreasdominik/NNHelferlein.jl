@@ -55,10 +55,10 @@ function peak_finder_acc(p, t; ret=:f1, verbose=0,
     fp = 0
     fn = 0
 
-    if p isa KnetArray
+    if p isa KnetArray || p isa CuArray
         p = Array(p)
     end
-    if t isa KnetArray
+    if t isa KnetArray || p isa CuArray
         t = Array(t)
     end
     p = reshape(p, size(p, 1), :)

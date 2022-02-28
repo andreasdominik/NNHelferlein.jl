@@ -219,7 +219,7 @@ function (vae::VAE)(x, y=nothing)
     #
     ζ = randn(Float32, size(μ))
     if CUDA.functional()
-        ζ = KnetArray(ζ)
+        ζ = convert2KnetArray(ζ)
     end
     
     x = μ .+ ζ .* σ

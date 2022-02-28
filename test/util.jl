@@ -17,7 +17,7 @@ function test_convertKA()
     x = convert2KnetArray(x)
 
     if CUDA.functional()
-        return x isa Knet.KnetArray{Float32}
+        return x isa Knet.KnetArray{Float32} || x isa CuArray
     else
         return x isa Array{Float32}
     end

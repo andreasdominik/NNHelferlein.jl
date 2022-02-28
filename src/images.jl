@@ -201,9 +201,7 @@ function mk_image_mb(il, mb_start, mb_size)
     mb_i = cat(read_one_image.(image_ns, Ref(il))..., dims=4)
     mb_y = UInt8.(il.i_classes[image_ns])
 
-    if CUDA.functional()
-        mb_i = KnetArray(mb_i)
-    end
+    mb_i = convert2KnetArray(mb_i)
 
     if il.train
         return mb_i, mb_y
@@ -324,9 +322,7 @@ function image2array(img)
 
     arr = Float32.(permutedims(ch, (3,2,1)))
 
-    if CUDA.functional()
-        arr = KnetArray(arr)
-    end
+    arr = convert2KnetArray(arr)
 
     return arr
 end

@@ -79,31 +79,45 @@ julia> init0(2,10)
 function init0(siz...)
 
     x = zeros(Float32, siz...)
-
-    if CUDA.functional()
-        return Knet.KnetArray(x)
-    else
-        return x
-    end
+    return convert2KnetArray(x)
 end
 
 
 
 
 
+# """
+#     function convert2KnetArray(x, innerType=Float32)
+# 
+# Convert an array `x` to a `KnetArray{Float32}` or whatever specified as innerType
+# only in GPU context
+# (if `CUDA.functional()`) or to an `Array{Float32}` otherwise.
+# """
+# function convert2KnetArray(x, innerType=Float32)
+# 
+#     # check if GPU and accept all type of Array-like x:
+#     #
+#     if CUDA.functional()
+#         return Knet.KnetArray{innerType}(Array(x))
+#     else
+#         return Array{innerType}(x)
+#     end
+# end
+
 """
     function convert2KnetArray(x, innerType=Float32)
 
-Convert an array `x` to a `KnetArray{Float32}` or whatever specified as innerType
+Convert an array `x` to a `CuArray{Float32}` or whatever specified as innerType
 only in GPU context
 (if `CUDA.functional()`) or to an `Array{Float32}` otherwise.
+By converting, the data is copied to the GPU.
 """
 function convert2KnetArray(x, innerType=Float32)
 
     # check if GPU and accept all type of Array-like x:
     #
     if CUDA.functional()
-        return Knet.KnetArray{innerType}(Array(x))
+        return CuArray{innerType}(Array(x))
     else
         return Array{innerType}(x)
     end
@@ -113,7 +127,7 @@ end
 """
     function emptyKnetArray(size...=(0,0);innerType=Float32)
     
-Return an empty KnetArray with the specified dimensions. The 
+Return an empty CuArray with the specified dimensions. The 
 array may be empty (i.e. one dimension 0) or elements will be undefined.
 
 By default an empty matrix is returned.
@@ -133,7 +147,7 @@ By default an empty matrix is returned.
 function emptyKnetArray(size...=(0,0);innerType=Float32)
 
     if CUDA.functional()
-        return KnetArray{innerType}(undef, size...)
+        return CuArray{innerType}(undef, size...)
     else
         return Array{innerType}(undef, size...)
     end

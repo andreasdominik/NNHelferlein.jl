@@ -44,10 +44,9 @@ function Dense(h5::HDF5.File, kernel::String, bias::String; trainable=false, act
     w = read(h5, kernel)
     b = read(h5, bias)
 
-    if CUDA.functional()
-        w = KnetArray(w)
-        b = KnetArray(b)
-    end
+    w = convert2KnetArray(w)
+    b = convert2KnetArray(b)
+
     if trainable
         w = Param(w)
         b = Param(b)
@@ -163,10 +162,9 @@ function Conv(h5::HDF5.File, kernel::String, bias::String; trainable=false, actf
     b = read(h5, bias)
     b = reshape(b, 1,1,:,1)
 
-    if CUDA.functional()
-        w = KnetArray(w)
-        b = KnetArray(b)
-    end
+        w = convert2KnetArray(w)
+        b = convert2KnetArray(b)
+
     if trainable
         w = Param(w)
         b = Param(b)
@@ -535,10 +533,6 @@ function init_bn_params(x)
         channels = 0
     end
     p = Knet.bnparams(Float32, channels)
-    # p = KnetArray(p)
-    # if !(p isa Param)
-    #     p = Param(p)
-    # end
     return p
 end
 
