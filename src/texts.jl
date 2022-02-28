@@ -649,58 +649,58 @@ end
 
 
 
-"""
-    function prepare_nlp_corpus(source, target; 
-                batchsize=128, seq_len=14, 
-                vocab_size=nothing, split=0.1)
-
-Prepare a dataset for training from two lists of sentences in different
-languages.
-The function creates the vocabs and datasets of sequence-to-sequence minibatches
-for training and validation.
-Training data sentences are shuffled.
-
-### Arguments:
-+ `source, target`: Lists of sentences (as Strings) for source and target 
-            language. List entries must correspond.
-+ `batchsize`: Size of the minibatches.
-+ `seq_len`: Sequence length. Short sequences are padded with the `<end>`-token;
-        long sequences are truncated.
-+ `vocab_size`: Maximum size of vocab. If `nothing`, all words are included; i.e.
-            the vocab size equals teh number of different words in the datasets.
-+ `split`: Ratio to split training and validation data.
-
-### Values:
-
-4 result objects are returned: source_vocab, target_vocab, train, valid.    
-
-"""
-function prepare_nlp_corpus(source, target; 
-            batchsize=128, seq_len=14, 
-            vocab_size=nothing, split=0.1)
-
-    source = clean_sentence.(source)
-    target = clean_sentence.(target)
-    
-    src_vocab = WordTokenizer(source, len=vocab_size)
-    trg_vocab = WordTokenizer(target, len=vocab_size)
-    
-    src_seqs = src_vocab(source, add_ctls=true)
-    trg_seqs = trg_vocab(target, add_ctls=true)
-    
-    vld_num = Int(round(length(src_seqs) * split))
-    vld_ids = sort(sample(1:length(src_seqs), vld_num, replace=false))
-    
-    src_vld = src_seqs[vld_ids]
-    trg_vld = trg_seqs[vld_ids]
-    
-    src_trn = deleteat!(src_seqs, vld_ids)
-    trg_trn = deleteat!(trg_seqs, vld_ids)
-    
-    trn = seq2seq_minibatch(src_trn, trg_trn, batchsize, shuffle=true, seq_len=seq_len, 
-        pad_x=src_vocab("<end>"), pad_y=trg_vocab("<end>"))
-    vld = seq2seq_minibatch(src_vld, trg_vld, batchsize, shuffle=false, seq_len=seq_len, 
-        pad_x=src_vocab("<end>"), pad_y=trg_vocab("<end>"))
-    
-    return src_vocab, trg_vocab, trn, vld
-end 
+# """
+#     function prepare_nlp_corpus(source, target; 
+#                 batchsize=128, seq_len=14, 
+#                 vocab_size=nothing, split=0.1)
+# 
+# Prepare a dataset for training from two lists of sentences in different
+# languages.
+# The function creates the vocabs and datasets of sequence-to-sequence minibatches
+# for training and validation.
+# Training data sentences are shuffled.
+# 
+# ### Arguments:
+# + `source, target`: Lists of sentences (as Strings) for source and target 
+#             language. List entries must correspond.
+# + `batchsize`: Size of the minibatches.
+# + `seq_len`: Sequence length. Short sequences are padded with the `<end>`-token;
+#         long sequences are truncated.
+# + `vocab_size`: Maximum size of vocab. If `nothing`, all words are included; i.e.
+#             the vocab size equals teh number of different words in the datasets.
+# + `split`: Ratio to split training and validation data.
+# 
+# ### Values:
+# 
+# 4 result objects are returned: source_vocab, target_vocab, train, valid.    
+# 
+# """
+# function prepare_nlp_corpus(source, target; 
+#             batchsize=128, seq_len=14, 
+#             vocab_size=nothing, split=0.1)
+# 
+#     source = clean_sentence.(source)
+#     target = clean_sentence.(target)
+#     
+#     src_vocab = WordTokenizer(source, len=vocab_size)
+#     trg_vocab = WordTokenizer(target, len=vocab_size)
+#     
+#     src_seqs = src_vocab(source, add_ctls=true)
+#     trg_seqs = trg_vocab(target, add_ctls=true)
+#     
+#     vld_num = Int(round(length(src_seqs) * split))
+#     vld_ids = sort(sample(1:length(src_seqs), vld_num, replace=false))
+#     
+#     src_vld = src_seqs[vld_ids]
+#     trg_vld = trg_seqs[vld_ids]
+#     
+#     src_trn = deleteat!(src_seqs, vld_ids)
+#     trg_trn = deleteat!(trg_seqs, vld_ids)
+#     
+#     trn = seq2seq_minibatch(src_trn, trg_trn, batchsize, shuffle=true, seq_len=seq_len, 
+#         pad_x=src_vocab("<end>"), pad_y=trg_vocab("<end>"))
+#     vld = seq2seq_minibatch(src_vld, trg_vld, batchsize, shuffle=false, seq_len=seq_len, 
+#         pad_x=src_vocab("<end>"), pad_y=trg_vocab("<end>"))
+#     
+#     return src_vocab, trg_vocab, trn, vld
+# end 
