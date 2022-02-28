@@ -114,6 +114,7 @@ using Statistics: mean
 # test Conv, Dense and tb_train():
 #
 @show include("nets.jl")
+@test test_symbolic_api()
 @test test_lenet()
 @test test_mlp()
 @test test_signatures()

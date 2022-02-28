@@ -72,9 +72,10 @@ end
 
 # sequencial interface:
 #
-import Base: push!
+import Base: push!, length
 push!(n::NNHelferlein.DNN, l) = push!(n.layers, l)
 add_layer(n::NNHelferlein.DNN, l) = push!(n.layers, l)
+length(n::NNHelferlein.DNN) = length(n.layers)
 
 
 

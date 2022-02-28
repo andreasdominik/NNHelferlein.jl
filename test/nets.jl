@@ -157,3 +157,21 @@ function test_decay_cp()
         return acc isa Real
 end
 
+
+# test apis:
+#
+function test_symbolic_api()
+    ch = Chain(sqrt,
+                sqrt)
+    l1 = length(ch)   # = 2
+
+    nnc = Classifier()
+    add_layer(nnc, sqrt)
+
+    nnr = Regressor(sqrt, ch)
+
+    return l1 == 2 &&
+            ch(16) ≈ 2.0 &&
+            nnc(16) ≈ 4.0 &&
+            nnr(16) ≈ 1.41421356237
+end
