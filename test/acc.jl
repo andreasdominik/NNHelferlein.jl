@@ -24,7 +24,7 @@ function test_peak_finder_acc()
 
     mdl(x) = x
     f1 = peak_finder_acc(mdl, data=d)
-    return f1 #≈ 2/3 
+    return f1 ≈ 2/3 
 end
 
 
