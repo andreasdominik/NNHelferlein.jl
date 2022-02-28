@@ -363,107 +363,107 @@ end
 # 
 # deprecated seq minibatch!
 #
-"""
-    function seq_minibatch(x, [y,] batchsize; 
-                           seq_len=nothing, pad=3, o...)
-
-Return an iterator of type `Knet.Data` with sequence minibatches from a
-list of sequences.
-all
-keyword args of [`Knet.minibatch()`](https://denizyuret.github.io/Knet.jl/latest/reference/#Knet.Train20.minibatch) can be used.
-
-All sequences in x are brought to the same length by truncating (if too long)
-or padding with the token provided as `pad`.
-
-If `y` is defined, the minibatches include the sequences for x and
-training targets `y`, given as n-dimensional array (as for `Knet.minibach()`).
-For sequence-2-sequence minibatches the function `seq2seq_minibatch()`
-must be used.
-
-### Arguments:
-+ `x`: An iterable object of sequences.
-+ `y`: vector or array with training targets
-+ `batchsize`: size of minibatches
-+ `seq_len=nothing`: demanded length of sequences in the minibatches.
-        If `nothing`, all sequences are padded to match with the longest
-        sequence.
-+ `pad=3`: token, used for padding. The default (3) is the token set by
-        the `WordRTokenizer`. The token must be compatible
-        with the type of the sequence elements.
-+ `o...`: any other keyword arguments of `Knet.minibatch()`, such as
-        `shuffle=true` or `partial=true` can be provided.
-"""
-function seq_minibatch(x, y, batchsize; seq_len=nothing, pad=3, o...)
-
-    if isnothing(seq_len)
-        seq_len = maximum(length.(x))
-    end
-
-    x = pad_sequences(x, seq_len, pad)
-    return Knet.minibatch(x, y, batchsize; o...)
-end
-
-
-function seq_minibatch(x, batchsize; seq_len=nothing, pad=0, o...)
-
-    if isnothing(seq_len)
-        seq_len = maximum(length.(x))
-    end
-
-    x = pad_sequences(x, seq_len, pad)
-    return Knet.minibatch(x, batchsize; o...)
-end
-
-
-
-"""
-    function seq2seq_minibatch(x, y, batchsize; seq_len=nothing,
-                pad_x=3, pad_y=x, o...)
-
-Return an iterator of type `Knet.Data` with (x,y) sequence minibatches from
-two lists of sequences.
-all
-keyword args of [`Knet.minibatch()`](https://denizyuret.github.io/Knet.jl/latest/reference/#Knet.Train20.minibatch) can be used.
-
-All sequences in x and y are brought to the same length
-by truncating (if too long)
-or padding with the token provided as `pad`.
-
-### Arguments:
-+ `x`: An iterable object of sequences.
-+ `y`: An iterable object of target sequences.
-+ `batchsize`: size of minibatches
-+ `seq_len=nothing`: demanded length of sequences in the minibatches.
-        If `nothing`, all sequences are padded to match with the longest
-        sequence. In case of `opti == true` sequences are truncated to 
-        sqe_len.
-+ `optimize=false`: if `false` minibatches with the giveb seqence length are created. 
-        If `true` the sequence lengths are optimized to minimize padding, by sorting 
-        the sequences by their length and restricting the seq-length of each minibatch
-        to teh langest sequence of the minibatch.
-+ `pad_x=3`,
-+ `pad_y=x`: token, used for padding. The token must be compatible
-        with the type of the sequence elements. If pad_y is omitted, pad_y is ste 
-        equal to pad_x.
-+ `o...`: any other keyword arguments of `Knet.minibatch()`, such as
-        `shuffle=true` or `partial=true` can be provided.
-"""
-function seq2seq_minibatch(x, y, batchsize; seq_len=nothing, optimize=false,
-                           pad_x=3, pad_y=pad_x, o...)
-
-    if optimize
-        return opti_minibatches(x,y, batch_size, seq_len, pad_x, pad_y, o...)
-
-    else
-        if isnothing(seq_len)
-            seq_len = maximum((maximum(length.(x)), maximum(length.(y))))
-        end
-
-        x = pad_sequences(x, seq_len, pad_x)
-        y = pad_sequences(y, seq_len, pad_y)
-    return Knet.minibatch(x, y, batchsize; o...)
-    end
-end
+# """
+#     function seq_minibatch(x, [y,] batchsize; 
+#                            seq_len=nothing, pad=3, o...)
+# 
+# Return an iterator of type `Knet.Data` with sequence minibatches from a
+# list of sequences.
+# all
+# keyword args of [`Knet.minibatch()`](https://denizyuret.github.io/Knet.jl/latest/reference/#Knet.Train20.minibatch) can be used.
+# 
+# All sequences in x are brought to the same length by truncating (if too long)
+# or padding with the token provided as `pad`.
+# 
+# If `y` is defined, the minibatches include the sequences for x and
+# training targets `y`, given as n-dimensional array (as for `Knet.minibach()`).
+# For sequence-2-sequence minibatches the function `seq2seq_minibatch()`
+# must be used.
+# 
+# ### Arguments:
+# + `x`: An iterable object of sequences.
+# + `y`: vector or array with training targets
+# + `batchsize`: size of minibatches
+# + `seq_len=nothing`: demanded length of sequences in the minibatches.
+#         If `nothing`, all sequences are padded to match with the longest
+#         sequence.
+# + `pad=3`: token, used for padding. The default (3) is the token set by
+#         the `WordRTokenizer`. The token must be compatible
+#         with the type of the sequence elements.
+# + `o...`: any other keyword arguments of `Knet.minibatch()`, such as
+#         `shuffle=true` or `partial=true` can be provided.
+# """
+# function seq_minibatch(x, y, batchsize; seq_len=nothing, pad=3, o...)
+# 
+#     if isnothing(seq_len)
+#         seq_len = maximum(length.(x))
+#     end
+# 
+#     x = pad_sequences(x, seq_len, pad)
+#     return Knet.minibatch(x, y, batchsize; o...)
+# end
+# 
+# 
+# function seq_minibatch(x, batchsize; seq_len=nothing, pad=0, o...)
+# 
+#     if isnothing(seq_len)
+#         seq_len = maximum(length.(x))
+#     end
+# 
+#     x = pad_sequences(x, seq_len, pad)
+#     return Knet.minibatch(x, batchsize; o...)
+# end
+# 
+# 
+# 
+# """
+#     function seq2seq_minibatch(x, y, batchsize; seq_len=nothing,
+#                 pad_x=3, pad_y=x, o...)
+# 
+# Return an iterator of type `Knet.Data` with (x,y) sequence minibatches from
+# two lists of sequences.
+# all
+# keyword args of [`Knet.minibatch()`](https://denizyuret.github.io/Knet.jl/latest/reference/#Knet.Train20.minibatch) can be used.
+# 
+# All sequences in x and y are brought to the same length
+# by truncating (if too long)
+# or padding with the token provided as `pad`.
+# 
+# ### Arguments:
+# + `x`: An iterable object of sequences.
+# + `y`: An iterable object of target sequences.
+# + `batchsize`: size of minibatches
+# + `seq_len=nothing`: demanded length of sequences in the minibatches.
+#         If `nothing`, all sequences are padded to match with the longest
+#         sequence. In case of `opti == true` sequences are truncated to 
+#         sqe_len.
+# + `optimize=false`: if `false` minibatches with the giveb seqence length are created. 
+#         If `true` the sequence lengths are optimized to minimize padding, by sorting 
+#         the sequences by their length and restricting the seq-length of each minibatch
+#         to teh langest sequence of the minibatch.
+# + `pad_x=3`,
+# + `pad_y=x`: token, used for padding. The token must be compatible
+#         with the type of the sequence elements. If pad_y is omitted, pad_y is ste 
+#         equal to pad_x.
+# + `o...`: any other keyword arguments of `Knet.minibatch()`, such as
+#         `shuffle=true` or `partial=true` can be provided.
+# """
+# function seq2seq_minibatch(x, y, batchsize; seq_len=nothing, optimize=false,
+#                            pad_x=3, pad_y=pad_x, o...)
+# 
+#     if optimize
+#         return opti_minibatches(x,y, batch_size, seq_len, pad_x, pad_y, o...)
+# 
+#     else
+#         if isnothing(seq_len)
+#             seq_len = maximum((maximum(length.(x)), maximum(length.(y))))
+#         end
+# 
+#         x = pad_sequences(x, seq_len, pad_x)
+#         y = pad_sequences(y, seq_len, pad_y)
+#     return Knet.minibatch(x, y, batchsize; o...)
+#     end
+# end
 #
 #
 #################################################################################
@@ -561,23 +561,6 @@ function sequence_minibatch(x, y, batchsize;
 
         i = j + 1
     end
-
-
-
-
-
-#     while i+batchsize-1 <= length(x)
-# 
-#         j = i+batchsize-1
-#         push!(xmbs, one_mb(x, y, seq2seq, idx, i, j, pad, pad_y))
-#         i += batchsize
-#     end
-# 
-#     if partial && i <= length(x)
-#         j = length(x)
-#         push!(xmbs, one_mb(x, y, seq2seq, idx, i, j, pad, pad_y))
-#     end
-
     return SequenceData(xmbs, shuffle=shuffle)
 end
 

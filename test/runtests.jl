@@ -51,6 +51,9 @@ using Statistics: mean
 @test test_tatoeba()
 @test test_seq2seq_mb()
 
+@test test_pad()
+@test test_trunc()
+
 
 # test all layers:
 #
@@ -85,6 +88,7 @@ using Statistics: mean
 @show include("acc.jl")
 @test test_peak_finder()
 @test test_peak_finder_acc()
+
 
 # utils:
 #
