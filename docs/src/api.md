@@ -4,6 +4,7 @@ API doc of all exported functions are listed here:
 
 ```@docs
 DNN
+add_layer!
 print_network
 ```
 

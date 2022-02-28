@@ -166,7 +166,7 @@ function test_symbolic_api()
     l1 = length(ch)   # = 2
 
     nnc = Classifier()
-    add_layer(nnc, sqrt)
+    add_layer!(nnc, sqrt)
 
     nnr = Regressor(sqrt, ch)
 

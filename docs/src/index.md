@@ -14,9 +14,17 @@ with tb_train(), all data providers can be used together, ...
 For installation please refer to the README @github:
 <https://github.com/andreasdominik/NNHelferlein.jl>
 
-## Quick Start
+## First Steps
 
-Have a look at the examples:
+```@contents
+Pages = [
+    "firststeps.md"
+    ]
+Depth = 2
+```
+
+The next step is to have a look at the examples
+in the GitHub repo:
 
 ```@contents
 Pages = [
