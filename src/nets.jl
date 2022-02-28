@@ -74,9 +74,15 @@ end
 #
 import Base: push!, length
 push!(n::NNHelferlein.DNN, l) = push!(n.layers, l)
-add_layer!(n::NNHelferlein.DNN, l) = push!(n.layers, l)
 length(n::NNHelferlein.DNN) = length(n.layers)
 
+"""
+    add_layer!(n::NNHelferlein.DNN, l)
+
+Add a layer `l` or a chain to a model `n`. The layer is always added 
+at the end of the chains. 
+"""
+add_layer!(n::NNHelferlein.DNN, l) = push!(n.layers, l)
 
 
 

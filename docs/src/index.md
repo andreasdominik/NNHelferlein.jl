@@ -100,7 +100,7 @@ mlp = tb_train!(lenet2, Adam, dtrn, epochs=10, split=0.8,
                 acc_fun=accuracy, eval_size=0.2)
 ```
 
-Models cam be summarised with the `print_network()`-helper:
+Models can be summarised with the `print_network()`-helper:
 
 ```julia
 julia> print_network(lenet)
