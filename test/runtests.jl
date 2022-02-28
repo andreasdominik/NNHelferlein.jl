@@ -32,6 +32,7 @@ using Statistics: mean
 @test test_df_class_ids()
 @test test_df_minibatch()
 @test test_df_errors()
+@test test_noiser()
 
 # image loader:
 #

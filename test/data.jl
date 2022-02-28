@@ -138,3 +138,24 @@ function test_seq2seq_mb()
     mb1 = first(mb)
     return mb1 isa Tuple
 end
+
+
+# test noiser:
+#
+using Statistics
+function test_noiser()
+    x = ones(Float32, 64, 1000)
+    y = rand(1:10, 1000)
+    mbs = minibatch(x, y, 128)
+
+    noise = MBNoiser(mbs)
+    d = first(noise)[1]
+    s = Statistics.std(d)
+
+    i = 0
+    for (x,y) in noise
+        i += 1
+    end
+    
+    return i == length(noise) && isapprox(s, 1, atol=0.1)
+end
