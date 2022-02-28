@@ -80,6 +80,12 @@ using Statistics: mean
 @test test_get_set_rnn()
 
 
+# acc_funs:
+#
+@show include("acc.jl")
+@test test_peak_finder()
+@test test_peak_finder_acc()
+
 # utils:
 #
 @show include("util.jl")
