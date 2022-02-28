@@ -82,6 +82,6 @@ export DNN, Classifier, Regressor, Chain, VAE,          # chains
        blowup_array, recycle_array,
        de_embed,
        print_network,
-       DATA_DIR, download_example_data, download_pretrained
+       DATA_DIR #, download_example_data, download_pretrained
 
 end # module
