@@ -177,3 +177,20 @@ function test_split_mbs()
     
     return tl1 == 6 && vl1 == 1 && tl2 == 0 && vl2 == 7
 end
+
+
+
+function test_partial_itr()
+    x = ones(Float32, 64, 1000)
+    y = rand(1:10, 1000)
+    mbs = minibatch(x, y, 128)
+    
+    dtrn, dvld = split_minibatches(mbs, 0.8)
+
+    n = 0
+    for (i,j) in dtrn
+        n += 1
+    end
+
+    return n == 6
+end
