@@ -658,19 +658,21 @@ struct Recurrent <: Layer
     n_units
     unit_type
     rnn
+    back_rnn
     has_c
     function Recurrent(n_inputs::Int, n_units::Int; u_type=:lstm, o...)
+        back = nothing
         if u_type isa Symbol 
             rnn = Knet.RNN(n_inputs, n_units; rnnType=u_type, h=0, c=0, o...)
         elseif u_type isa Type && u_type <: RecurrentUnit
-            rnn = u_type(n_inputs, n_units, o...)
+            rnn = u_type(n_inputs, n_units; o...)
+            if haskey(o, :bidirectional) && o[:bidirectional]
+                back = u_type(n_inputs, n_units; o...)
+            end
         else
             rnn = Knet.RNN(n_inputs, n_units; rnnType=:lstm, h=0, c=0, o...)
         end
-        if haskey(o, :bidirectional)
-            n_units *= 2
-        end
-        return new(n_inputs, n_units, u_type, rnn, hasproperty(rnn, :c))
+        return new(n_inputs, n_units, u_type, rnn, back, hasproperty(rnn, :c))
     end
 end
 
@@ -705,7 +707,25 @@ function (rnn::Recurrent)(x; c=nothing, h=nothing,
         h = rnn.rnn(x)
     else
         #println("manual")
-        h = rnn_loop(rnn.rnn, x, rnn.n_units, mask)
+        if isnothing(rnn.back_rnn)   # not bidirectional:
+            h = rnn_loop(rnn.rnn, x, rnn.n_units, mask)
+        else        
+            h_f = rnn_loop(rnn.rnn, x, rnn.n_units, mask)
+            if isnothing(mask)
+                h_r = rnn_loop(rnn.back_rnn, x[:,:,end:-1:1], rnn.n_units, mask)
+            else
+                h_r = rnn_loop(rnn.back_rnn, x[:,:,end:-1:1],
+                           rnn.n_units, mask[end:-1:1,:])
+            end
+            
+            if return_all
+                h = cat(h_f, h_r[:,:,end:-1:1], dims=1)
+            else
+                h = cat(rnn.h, back_rnn.h, dims=1)
+                h = reshape(h, 2*n_units, mb, 1)
+            end
+        end
+
     end
 
     if return_all
