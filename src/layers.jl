@@ -762,8 +762,8 @@ function rnn_loop(rnn, x, n_units, mask=nothing, backward=false)
         step_range = 1:steps
     end
     for i in step_range
-        last_h = rnn.h
-        last_c = rnn.c
+        last_h = value(rnn.h)
+        last_c = value(rnn.c)
 
         h_step = rnn(x[:,:,i])               # run one step only
 
