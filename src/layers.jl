@@ -711,12 +711,7 @@ function (rnn::Recurrent)(x; c=nothing, h=nothing,
             h = rnn_loop(rnn.rnn, x, rnn.n_units, mask)
         else        
             h_f = rnn_loop(rnn.rnn, x, rnn.n_units, mask)
-            if isnothing(mask)
-                h_r = rnn_loop(rnn.back_rnn, x[:,:,end:-1:1], rnn.n_units, mask)
-            else
-                h_r = rnn_loop(rnn.back_rnn, x[:,:,end:-1:1],
-                           rnn.n_units, mask[end:-1:1,:])
-            end
+            h_r = rnn_loop(rnn.rnn, x, rnn.n_units, mask, backward=true)
             
             if return_all
                 h = cat(h_f, h_r[:,:,end:-1:1], dims=1)
@@ -740,7 +735,7 @@ end
 # inner loop for rnn - not exposed!
 # x is [fanin, mb, steps]
 #
-function rnn_loop(rnn, x, n_units, mask=nothing)
+function rnn_loop(rnn, x, n_units, mask=nothing, backward=false)
 
     fanin, mb, steps = size(x)
 
@@ -761,7 +756,12 @@ function rnn_loop(rnn, x, n_units, mask=nothing)
     #
     hs = init0(n_units, mb, 0)
 
-    for i in 1:steps
+    if backward
+        step_range = steps:1
+    else
+        step_range = 1:steps
+    end
+    for i in step_range
         last_h = rnn.h
         last_c = rnn.c
 
