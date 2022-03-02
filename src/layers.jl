@@ -757,7 +757,7 @@ function rnn_loop(rnn, x, n_units, mask=nothing, backward=false)
     hs = init0(n_units, mb, 0)
 
     if backward
-        step_range = steps:1
+        step_range = steps:-1:1
     else
         step_range = 1:steps
     end
