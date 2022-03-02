@@ -687,7 +687,6 @@ function (rnn::Recurrent)(x; c=nothing, h=nothing,
     @assert fanin == rnn.n_inputs "input does not match the fan-in of rnn layer"
 
     x = permutedims(x, (1,3,2))   # make [fanin, mb, steps] for Knet
-    size(x)
     
     # init h and c fields:
     #
