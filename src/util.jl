@@ -105,14 +105,18 @@ end
 # end
 
 """
+    function convert2CuArray(x, innerType=Float32)
     function convert2KnetArray(x, innerType=Float32)
 
 Convert an array `x` to a `CuArray{Float32}` or whatever specified as innerType
 only in GPU context
 (if `CUDA.functional()`) or to an `Array{Float32}` otherwise.
 By converting, the data is copied to the GPU.
+
+`convert2KnetArray()` is kept as an alias for backward compatibility.
+
 """
-function convert2KnetArray(x, innerType=Float32)
+function convert2CuArray(x, innerType=Float32)
 
     # check if GPU and accept all type of Array-like x:
     #
@@ -122,9 +126,11 @@ function convert2KnetArray(x, innerType=Float32)
         return Array{innerType}(x)
     end
 end
+convert2KnetArray(x, innerType=Float32) = convert2CuArray(x, innerType)
 
 
 """
+    function emptyCuArray(size...=(0,0);innerType=Float32)
     function emptyKnetArray(size...=(0,0);innerType=Float32)
     
 Return an empty CuArray with the specified dimensions. The 
@@ -144,7 +150,7 @@ By default an empty matrix is returned.
 0-element Knet.KnetArrays.KnetVector{Float32}
 ```
 """
-function emptyKnetArray(size...=(0,0);innerType=Float32)
+function emptyCuArray(size...=(0,0);innerType=Float32)
 
     if CUDA.functional()
         return CuArray{innerType}(undef, size...)
@@ -153,6 +159,7 @@ function emptyKnetArray(size...=(0,0);innerType=Float32)
     end
 end
 
+emptyKnetArray(size...=(0,0);innerType=Float32) = emptyCuArray(size..., innerType)
 
 
 """
