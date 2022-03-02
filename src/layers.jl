@@ -662,7 +662,7 @@ struct Recurrent <: Layer
     function Recurrent(n_inputs::Int, n_units::Int; u_type=:lstm, o...)
         if u_type isa Symbol 
             rnn = Knet.RNN(n_inputs, n_units; rnnType=u_type, h=0, c=0, o...)
-        elseif u_type isa RecurrentUnit
+        elseif u_type isa Type && u_type <: RecurrentUnit
             rnn = u_type(n_inputs, n_units, o...)
         else
             rnn = Knet.RNN(n_inputs, n_units; rnnType=:lstm, h=0, c=0, o...)
@@ -677,8 +677,7 @@ end
 function (rnn::Recurrent)(x; c=nothing, h=nothing, 
                           return_all=false, mask=nothing)
     
-    dims = length(size(x))    # x is [fan-in, steps, mb]
-    if dims == 3
+    if ndims(x) == 3    # x is [fan-in, steps, mb]
         fanin, steps, mb = size(x)
     else
         fanin, steps = size(x)
@@ -688,6 +687,7 @@ function (rnn::Recurrent)(x; c=nothing, h=nothing,
     @assert fanin == rnn.n_inputs "input does not match the fan-in of rnn layer"
 
     x = permutedims(x, (1,3,2))   # make [fanin, mb, steps] for Knet
+    size(x)
     
     # init h and c fields:
     #
@@ -706,109 +706,68 @@ function (rnn::Recurrent)(x; c=nothing, h=nothing,
         h = rnn.rnn(x)
     else
         #println("manual")
-        # init h and c fields and mask:
-        #
-        if rnn.rnn.h == 0 || isnothing(rnn.rnn.h)
-            rnn.rnn.h = init0(rnn.n_units, mb, 1)
-        end
-        if rnn.has_c && (rnn.rnn.c == 0 || isnothing(rnn.rnn.c))
-                rnn.rnn.c = init0(rnn.n_units, mb, 1)
-        end
-        if isnothing(mask)         
-            mask = init0(steps, mb)
-        end
-
-        # init h and c with a 0-timestep ... 2 steps must be removed at the end!
-        #
-        h = init0(rnn.n_units, mb, 1)
-        h = cat(h, rnn.rnn.h, dims=3)
-        if rnn.has_c 
-            c = init0(rnn.n_units, mb, 1)
-            c = cat(c, rnn.rnn.c, dims=3)
-        end
-        for i in 1:steps
-
-            h_step = rnn.rnn(reshape(x[:,:,i], fanin, mb, 1))               # run one step only
-
-            # h and c with masking:
-            #
-            # m_step = recycle_array(mask[[i],:], rnn.n_units, dims=1)
-            m_step = mask[[i],:]
-            
-            # h_dec unboxed to avoid confusing tape:
-            #
-            h_step = value(h[:,:,[end]]) .* m_step + h_step .* (1 .- m_step)
-            rnn.rnn.h = h_step
-            h = cat(h, h_step, dims=3)  
-
-            if rnn.has_c
-                c_step = rnn.rnn.c
-                c_step = value(c[:,:,[end]]) .* m_step + c_step .* (1 .-m_step)
-                rnn.rnn.c = c_step
-                c = cat(c, c_step, dims=3)
-            end
-
-        end
-        h = h[:,:,3:end]   # remove 0-timestep and leading zeros
+        h = rnn_loop(rnn.rnn, x, rnn.n_units, mask)
     end
 
     if return_all
-        h = permutedims(h, (1,3,2)) # h of all steps: [units, time-steps, mb]
+        return permutedims(h, (1,3,2)) # h of all steps: [units, time-steps, mb]
     else
-        h = h[:,:,end]     # last h: [units, mb]
+        return h[:,:,end]     # last h: [units, mb]
     end
 end
 
+
+
 # inner loop for rnn - not exposed!
+# x is [fanin, mb, steps]
 #
-#   function rnn_loop(rnn, x, mask=nothing)
-#       #println("manual")
-#       # init h and c fields and mask:
-#       #
-#       if rnn.h == 0 || isnothing(rnn.h)
-#           rnn.h = init0(rnn.n_units, mb, 1)
-#       end
-#       if rnn.has_c && (rnn.rnn.c == 0 || isnothing(rnn.rnn.c))
-#               rnn.rnn.c = init0(rnn.n_units, mb, 1)
-#       end
-#       if isnothing(mask)         
-#           mask = init0(steps, mb)
-#       end
-#   
-#       # init h and c with a 0-timestep ... 2 steps must be removed at the end!
-#       #
-#       h = init0(rnn.n_units, mb, 1)
-#       h = cat(h, rnn.rnn.h, dims=3)
-#       if rnn.has_c 
-#           c = init0(rnn.n_units, mb, 1)
-#           c = cat(c, rnn.rnn.c, dims=3)
-#       end
-#       for i in 1:steps
-#   
-#           h_step = rnn.rnn(reshape(x[:,:,i], fanin, mb, 1))               # run one step only
-#   
-#           # h and c with masking:
-#           #
-#           # m_step = recycle_array(mask[[i],:], rnn.n_units, dims=1)
-#           m_step = mask[[i],:]
-#           
-#           # h_dec unboxed to avoid confusing tape:
-#           #
-#           h_step = value(h[:,:,[end]]) .* m_step + h_step .* (1 .- m_step)
-#           rnn.rnn.h = h_step
-#           h = cat(h, h_step, dims=3)  
-#   
-#           if rnn.has_c
-#               c_step = rnn.rnn.c
-#               c_step = value(c[:,:,[end]]) .* m_step + c_step .* (1 .-m_step)
-#               rnn.rnn.c = c_step
-#               c = cat(c, c_step, dims=3)
-#           end
-#   
-#       end
-#       h = h[:,:,3:end]   # remove 0-timestep and leading zeros
-#   end
-#   
+function rnn_loop(rnn, x, n_units, mask=nothing)
+
+    fanin, mb, steps = size(x)
+
+    # init h and c fields and mask
+    # make sure the size is correct:
+    #
+    if rnn.h == 0 || isnothing(rnn.h)
+        rnn.h = init0(n_units, mb, 1)
+    end
+    if hasproperty(rnn, :c) && (rnn.c == 0 || isnothing(rnn.c))
+            rnn.c = init0(n_units, mb, 1)
+    end
+    if isnothing(mask)         
+        mask = init0(steps, mb)
+    end
+   
+    # init h and c with a 0-timestep ... 1 step must be removed at the end!
+    #
+    hs = init0(n_units, mb, 0)
+
+    for i in 1:steps
+        last_h = rnn.h
+        last_c = rnn.c
+
+        h_step = rnn(x[:,:,i])               # run one step only
+
+        # h and c with masking:
+        #
+        # m_step = recycle_array(mask[[i],:], rnn.n_units, dims=1)
+        m_step = mask[[i],:]
+       
+        # h_dec unboxed to avoid confusing tape:
+        #
+        h_step = last_h .* m_step + h_step .* (1 .- m_step)
+        rnn.h = h_step
+        hs = cat(hs, h_step, dims=3)  
+
+        # restore old c if masked position:
+        #
+        if hasproperty(rnn, :c)
+             rnn.c = last_c .* m_step + rnn.c .* (1 .-m_step)
+        end
+
+    end
+    return hs
+end
 
 function Base.summary(l::Recurrent; indent=0)
     n = get_n_params(l)
