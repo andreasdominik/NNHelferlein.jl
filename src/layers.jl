@@ -728,15 +728,15 @@ function rnn_loop(rnn, x, n_units, mask=nothing)
     # make sure the size is correct:
     #
     if rnn.h == 0 || isnothing(rnn.h)
-        rnn.h = init0(n_units, mb, 1)
+        rnn.h = init0(n_units, mb)
     end
     if hasproperty(rnn, :c) && (rnn.c == 0 || isnothing(rnn.c))
-            rnn.c = init0(n_units, mb, 1)
+            rnn.c = init0(n_units, mb)
     end
     if isnothing(mask)         
         mask = init0(steps, mb)
     end
-   
+
     # init h and c with a 0-timestep ... 1 step must be removed at the end!
     #
     hs = init0(n_units, mb, 0)
@@ -752,7 +752,7 @@ function rnn_loop(rnn, x, n_units, mask=nothing)
         # m_step = recycle_array(mask[[i],:], rnn.n_units, dims=1)
         m_step = mask[[i],:]
        
-        # h_dec unboxed to avoid confusing tape:
+        # h_last unboxed to avoid confusing tape: ???  ToDo??
         #
         h_step = last_h .* m_step + h_step .* (1 .- m_step)
         rnn.h = h_step
