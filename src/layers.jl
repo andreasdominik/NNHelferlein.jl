@@ -714,7 +714,8 @@ function (rnn::Recurrent)(x; c=nothing, h=nothing,
             h_r = rnn_loop(rnn.rnn, x, rnn.n_units, mask, true)
             
             if return_all
-                h = cat(h_f, h_r[:,:,end:-1:1], dims=1)
+                h_r .= view(h_r, :,:,steps:-1,1)
+                h = cat(h_f, h_r, dims=1)
             else
                 h = cat(rnn.h, back_rnn.h, dims=1)
                 h = reshape(h, 2*n_units, mb, 1)
