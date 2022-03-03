@@ -58,7 +58,7 @@ function peak_finder_acc(p, t; ret=:f1, verbose=0,
     if p isa KnetArray || p isa CuArray
         p = Array(p)
     end
-    if t isa KnetArray || p isa CuArray
+    if t isa KnetArray || t isa CuArray
         t = Array(t)
     end
     p = reshape(p, size(p, 1), :)
@@ -72,10 +72,6 @@ function peak_finder_acc(p, t; ret=:f1, verbose=0,
 
         # find TP and FN:
         #
-        @show typeof(p)
-        @show typeof(t)
-        @show typeof(p_peaks)
-        @show typeof(t_peaks)
         for i in t_peaks
             if i > tolerance && i <= len-tolerance  # do not consider the border 
                 peaks += 1
