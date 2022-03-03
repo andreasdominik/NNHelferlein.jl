@@ -72,6 +72,10 @@ function peak_finder_acc(p, t; ret=:f1, verbose=0,
 
         # find TP and FN:
         #
+        @show typeof(p)
+        @show typeof(t)
+        @show typeof(p_peaks)
+        @show typeof(t_peaks)
         for i in t_peaks
             if i > tolerance && i <= len-tolerance  # do not consider the border 
                 peaks += 1
