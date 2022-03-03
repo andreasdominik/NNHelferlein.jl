@@ -748,9 +748,6 @@ function rnn_loop(rnn, x, n_units, mask=nothing, backward=false)
     if hasproperty(rnn, :c) && (rnn.c == 0 || isnothing(rnn.c))
             rnn.c = init0(n_units, mb)
     end
-    if isnothing(mask)         
-        mask = init0(steps, mb)
-    end
 
     # init h and c with a 0-timestep ... 1 step must be removed at the end!
     #
@@ -769,21 +766,20 @@ function rnn_loop(rnn, x, n_units, mask=nothing, backward=false)
 
         # h and c with masking:
         #
-        # m_step = recycle_array(mask[[i],:], rnn.n_units, dims=1)
-        m_step = mask[[i],:]
+        if !isnothing(mask)
+            # m_step = recycle_array(mask[[i],:], rnn.n_units, dims=1)
+            m_step = mask[[i],:]
        
-        # h_last unboxed to avoid confusing tape: ???  ToDo??
-        #
-        h_step = last_h .* m_step + h_step .* (1 .- m_step)
-        rnn.h = h_step
-        hs = cat(hs, h_step, dims=3)  
-
-        # restore old c if masked position:
-        #
-        if hasproperty(rnn, :c)
-             rnn.c = last_c .* m_step + rnn.c .* (1 .-m_step)
+            # restore old c if masked position:
+            #
+            h_step = last_h .* m_step + h_step .* (1 .- m_step)
+            if hasproperty(rnn, :c)
+                 rnn.c = last_c .* m_step + rnn.c .* (1 .-m_step)
+            end
         end
 
+        rnn.h = h_step
+        hs = cat(hs, h_step, dims=3)  
     end
     return hs
 end
