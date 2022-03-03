@@ -723,6 +723,7 @@ function (rnn::Recurrent)(x; c=nothing, h=nothing,
 
     end
 
+
     if return_all
         return permutedims(h, (1,3,2)) # h of all steps: [units, time-steps, mb]
     else
