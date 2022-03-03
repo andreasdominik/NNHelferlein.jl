@@ -787,7 +787,12 @@ end
 
 function Base.summary(l::Recurrent; indent=0)
     n = get_n_params(l)
-    s1 = "Recurrent layer, $(l.n_inputs) → $(l.n_units) of type $(l.unit_type),"
+    if isnothing(l.back_rnn)
+        s1 = "Recurrent layer, "
+    else
+        s1 = "Bidirectional Recurrent layer, "
+    end
+    s1 = s1 * "$(l.n_inputs) → $(l.n_units) of type $(l.unit_type),"
     return print_summary_line(indent, s1, n)
 end
 
