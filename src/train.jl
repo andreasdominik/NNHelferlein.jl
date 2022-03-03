@@ -212,7 +212,7 @@ function tb_train!(mdl, opti, trn, vld=nothing; epochs=1,
         for p in params(loss)
             Δw = grad(loss, p) + p .* l2
             # println("updating $i: $(p.opt.lr), Δw: -")
-            Knet.update!(p, Δw)
+            @allowscalar Knet.update!(p, Δw)
         end
 
         # TensorBoard:
