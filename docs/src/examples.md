@@ -40,13 +40,13 @@ All examples are at [GitHub/examples](https://github.com/andreasdominik/NNHelfer
   RNN to demonstrate how to setup machine translation with 
   a bidirectional encoder RNN and attention.
 
-+ [`An RNN Sequence tagger for annotation of ECGs`]
++ [`RNN Sequence tagger for annotation of ECGs`]
   (https://github.com/andreasdominik/NNHelferlein.jl/blob/main/examples/62-ECG-tagger.ipynb):
-  RNN to demonstrate how to set-up an RNN sequence tagger to detect
+  RNN to demonstrate how to set-up a sequence tagger to detect
   heart beats. Only one layer with 8 units is necessary to achieve almost
   100% correct predictions. 
   The example includes the definition on peephole LSTMs to display
-   how to integrate non-standard rnn-units with the *NNHelfrelein* framework.
+  how to integrate non-standard rnn-units with the *NNHelfrelein* framework.
 
 + [`Pretrained VGG16`]
   (https://github.com/andreasdominik/NNHelferlein.jl/blob/main/examples/70-pretrained_vgg.ipynb):
