@@ -90,8 +90,12 @@ add_layer!(n::NNHelferlein.DNN, l) = push!(n.layers, l)
 
 function Base.summary(mdl::DNN; indent=0)
     n = get_n_params(mdl)
-    ls = length(mdl.layers)
-    s1 = "$(typeof(mdl)) with $ls layers,"
+    if hasproperty(mdl, :layers)
+        ls = length(mdl.layers)
+        s1 = "$(typeof(mdl)) with $ls layers,"
+    else
+        s1 = "$(typeof(mdl)),"
+    end
     return print_summary_line(indent, s1, n)
 end
 
@@ -103,11 +107,11 @@ Print a network summary of any model of Type `DNN`.
 If the model has a field `layers`, the summary of all included layers
 will be printed recursively.
 """
-function print_network(mdl::DNN; n=0, indent=0)
+function print_network(mdl; n=0, indent=0)
 
     top = indent == 0
     if top
-        println("Neural network summary:")
+        println("NNHelferlein neural network summary:")
         println(summary(mdl))
         println("Details:")
     else
@@ -116,21 +120,39 @@ function print_network(mdl::DNN; n=0, indent=0)
 
     indent += 4
     println(" ")
-    for l in mdl.layers
-        if l isa DNN
-            n = print_network(l, n=n, indent=indent)
+    for pn in propertynames(mdl)
+        p = getproperty(mdl, pn)
+
+        if pn == :layers
+            for l in p
+                if l isa DNN
+                    n = print_network(l, n=n, indent=indent)
+                    println(" ")
+                else
+                    println(summary(l, indent=indent))
+                    n += 1
+                end
+            end
+        elseif p isa DNN
+            n = print_network(p, n=n, indent=indent)
             println(" ")
-        else
-            println(summary(l, indent=indent))
+        elseif p isa Layer
+            println(summary(p, indent=indent))
             n += 1
+        elseif p isa AbstractArray
+            for l in p
+                n = print_network(l, n=n, indent=indent)
+                #println(summary(l, indent=indent))
+                n += 1
+            end
         end
     end
-
-    if top
-        println(" ")
-        println("Total number of layers: $n")
-        println("Total number of parameters: $(get_n_params(mdl))")
-    end
+    
+        if top
+            println(" ")
+            println("Total number of layers: $n")
+            println("Total number of parameters: $(get_n_params(mdl))")
+        end
     return n
 end
 
