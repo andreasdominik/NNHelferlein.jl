@@ -726,8 +726,6 @@ function (rnn::Recurrent)(x; c=nothing, h=nothing,
         end
     end
 
-    hidden = 0
-
     # life is easy without masking and if Knet.RNN
     # otherwise step-by-step loop is needed:
     #
@@ -737,7 +735,7 @@ function (rnn::Recurrent)(x; c=nothing, h=nothing,
     else
         #println("manual")
         if isnothing(rnn.back_rnn)   # not bidirectional:
-            h = rnn_loop(rnn.rnn, x, rnn.n_units, mask)     
+            hidden = rnn_loop(rnn.rnn, x, rnn.n_units, mask)     
         else        
             h_f = rnn_loop(rnn.rnn, x, rnn.n_units, mask)
             h_r = rnn_loop(rnn.back_rnn, x, rnn.n_units, mask, true)
@@ -746,7 +744,7 @@ function (rnn::Recurrent)(x; c=nothing, h=nothing,
                 hidden = cat(h_f, h_r[:,:,end:-1:1], dims=1)
             else
                 hidden = cat(rnn.rnn.h, rnn.back_rnn.h, dims=1)
-                hidden = reshape(h, 2*rnn.n_units, mb, 1)
+                hidden = reshape(hidden, 2*rnn.n_units, mb, 1)
             end
         end
 
