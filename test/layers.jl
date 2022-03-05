@@ -154,6 +154,109 @@ function test_layer_seq_classi()
     return size(y) == (units, mb)
 end
 
+function test_layer_rnn_loop()
+    depth, seq, units, mb = 16, 5, 8, 10
+    mask = convert2KnetArray(zeros(seq, mb))
+    l = Recurrent(depth, units, allow_mask=true)
+    x = convert2KnetArray(rand(depth, seq, mb))
+    y = l(x, mask=mask)
+    return size(y) == (units, mb)
+end
+
+mutable struct Peep <: RecurrentUnit
+    w; w_r; b            # input
+    w_i; w_ir; c_i; b_i  # input gate
+    w_o; w_or; c_o; b_o  # output gate
+    w_f; w_fr; c_f; b_f  # forget gate
+    c                    # cell state
+    h                    # last hidden state
+
+    function Peep(i, n; o...)   # i: fan-in, n: num cells
+        w = param(n, i);    w_r = param(n, n); b = param0(n)
+        w_i = param(n, i); w_ir = param(n, n); c_i = param0(n); b_i = param0(n)
+        w_o = param(n, i); w_or = param(n, n); c_o = param0(n); b_o = param0(n)
+        w_f = param(n, i); w_fr = param(n, n); c_f = param0(n); b_f = param(n, init=ones)
+        c = init0(n)
+        h = init0(n)
+
+        new(w, w_r, b, 
+             w_i, w_ir, c_i, b_i, 
+             w_o, w_or, c_o, b_o, 
+             w_f, w_fr, c_f, b_f, 
+             c, h)
+    end
+end
+function (l::Peep)(x)
+    
+    # gates:
+    #
+    i_gate = sigm.(l.w_i * x .+ l.w_ir * l.h .+ l.c_i .* l.c .* l.b_i)
+    o_gate = sigm.(l.w_o * x .+ l.w_or * l.h .+ l.c_o .* l.c .* l.b_o)
+    f_gate = sigm.(l.w_f * x .+ l.w_fr * l.h .+ l.c_f .* l.c .* l.b_f)
+    
+    # cell state:
+    #
+    c_temp = tanh.(l.w * x .+ l.w_r * l.h .+ l.b)     
+    l.c = c_temp .* i_gate .+ l.c .* f_gate
+    
+    # hidden state (output):
+    #
+    l.h = tanh.(l.c) .* o_gate
+    return l.h
+end
+
+function test_layer_rnn_bi()
+    depth, seq, units, mb = 16, 5, 8, 10
+    mask = convert2KnetArray(zeros(seq, mb))
+    layer = Recurrent(depth, units, u_type=:gru, bidirectional=true)  
+    x = convert2KnetArray(rand(depth, seq, mb))
+    y = layer(x)
+    @show size(y)
+    return size(y) == (2*units, mb)
+end
+
+function test_layer_rnn_bi_tagger()
+    depth, seq, units, mb = 16, 5, 8, 10
+    mask = convert2KnetArray(zeros(seq, mb))
+    layer = Recurrent(depth, units, u_type=:gru, bidirectional=true)  
+    x = convert2KnetArray(rand(depth, seq, mb))
+    y = layer(x, return_all=true)
+    @show size(y)
+    return size(y) == (2*units, seq, mb)
+end
+
+function test_layer_rnn_bi_tagger_loop_Knet()
+    depth, seq, units, mb = 16, 5, 8, 10
+    mask = convert2KnetArray(zeros(seq, mb))
+    layer = Recurrent(depth, units, u_type=:lstm, bidirectional=true)  
+    x = convert2KnetArray(rand(depth, seq, mb))
+    y = layer(x, return_all=true, mask=mask, h=0)
+    @show size(y)
+    return size(y) == (2*units, seq, mb)
+end
+
+function test_layer_Peep_rnn_bi()
+    depth, seq, units, mb = 16, 5, 8, 10
+    mask = convert2KnetArray(zeros(seq, mb))
+    layer = Recurrent(depth, units, u_type=Peep, bidirectional=true)  
+    x = convert2KnetArray(rand(depth, seq, mb))
+    y = layer(x)
+    @show size(y)
+    return size(y) == (2*units, mb)
+end
+
+
+
+function test_layer_Peep_rnn()
+    depth, seq, units, mb = 16, 5, 8, 10
+    mask = convert2KnetArray(zeros(seq, mb))
+    layer = Recurrent(depth, units, u_type=Peep)  
+    x = convert2KnetArray(rand(depth, seq, mb))
+    y = layer(x, mask=mask)
+    #@show size(y)
+    return size(y) == (units, mb)
+end
+
 
 function test_layer_H_rnn()
     depth, seq, units, mb = 16, 5, 8, 10
@@ -164,6 +267,17 @@ function test_layer_H_rnn()
     h = get_hidden_states(l)
     c = get_cell_states(l)
     return size(h) == (units,mb,1) && size(c) == (units,mb,1)
+end
+
+function test_layer_RNN_2d()
+    depth, seq, units, mb = 16, 5, 8, 1
+    l = Recurrent(depth, units)
+    x = convert2KnetArray(rand(depth, seq))
+    y = l(x, h=0, c=0)
+
+    h = get_hidden_states(l)
+    c = get_cell_states(l)
+    return size(h) == (units,mb,1)
 end
 
 function test_layer_K_rnn()

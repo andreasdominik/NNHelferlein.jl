@@ -81,8 +81,17 @@ using Statistics: mean
 
 @test test_layer_seq_tagger()
 @test test_layer_seq_classi()
+@test test_layer_rnn_loop()
+
+@test test_layer_rnn_bi()
+@test test_layer_rnn_bi_tagger()
+@test test_layer_rnn_bi_tagger_loop_Knet()
+@test test_layer_Peep_rnn_bi()
+@test test_layer_Peep_rnn()
+
 @test test_layer_H_rnn()
 @test test_layer_K_rnn()
+@test test_layer_RNN_2d()
 @test test_get_set_rnn()
 
 
