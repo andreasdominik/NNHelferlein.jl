@@ -691,7 +691,7 @@ struct Recurrent <: Layer
                 back = u_type(n_inputs, n_units; o...)
             end
         end
-        return new(n_inputs, n_units, u_type, rnn, rnn, 
+        return new(n_inputs, n_units, u_type, rnn, back,  ## ToDo: back not rnn!
                    hasproperty(rnn, :c), allow_mask)
     end
 end
