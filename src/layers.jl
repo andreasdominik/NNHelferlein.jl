@@ -696,7 +696,6 @@ struct Recurrent <: Layer
     end
 end
 
-using CUDA
 
 function (rnn::Recurrent)(x; c=nothing, h=nothing, 
                           return_all=false, mask=nothing)
@@ -739,8 +738,6 @@ function (rnn::Recurrent)(x; c=nothing, h=nothing,
             
             if return_all
                 hidden = cat(h_f, h_r[:,:,end:-1:1], dims=1)
-                CUDA.unsafe_free!(h_f)
-                CUDA.unsafe_free!(h_r)
             else
                 #@show size(rnn.rnn.h)
                 #@show size(rnn.back_rnn.h)

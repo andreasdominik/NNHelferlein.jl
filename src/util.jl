@@ -120,8 +120,13 @@ function convert2CuArray(x, innerType=Float32)
 
     # check if GPU and accept all type of Array-like x:
     #
+    # if CUDA.functional()
+    #     return CuArray{innerType}(Array(x))
+    # else
+    #     return Array{innerType}(x)
+    # end
     if CUDA.functional()
-        return CuArray{innerType}(Array(x))
+        return KnetArray{innerType}(Array(x))
     else
         return Array{innerType}(x)
     end
