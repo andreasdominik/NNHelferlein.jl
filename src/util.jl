@@ -126,7 +126,7 @@ function convert2CuArray(x, innerType=Float32)
     #     return Array{innerType}(x)
     # end
     if CUDA.functional()
-        return Knet.KnetArray{innerType}(Array(x))
+        return CuArray{innerType}(Array(x))
     else
         return Array{innerType}(x)
     end
@@ -158,10 +158,15 @@ By default an empty matrix is returned.
 function emptyCuArray(size...=(0,0);innerType=Float32)
 
     if CUDA.functional()
-        return Knet.KnetArray{innerType}(undef, size...)
+        return CuArray{innerType}(undef, size...)
     else
         return Array{innerType}(undef, size...)
     end
+    #if CUDA.functional()
+    #    return Knet.KnetArray{innerType}(undef, size...)
+    #else
+    #    return Array{innerType}(undef, size...)
+    #end
 end
 
 emptyKnetArray(o...) = emptyCuArray(o...)
