@@ -691,7 +691,7 @@ struct Recurrent <: Layer
                 back = u_type(n_inputs, n_units; o...)
             end
         end
-        return new(n_inputs, n_units, u_type, rnn, back, 
+        return new(n_inputs, n_units, u_type, rnn, rnn, 
                    hasproperty(rnn, :c), allow_mask)
     end
 end
@@ -737,7 +737,7 @@ function (rnn::Recurrent)(x; c=nothing, h=nothing,
     else
         #println("manual")
         if isnothing(rnn.back_rnn)   # not bidirectional:
-            h = rnn_loop(rnn.rnn, x, rnn.n_units, mask)
+            h = rnn_loop(rnn.rnn, x, rnn.n_units, mask)     
         else        
             h_f = rnn_loop(rnn.rnn, x, rnn.n_units, mask)
             h_r = rnn_loop(rnn.back_rnn, x, rnn.n_units, mask, true)
@@ -779,7 +779,7 @@ function rnn_loop(rnn, x, n_units, mask=nothing, backward=false)
             rnn.c = init0(n_units, mb)
     end
 
-    # init h and c with a 0-timestep ... 1 step must be removed at the end!
+    # init h collection:
     #
     hs = emptyKnetArray(n_units, mb, 0)
 
