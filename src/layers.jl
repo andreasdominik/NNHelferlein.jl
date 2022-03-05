@@ -780,7 +780,7 @@ function rnn_loop(rnn, x, n_units, mask=nothing, backward=false)
 
     # init h and c with a 0-timestep ... 1 step must be removed at the end!
     #
-    hs = init0(n_units, mb, 0)
+    hs = emptyKnetArray(n_units, mb, 0)
 
     if backward
         step_range = steps:-1:1

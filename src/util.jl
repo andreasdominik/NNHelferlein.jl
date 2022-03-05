@@ -158,13 +158,13 @@ By default an empty matrix is returned.
 function emptyCuArray(size...=(0,0);innerType=Float32)
 
     if CUDA.functional()
-        return CuArray{innerType}(undef, size...)
+        return Knet.KnetArray{innerType}(undef, size...)
     else
         return Array{innerType}(undef, size...)
     end
 end
 
-emptyKnetArray(size...=(0,0);innerType=Float32) = emptyCuArray(size..., innerType)
+emptyKnetArray(o...) = emptyCuArray(o...)
 
 
 """
