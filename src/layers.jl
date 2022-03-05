@@ -610,7 +610,8 @@ steps for all smaples of the minibatch (with model depth as first and samples of
 
 ### Constructors:
 
-    Recurrent(n_inputs::Int, n_units::Int; u_type=:lstm, o...)
+    Recurrent(n_inputs::Int, n_units::Int; u_type=:lstm, 
+              bidirectional=false, allow_mask=false, o...)
 
 + `n_inputs`: number of inputs
 + `n_units`:  number of units 
@@ -618,6 +619,12 @@ steps for all smaples of the minibatch (with model depth as first and samples of
         (`:relu, :tanh, :lstm, :gru`) or a type which must be a 
         subtype of `RecurrentUnit` and fullfill the repective interface 
         (see the docs for `RecurentUnit`).
++ `bidirectional=false`: if true, 2 layers of `n_units` units will be defined
+        and run in forward and backward direction respectively. The hidden
+        state is [2*n_units*mb] or [2*n_units,steps,mb] id `return_all==true`.
++ `allow_mask=false`: if maskin is allowed a slower algorithm is used to be 
+        able to ignore any masked step. Arbitrary sequence positions may be 
+        masked for any sequence.
 Any keyword argument of `Knet.RNN` or 
 a self-defined `RecurrentUnit` type may be provided.
 
@@ -643,7 +650,7 @@ or a 3-dimensional array of [fan-in, steps, batchsize].
     ([units, minibatch]).
 + `mask`: optional mask for the input sequence minibatch of shape 
     [steps, minibatch]. Values in the mask must be 1.0 for masked positions
-    or 0.0 otherwise and of type `Float32` or `KnetArray{Float32}` for GPU context. 
+    or 0.0 otherwise and of type `Float32` or `CuArray{Float32}` for GPU context. 
     Appropriate masks can be generated with the NNHelferlein function 
     `mk_padding_mask()`.
 
@@ -660,19 +667,32 @@ struct Recurrent <: Layer
     rnn
     back_rnn
     has_c
-    function Recurrent(n_inputs::Int, n_units::Int; u_type=:lstm, o...)
+    allow_mask
+
+    function Recurrent(n_inputs::Int, n_units::Int; u_type=:lstm, 
+                       allow_mask=false, bidirectional=false, o...)
         back = nothing
         if u_type isa Symbol 
-            rnn = Knet.RNN(n_inputs, n_units; rnnType=u_type, h=0, c=0, o...)
+            if !allow_mask
+                rnn = Knet.RNN(n_inputs, n_units; rnnType=u_type, h=0, c=0, 
+                               bidirectional=bidirectional, o...)
+            else
+                rnn = Knet.RNN(n_inputs, n_units; rnnType=u_type, h=0, c=0, 
+                               bidirectional=false, o...)
+                if bidirectional
+                    back = Knet.RNN(n_inputs, n_units; rnnType=u_type, h=0, c=0, 
+                                    bidirectional=false, o...)
+                end
+            end
+
         elseif u_type isa Type && u_type <: RecurrentUnit
             rnn = u_type(n_inputs, n_units; o...)
-            if haskey(o, :bidirectional) && o[:bidirectional]
+            if bidirectional
                 back = u_type(n_inputs, n_units; o...)
             end
-        else
-            rnn = Knet.RNN(n_inputs, n_units; rnnType=:lstm, h=0, c=0, o...)
         end
-        return new(n_inputs, n_units, u_type, rnn, back, hasproperty(rnn, :c))
+        return new(n_inputs, n_units, u_type, rnn, back, 
+                   hasproperty(rnn, :c), allow_mask)
     end
 end
 
@@ -702,7 +722,7 @@ function (rnn::Recurrent)(x; c=nothing, h=nothing,
     # life is easy without masking and if Knet.RNN
     # otherwise step-by-step loop is needed:
     #
-    if rnn.rnn isa Knet.RNN && isnothing(mask) 
+    if rnn.rnn isa Knet.RNN && !rnn.allow_mask
         #println("Knet")
         h = rnn.rnn(x)
     else
@@ -711,13 +731,18 @@ function (rnn::Recurrent)(x; c=nothing, h=nothing,
             h = rnn_loop(rnn.rnn, x, rnn.n_units, mask)
         else        
             h_f = rnn_loop(rnn.rnn, x, rnn.n_units, mask)
-            h_r = rnn_loop(rnn.rnn, x, rnn.n_units, mask, true)
+            h_r = rnn_loop(rnn.back_rnn, x, rnn.n_units, mask, true)
             
             if return_all
                 h = cat(h_f, h_r[:,:,end:-1:1], dims=1)
             else
-                h = cat(rnn.h, back_rnn.h, dims=1)
-                h = reshape(h, 2*n_units, mb, 1)
+                #@show size(rnn.rnn.h)
+                #@show size(rnn.back_rnn.h)
+                #@show size(h_f)
+                #@show size(h_r)
+
+                h = cat(rnn.rnn.h, rnn.back_rnn.h, dims=1)
+                h = reshape(h, 2*rnn.n_units, mb, 1)
             end
         end
 
