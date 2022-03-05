@@ -126,7 +126,7 @@ function convert2CuArray(x, innerType=Float32)
     #     return Array{innerType}(x)
     # end
     if CUDA.functional()
-        return KnetArray{innerType}(Array(x))
+        return Knet.KnetArray{innerType}(Array(x))
     else
         return Array{innerType}(x)
     end
