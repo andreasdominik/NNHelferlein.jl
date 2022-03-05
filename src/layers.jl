@@ -621,7 +621,7 @@ steps for all smaples of the minibatch (with model depth as first and samples of
         (see the docs for `RecurentUnit`).
 + `bidirectional=false`: if true, 2 layers of `n_units` units will be defined
         and run in forward and backward direction respectively. The hidden
-        state is [2*n_units*mb] or [2*n_units,steps,mb] id `return_all==true`.
+        state is `[2*n_units*mb]` or `[2*n_units,steps,mb]` id `return_all==true`.
 + `allow_mask=false`: if maskin is allowed a slower algorithm is used to be 
         able to ignore any masked step. Arbitrary sequence positions may be 
         masked for any sequence.
@@ -719,12 +719,14 @@ function (rnn::Recurrent)(x; c=nothing, h=nothing,
         rnn.rnn.c = c
     end
 
+    hidden = 0
+
     # life is easy without masking and if Knet.RNN
     # otherwise step-by-step loop is needed:
     #
     if rnn.rnn isa Knet.RNN && !rnn.allow_mask
         #println("Knet")
-        h = rnn.rnn(x)
+        hidden = rnn.rnn(x)
     else
         #println("manual")
         if isnothing(rnn.back_rnn)   # not bidirectional:
@@ -734,15 +736,17 @@ function (rnn::Recurrent)(x; c=nothing, h=nothing,
             h_r = rnn_loop(rnn.back_rnn, x, rnn.n_units, mask, true)
             
             if return_all
-                h = cat(h_f, h_r[:,:,end:-1:1], dims=1)
+                hidden = cat(h_f, h_r[:,:,end:-1:1], dims=1)
+                unsafe_free!(h_f)
+                unsafe_free!(h_r)
             else
                 #@show size(rnn.rnn.h)
                 #@show size(rnn.back_rnn.h)
                 #@show size(h_f)
                 #@show size(h_r)
 
-                h = cat(rnn.rnn.h, rnn.back_rnn.h, dims=1)
-                h = reshape(h, 2*rnn.n_units, mb, 1)
+                hidden = cat(rnn.rnn.h, rnn.back_rnn.h, dims=1)
+                hidden = reshape(h, 2*rnn.n_units, mb, 1)
             end
         end
 
@@ -750,9 +754,9 @@ function (rnn::Recurrent)(x; c=nothing, h=nothing,
 
 
     if return_all
-        return permutedims(h, (1,3,2)) # h of all steps: [units, time-steps, mb]
+        return permutedims(hidden, (1,3,2)) # h of all steps: [units, time-steps, mb]
     else
-        return h[:,:,end]     # last h: [units, mb]
+        return hidden[:,:,end]     # last h: [units, mb]
     end
 end
 
