@@ -713,11 +713,17 @@ function (rnn::Recurrent)(x; c=nothing, h=nothing,
     
     # init h and c fields:
     #
-    if !isnothing(h)
+    if !isnothing(h)     # ToDo: unbox old vals! h = value(h)
         rnn.rnn.h = h
+        if !isnothing(rnn.back_rnn)
+            rnn.back_rnn.h = h
+        end
     end
     if rnn.has_c && !isnothing(c)
         rnn.rnn.c = c
+        if !isnothing(rnn.back_rnn)
+            rnn.back_rnn.c = c
+        end
     end
 
     hidden = 0
@@ -739,11 +745,6 @@ function (rnn::Recurrent)(x; c=nothing, h=nothing,
             if return_all
                 hidden = cat(h_f, h_r[:,:,end:-1:1], dims=1)
             else
-                #@show size(rnn.rnn.h)
-                #@show size(rnn.back_rnn.h)
-                #@show size(h_f)
-                #@show size(h_r)
-
                 hidden = cat(rnn.rnn.h, rnn.back_rnn.h, dims=1)
                 hidden = reshape(h, 2*rnn.n_units, mb, 1)
             end
