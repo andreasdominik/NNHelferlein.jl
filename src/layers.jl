@@ -696,6 +696,8 @@ struct Recurrent <: Layer
     end
 end
 
+using CUDA
+
 function (rnn::Recurrent)(x; c=nothing, h=nothing, 
                           return_all=false, mask=nothing)
     
