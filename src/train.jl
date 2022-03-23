@@ -210,10 +210,12 @@ function tb_train!(mdl, opti, trn, vld=nothing; epochs=1,
         end
 
         for p in params(loss)
-            Δw = grad(loss, p) + p .* l2
+            Δw = grad(loss, p) 
+            # Δw = grad(loss, p) .+ p .* l2
             # println("updating $i: $(p.opt.lr), Δw: -")
-            CUDA.@allowscalar Knet.update!(p, Δw)
+            Knet.update!(value(p), Δw, p.opt) 
         end
+
 
         # TensorBoard:
         #
