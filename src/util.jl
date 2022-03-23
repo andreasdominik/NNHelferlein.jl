@@ -312,7 +312,7 @@ de_embed(x)
 ```
 """
 function de_embed(x)
-    return getindex.(argmax(x, dims=1), 1)
+    return reshape(getindex.(argmax(x, dims=1), 1), size(x)[2:end])
 end
 
 # dead code:
