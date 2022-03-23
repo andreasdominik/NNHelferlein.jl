@@ -20,6 +20,7 @@ using Statistics: mean
 @test test_dpa()
 @test test_masks()
 @test test_dotp_attn()
+@test test_mha()
 
 
 

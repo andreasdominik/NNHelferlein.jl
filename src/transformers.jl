@@ -136,3 +136,85 @@ function dot_prod_attn(q, k, v; mask=nothing)
     c = bmm(v, α)
     return c, α
 end
+
+
+"""
+    struct MultiHeadAttn <: Layer
+
+Multi-headed attention layer, designed following the Vaswani, 2017 paper.
+
+### Constructor:
+
+    MultiHeadAttn(depth, n_heads) 
+
++ `depth`: Embedding depth
++ `n_heads`: number of heads for the attention.
+
+### Signature:
+
+    function(mha::MultiHeadAttn)(q, k, v; mask=nothing)
+
+`q, k, v` are 3-dimensional tensors of the same size
+([depth, seq_len, n_minibatch]) and the optional mask must be of 
+size [seq_len, n_minibatch] and mark masked positions with 1.0.
+
+"""
+mutable struct MultiHeadAttn
+    dense_q        # x -> q
+    dense_k        # x -> K
+    dense_v        # x -> v
+    depth          # embedding
+    n_heads        #
+    h_depth        # embedding / heads
+    dense_out      # out layer
+    MultiHeadAttn(depth, n_heads) = new(Linear(depth, depth), Linear(depth, depth), 
+                                        Linear(depth, depth),
+                                        depth, n_heads, depth÷n_heads,
+                                        Linear(depth, depth))
+end
+
+function(mha::MultiHeadAttn)(q, k, v; mask=nothing)
+
+    q = mha.dense_q(q)      # [depth, n_seq, n_mb]
+    k = mha.dense_k(k)
+    v = mha.dense_v(v)
+
+    q = separate_heads(q, mha.n_heads)      # [depth/n, n_seq, n_heads, n_mb]
+    k = separate_heads(k, mha.n_heads)
+    v = separate_heads(v, mha.n_heads)
+
+    c, α = dot_prod_attn(q, k, v, mask=mask)  # c: [depth/n, n_seq, n_heads, n_mb]
+                                              # α: [n_seq, n_seq, n_heads, n_mb]
+    c = merge_heads(c)                        # [depth, n_seq_ n_mb]
+    return mha.dense_out(c), α
+end
+
+
+
+
+"""
+    function separate_heads(x, n)
+
+Helper function for multi-headed attention mechanisms: 
+an additional second dimension is added to a tensor of minibatches
+by splitting the first (i.e. depth).
+"""
+function separate_heads(x, n)
+    depth, seq, mb = size(x)
+    mh_depth = depth ÷ n
+    x = reshape(x, mh_depth, n, :, mb)     # split depth in 2 separate dims for heads
+    return permutedims(x, (1,3,2,4))       # bring seq-len back to 2nd dim
+end
+
+"""
+    function merge_heads(x)
+
+Helper to merge the result of multi-headed attention back to full
+depth .
+"""
+function merge_heads(x)
+    mh_depth, seq, n, mb = size(x)
+    depth = mh_depth * n
+    x = permutedims(x, (1,3,2,4))          # bring heads back to 2nd dim
+    return reshape(x, depth, :, mb)        # merde depth and heads (dims 1 and 2) into 1st dim
+end

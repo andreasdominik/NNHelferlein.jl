@@ -62,7 +62,8 @@ export DNN, Classifier, Regressor, Chain, VAE,          # chains
        leaky_sigm, leaky_relu, leaky_tanh,
        PositionalEncoding, positional_encoding_sincos,  # transformers
        mk_padding_mask, mk_peek_ahead_mask,
-       dot_prod_attn,
+       dot_prod_attn, MultiHeadAttn,
+       separate_heads, merge_heads,
        dataframe_read, dataframe_split,         # import data
        dataframe_minibatches, mk_class_ids,
        MBNoiser,
