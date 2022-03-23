@@ -1,7 +1,7 @@
 """
     function tb_train!(mdl, opti, trn, vld=nothing; epochs=1, split=nothing,
                       lr_decay=nothing, lrd_steps=5, lrd_linear=false,
-                      l2=0.0,
+                      l2=nothing, l1=nothing,
                       eval_size=0.2, eval_freq=1,
                       acc_fun=nothing,
                       mb_loss_freq=100,
@@ -40,7 +40,9 @@ The model is updated (in-place) and the trained model is returned.
         If `false`, lr is modified
         by a constant factor (e.g. 0.9) resulting in an exponential decay.
         If `true`, lr is modified by the same step size, i.e. linearly.
-+ `l2=0.0`: L2 regularisation; implemented as weight decay per
++ `l1=nothing`: L1 regularisation; implemented as weight decay per
+        parameter
++ `l2=nothing`: L2 regularisation; implemented as weight decay per
         parameter
 + `opti_args...`: optional keyword arguments for the optimiser can be specified
         (i.e. `lr`, `gamma`, ...).
@@ -85,7 +87,7 @@ TensorBoard log-directory is created from 3 parts:
 function tb_train!(mdl, opti, trn, vld=nothing; epochs=1,
                   split=nothing,
                   lr_decay=nothing, lrd_steps=5, lrd_linear=false,
-                  l2=0.0,
+                  l2=nothing, l1=nothing,
                   eval_size=0.2, eval_freq=1, acc_fun=nothing,
                   mb_loss_freq=100,
                   checkpoints=nothing, cp_dir="checkpoints",
@@ -146,6 +148,15 @@ function tb_train!(mdl, opti, trn, vld=nothing; epochs=1,
     end
 
 
+    # prepare l1/l2:
+    #
+    if !isnothing(l2)
+        l2 = Float32(l2 / 2)
+    end
+    if !isnothing(l1)
+        l1 = Float32(l1)
+    end
+
     # mk log directory:
     #
     start_time = Dates.now()
@@ -175,7 +186,7 @@ function tb_train!(mdl, opti, trn, vld=nothing; epochs=1,
                     min_level=Logging.Info)
     log_text(tbl, tb_log_dir, tb_name, start_time, tb_text,
              opti, trn, vld, epochs,
-             lr_decay, lrd_steps, l2,
+             lr_decay, lrd_steps, l2, l1,
              checkpoints, opti_args)
     calc_and_report_loss(mdl, eval_trn, eval_vld, tbl, 0)
 
@@ -211,9 +222,14 @@ function tb_train!(mdl, opti, trn, vld=nothing; epochs=1,
 
         for p in params(loss)
             Δw = grad(loss, p) 
-            # Δw = grad(loss, p) .+ p .* l2
-            # println("updating $i: $(p.opt.lr), Δw: -")
             Knet.update!(value(p), Δw, p.opt) 
+            
+            if !isnothing(l2)
+                p.value .+= p.value .* l2
+            end
+            if !isnothing(l1)
+                p.value .+= sign.(p.value) .* l1
+            end
         end
 
 
@@ -286,7 +302,7 @@ end
 
 function log_text(tbl, tb_log_dir, tb_name, start_time, tb_text,
                   opti, trn, vld, epochs,
-                  lr_decay, lrd_steps, l2,
+                  lr_decay, lrd_steps, l2, l1,
                   checkpoints, opti_args)
 
     if isnothing(vld)
@@ -313,8 +329,11 @@ function log_text(tbl, tb_log_dir, tb_name, start_time, tb_text,
     if !isnothing(lr_decay)
         tb_log_text *= "   <li>learning rate is reduced to $lr_decay in $lrd_steps steps.</li>"
     end
-    if l2 > 0
+    if !isnothing(l2)
         tb_log_text *= "   <li>L2 regularisation: $l2</li>"
+    end
+    if !isnothing(l1)
+        tb_log_text *= "   <li>L1 regularisation: $l1</li>"
     end
     if !isnothing(checkpoints)
         tb_log_text *= "   <li>Checkpoints are saved $checkpoints times per epoch</li>"
