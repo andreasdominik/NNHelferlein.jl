@@ -291,28 +291,38 @@ end
 
 
 """
-    function de_embed(x)
+    function de_embed(x; remove_dim=false)
 
 Replace the maximum of the first dimension of an n-dimensional array
 by its index (aka argmax()).
-The returned array has the first dimension with size 1.
+If `remove_dim` is true, the result has the first dimension removed;
+otherwise the returned array has the first dimension with size 1 
+(default).
 
 ### Examples:
 ```Julia
-x = [1,1,3,4,2]
-de_embed(x)
-> 4
+> x = [1 1 1
+       2 1 1
+       1 2 1
+       1 1 2]
+> de_embed(x)
+1×3 Matrix{Int64}:
+ 2  3  4
 
-x = [1 1 1
-     2 1 1
-     1 2 1
-     1 1 2]
-de_embed(x)
-> [2 3 4]
+> de_embed(x, remove_dim=true)
+3-element Vector{Int64}:
+ 2
+ 3
+ 4
 ```
 """
-function de_embed(x)
-    return reshape(getindex.(argmax(x, dims=1), 1), size(x)[2:end])
+function de_embed(x; remove_dim=false)
+    r = getindex.(argmax(x, dims=1), 1)
+    if remove_dim
+        return reshape(r, size(x)[2:end])
+    else
+        return r
+    end
 end
 
 # dead code:
