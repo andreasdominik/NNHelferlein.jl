@@ -82,3 +82,13 @@ function test_dotp_attn()
 
     return size(dpa[1]) == (4,4,2,6)
 end
+
+
+function test_mha()
+    mha = MultiHeadAttn(512, 8)
+    x = convert2CuArray(randn(Float32, 512, 16, 64)) 
+    c,a = mha(x,x,x)
+
+    return size(c) == (512, 16, 64) && size(a) == (16, 16, 8, 64)
+end
+

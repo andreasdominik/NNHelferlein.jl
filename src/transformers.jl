@@ -218,3 +218,7 @@ function merge_heads(x)
     x = permutedims(x, (1,3,2,4))          # bring heads back to 2nd dim
     return reshape(x, depth, :, mb)        # merde depth and heads (dims 1 and 2) into 1st dim
 end
+
+
+
+
