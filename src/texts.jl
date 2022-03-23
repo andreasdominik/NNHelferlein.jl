@@ -274,7 +274,7 @@ function (t::WordTokenizer)(seq::AbstractArray{T}; o...) where {T <: Integer}
 
     # return a list of sequences:
     #
-    return join(t.(seq, o...), " ")
+    return join(t.(Array(seq), o...), " ")
 end
 
 
@@ -516,8 +516,9 @@ function sequence_minibatch(x, batchsize;
                               shuffle=false, partial=false)
 
     return sequence_minibatch(x, nothing, batchsize; 
-                       pad=pad, x_padding=x_padding,
-                       shuffle=shuffle, partial=partial)
+                              seq2seq=false, 
+                              pad=pad, x_padding=x_padding,
+                              shuffle=shuffle, partial=partial)
 end
 
 function sequence_minibatch(x, y, batchsize; 
