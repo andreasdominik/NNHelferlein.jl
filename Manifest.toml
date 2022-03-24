@@ -41,8 +41,6 @@ version = "0.6.5"
 [[deps.AutoGrad]]
 deps = ["Libdl", "LinearAlgebra", "SpecialFunctions", "Statistics", "TimerOutputs"]
 git-tree-sha1 = "0f97c20e513d18e9c0d8f58e1b6eb0e288249832"
-repo-rev = "master"
-repo-url = "https://github.com/denizyuret/AutoGrad.jl.git"
 uuid = "6710c13c-97f1-543f-91c5-74e8f7d95b35"
 version = "1.2.5"
 
@@ -666,9 +664,9 @@ uuid = "14a3606d-f60d-562e-9121-12d972cd8159"
 
 [[deps.NNlib]]
 deps = ["Adapt", "ChainRulesCore", "Compat", "LinearAlgebra", "Pkg", "Requires", "Statistics"]
-git-tree-sha1 = "996a3dca9893cb0741bbd08e48b2e2aa0d551898"
+git-tree-sha1 = "a59a614b8b4ea6dc1dcec8c6514e251f13ccbe10"
 uuid = "872c559c-99b0-510c-b3b7-b6c96a88d5cd"
-version = "0.8.2"
+version = "0.8.4"
 
 [[deps.NaNMath]]
 git-tree-sha1 = "b086b7ea07f8e38cf122f5016af580881ac914fe"
