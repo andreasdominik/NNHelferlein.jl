@@ -27,6 +27,13 @@ CI badge
 
 The package is not yet released but can be installed manually with the Julia
 package manager.
+
+```Julia
+using Pkg
+Pkg.add(url="https://github.com/andreasdominik/NNHelferlein.jl.git")
+```
+
+<!---
 Due to a backwards incompatibility with the dependency `AutoGrad.jl`, it is
 currently necessary to manually install the latest version of AutoGrad.jl instead
 of the released version 1.2.4 to be used with NNHelferlein:
@@ -36,7 +43,7 @@ using Pkg
 Pkg.add(url="https://github.com/andreasdominik/NNHelferlein.jl.git")
 Pgk.add(url="https://github.com/denizyuret/AutoGrad.jl.git")
 ```
-
+--->
 
 
 # Caveat:
