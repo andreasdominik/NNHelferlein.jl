@@ -60,7 +60,7 @@ updates the model with the possibility to specify optimiser, training
 and validation data or an optional split ratio to perform a random 
 training/validation split. The function offers a multitude of 
 other options (see the API-documentation for details) and writes
-tensorboard log-files that allow for online plotting of the 
+tensorboard log-files that allow for online monitoring of the 
 training progress during training via tensorboard.
 
 A second way to define a model is the `add_layer!()`-syntax, here shown
@@ -127,7 +127,7 @@ In the Python world this type of definition is often referred to
 as the functional API - in the Julia world we hesitate calling 
 it an API, 
 because at the end of the day all is just out-of-the-box Julia!
-Each model just needs a type able to store all parameters, 
+Each model just needs a type, able to store all parameters, 
 a signature `model(x)` to compute a forward run and predict
 the result and a signature `model(x,y)` to calculate the loss.
 
@@ -161,7 +161,7 @@ struct LeNet
                    Dense(512, 10, actf=identity))
 end
 ```
-Of course the model may be configured with by giving the constructor
+Of course the model may be configured by giving the constructor
 more parameters.
 Also the code may be written better organised by combining
 layers to `Chains`.
