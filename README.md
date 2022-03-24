@@ -50,6 +50,9 @@ Pgk.add(url="https://github.com/denizyuret/AutoGrad.jl.git")
 Please be aware that the package is still in development and
 not yet compltetely tested. You may already use it on own risk.
 
+While reading this, I must add: the package is *almost* ready with an
+not-so-bad test coverage. If you see the tests passing in the moment, 
+it may be save to use the helpers.
 
 As soon as dev. and tests are completed the package will be
 registered (however maybe under a different name).
