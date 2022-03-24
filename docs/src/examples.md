@@ -55,7 +55,7 @@ All examples are at [GitHub/examples](https://github.com/andreasdominik/NNHelfer
   and its application to example images utilising the
   *Helferlein* imagenet-utilities.
 
-+ [`Transformer for mahine translation`]
++ [`Transformer for machine translation`]
   (https://github.com/andreasdominik/NNHelferlein.jl/blob/main/examples/80-transformer.ipynb):
   A simple transformer architecture is set up according to the
   2017 Vaswani paper *Attention is All You Need* with help of 
