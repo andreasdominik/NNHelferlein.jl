@@ -75,17 +75,6 @@ AttnInFeed
 ```
 
 
-## Layers and helpers for transformers
-
-```@docs
-PositionalEncoding
-mk_padding_mask
-mk_peek_ahead_mask
-dot_prod_attn
-MultiHeadAttn
-separate_heads
-merge_heads
-```
 
 # Data providers
 
@@ -183,13 +172,16 @@ get_imagenet_classes
 
 # Other utils
 
-## Utils for transformers
+## Layers and helpers for transformers
 
 ```@docs
-positional_encoding_sincos
+PositionalEncoding
 mk_padding_mask
 mk_peek_ahead_mask
 dot_prod_attn
+MultiHeadAttn
+separate_heads
+merge_heads
 ```
 
 
