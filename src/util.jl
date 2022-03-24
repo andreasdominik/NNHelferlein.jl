@@ -317,29 +317,32 @@ otherwise the returned array has the first dimension with size 1
 ```
 """
 function de_embed(x; remove_dim=false)
-    r = getindex.(argmax(x, dims=1), 1)
+
+    siz = size(x)
+    depth = siz[1]
+    siz = siz[2:end]
+
+    x = reshape(x, depth, :)
+    x = softmax(x, dims=1)
+    x = [argmax(x[:,i]) for i in 1:size(x)[2]]
     if remove_dim
-        return reshape(r, size(x)[2:end])
+        return reshape(x, siz...)
     else
-        return r
+        return reshape(x, 1,siz...)
     end
 end
 
-# dead code:
-# function de_embed(x; remove_dim=true)
-# 
-#     siz = size(x)
-#     depth = siz[1]
-#     siz = siz[2:end]
-# 
-#     x = reshape(x, depth, :)
-#     x = softmax(x, dims=1)
-#     x = [argmax(x[:,i]) for i in 1:size(x)[2]]
+
+# Dead code:
+# this nice implementation is not running on the GPU and 
+# causing an warning.
+#
+# function de_embed(x; remove_dim=false)
+#     r = getindex.(argmax(x, dims=1), 1)
 #     if remove_dim
-#         return reshape(x, siz...)
+#         return reshape(r, size(x)[2:end])
 #     else
-#         return reshape(x, 1,siz...)
+#         return r
 #     end
 # end
-# 
 

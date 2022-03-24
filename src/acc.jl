@@ -212,10 +212,10 @@ function hamming_dist(p, t; accuracy=false, ignore_ctls=false, vocab=nothing,
     # make 2d matrix of sequences:
     #
     n_seq_t = size(t)[1]
-    t = reshape(copy(t), n_seq_t,:)
+    t = reshape(Array(t), n_seq_t,:)
 
     n_seq_p = size(p)[1]
-    p = reshape(copy(p), n_seq_p,:)
+    p = reshape(Array(p), n_seq_p,:)
 
     n_mb = size(t)[2]
 
