@@ -108,7 +108,7 @@ function dataframe_minibatches(data; size=16, ignore=[], teaching="y",
             teach = mk_class_ids(data[!,teaching])[1]
             y = permutedims(Array{UInt8}(teach))
 
-        elseif t_type <: Int              # take values as class_ids
+        elseif t_type <: Integer          # take values as class_ids
             y = permutedims(Array{UInt8}(data[!,teaching]))
 
         elseif t_type <: Real             # use as is -> probably regression
