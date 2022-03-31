@@ -103,6 +103,9 @@ using Statistics: mean
 @test test_peak_finder_acc()
 @test test_hamming()
 @test test_hamming_acc()
+@test test_hamming_vocab()
+@test test_hamming_length()
+
 
 
 # utils:

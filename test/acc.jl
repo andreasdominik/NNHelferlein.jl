@@ -67,3 +67,32 @@ function test_hamming_acc()
         
        return isapprox(acc, 0.76, atol=0.1)
 end
+
+
+
+function test_hamming_vocab()
+    tok = WordTokenizer(["I love Julia",
+                         "Peter loves Python",
+                         "We all marvel Geoff"])
+    l = tok(["I love Julia", "Peter loves Python", "We all marvel Geoff"],
+            add_ctls=true)
+
+     h1 = hamming_dist([1, 7, 9, 8, 2], [1, 5, 9, 8, 2], vocab=tok)  # =! 1
+
+     return h1 == 1
+end
+
+
+function test_hamming_length()
+    tok = WordTokenizer(["I love Julia",
+                         "Peter loves Python",
+                         "We all marvel Geoff"])
+    l = tok(["I love Julia", "Peter loves Python", "We all marvel Geoff"],
+            add_ctls=true)
+     p = [1, 7, 9, 8, 2]
+     t = [1, 7, 9, 2]
+     h1 = hamming_dist(p, t, vocab=tok)  # =! 1
+     h2 = hamming_dist(t, p, vocab=tok)  # =! 2
+
+     return h1 == 1 && h2 == 2
+end
