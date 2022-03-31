@@ -17,6 +17,9 @@ using Statistics: mean
 @test test_attnLocation()
 @test test_attnInFeed()
 
+@test test_attn_reset()
+@test test_attn_resize()
+
 @test test_dpa()
 @test test_masks()
 @test test_dotp_attn()

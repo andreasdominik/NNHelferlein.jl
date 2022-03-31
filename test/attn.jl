@@ -7,6 +7,15 @@ depth, mb, t = 3, 4, 6
 h_enc = convert2KnetArray(randn(Float32, depth, mb, t))
 h_t = convert2KnetArray(randn(Float32, depth, mb))
 
+function test_attn_reset()
+    a = AttnBahdanau(depth, depth)
+
+    a.projections = rand(depth, depth)
+    a()   # reset = true
+
+    return !isnothing(a.projections)
+end
+
 function test_attn(attn)
     a = attn(depth, depth)
     c,α = a(h_t, h_enc)
@@ -35,6 +44,19 @@ function test_attnInFeed()
     return size(c) == (3,4)
 end
 
+
+function test_attn_resize()
+    size_3 = size(resize_attn_mask(rand(5,5,5))) # 5,5,5
+    size_2 = size(resize_attn_mask(rand(5,5))) # 1,5,5
+    size_1 = size(resize_attn_mask(rand(5))) # 1,1,5
+    size_o = size(resize_attn_mask(rand(5,5,5,5))) # 1,
+
+    return size_3 == (5,5,5) &&
+           size_2 == (1,5,5) &&
+           size_1 == (1,1,5) &&
+           size_o == (1,)
+end
+    
 
 
 # transformer tests:
@@ -91,4 +113,5 @@ function test_mha()
 
     return size(c) == (512, 16, 64) && size(a) == (16, 16, 8, 64)
 end
+
 
