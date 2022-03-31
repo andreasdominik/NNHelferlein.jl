@@ -45,6 +45,7 @@ function test_attnInFeed()
 end
 
 
+import NNHelferlein: resize_attn_mask
 function test_attn_resize()
     size_3 = size(resize_attn_mask(rand(5,5,5))) # 5,5,5
     size_2 = size(resize_attn_mask(rand(5,5))) # 1,5,5
