@@ -289,7 +289,7 @@ function hamming_dist(p, t; accuracy=false, ignore_ctls=false, vocab=nothing,
     end
 
     # return accuracy ? (sum(p .== t) - num_pad)/(length(t)-num_pad) : sum(p .!= t)/n_mb
-    return dist
+    # return dist
 end
 
 function hamming_acc(p, t; o...)
