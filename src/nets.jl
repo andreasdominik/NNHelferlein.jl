@@ -183,7 +183,7 @@ Type for a generic variational autoencoder.
 Separate predefinded chains (ideally, but not necessarily of type `Chain`) 
 for encoder and decoder must be specified.
 The VAE needs the 2 parameters mean and variance to define the distribution of each
-code-neuron in the bottleneck-layer. In consequence the encoder outputmust be 2 times 
+code-neuron in the bottleneck-layer. In consequence the encoder output must be 2 times 
 the size of the decoder input
 (in case of dense layers: if encoder output is a 8-value vector,
 4 codes are defined and the decoder input is a 4-value vector;

@@ -74,14 +74,14 @@ Almost standard dense layer, but functionality inspired by
 the TensorFlow-layer:
 + capable to work with input tensors of
   any number of dimensions
-+ default activation function `indetity`
++ default activation function `identity`
 + optionally without biases.
 
 The shape of the input tensor is preserved; only the size of the
 first dim is changed from in to out.
 
 ### Constructors:
-+ `Linear(i::Int, j::Int; bias=true, actf=identity)` weher `i` is fan-in
++ `Linear(i::Int, j::Int; bias=true, actf=identity)` where `i` is fan-in
         and `j` is fan-out.
 
 ### Keyword arguments:
