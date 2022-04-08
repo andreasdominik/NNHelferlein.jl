@@ -19,13 +19,13 @@ end
 Default Dense layer.
 
 ### Constructors:
-+ `Dense(w, b, actf)`: default constructor
-+ `Dense(i::Int, j::Int; actf=sigm)`: layer of j neurons with
-        i inputs.
-+ `Dense(h5::HDF5.File, group::String; trainable=false, actf=sigm)`:
++ `Dense(w, b, actf)`: default constructor, `w` are the weights and `b` the bias.
++ `Dense(i::Int, j::Int; actf=sigm)`: layer of `j` neurons with
+        `i` inputs.
++ `Dense(h5::HDF5.File, group::String; trainable=false, actf=sigm)`: kernel and bias are loaded by the specified `group`.
 + `Dense(h5::HDF5.File, kernel::String, bias::String;
         trainable=false, actf=sigm)`: layer
-        imported from a hdf5-file from tensorflow with the
+        imported from a hdf5-file from TensorFlow with the
         hdf-object hdfo and the group name group.
 """
 struct Dense  <: Layer
@@ -74,14 +74,14 @@ Almost standard dense layer, but functionality inspired by
 the TensorFlow-layer:
 + capable to work with input tensors of
   any number of dimensions
-+ default activation function `indetity`
++ default activation function `identity`
 + optionally without biases.
 
 The shape of the input tensor is preserved; only the size of the
 first dim is changed from in to out.
 
 ### Constructors:
-+ `Linear(i::Int, j::Int; bias=true, actf=identity)` weher `i` is fan-in
++ `Linear(i::Int, j::Int; bias=true, actf=identity)` where `i` is fan-in
         and `j` is fan-out.
 
 ### Keyword arguments:
@@ -126,7 +126,7 @@ Default Conv layer.
     o kernels of size (w1,w2) for an input of i layers.
 + `Conv(h5::HDF5.File, group::String; trainable=false, actf=relu)`:
 + `Conv(h5::HDF5.File, group::String; trainable=false, actf=relu)`: layer
-        imported from a hdf5-file from tensorflow with the
+        imported from a hdf5-file from TensorFlow with the
         hdf-object hdfo and the group name group.
 
 ### Keyword arguments:
@@ -198,11 +198,11 @@ end
 Pooling layer.
 
 ### Constructors:
-+ `Pool(;kwargs...)`: max pooling; without kwargs, 2x2-pooling
++ `Pool(;kwargs...)`: max pooling; without `kwargs`, 2x2-pooling
         is performed.
 
 ### Keyword arguments:
-+ `window=2`: pooling window size (same for both directions)
++ `window=2`: pooling `window` size (same for both directions)
 + `...`: See the Knet documentation for Details:
         https://denizyuret.github.io/Knet.jl/latest/reference/#Convolution-and-Pooling.
         All keywords to the Knet function `pool` are supported.
@@ -376,16 +376,16 @@ the index of the "one" in the vector has to be provided as Integer value
 
 ### Constructors:
 + `Embed(v,d; actf=identity):` with
-    vocab size v, embedding depth d and default activation function idendity.
+    vocab size `v`, embedding depth `d` and default activation function identity.
 
 ### Signatures:
 + `(l::Embed)(x) = l.actf.(w[:,x])` default
-  embedding of input tensor x.
+  embedding of input tensor `x`.
 
 ### Value:
 The embedding is constructed by adding a first dimension to the input tensor
 with number of rows = embedding depth.
-If x is a column vector, the value is a matrix. If x is as row-vector or
+If `x` is a column vector, the value is a matrix. If `x` is as row-vector or
 a matrix, the value is a 3-d array, etc.
 """
 struct Embed <: Layer
@@ -431,7 +431,7 @@ end
 
 Dropout layer.
 Implemented with help of Knet's dropout() function that evaluates
-AutoGrad.recording() to detect if in training or inprediction.
+AutoGrad.recording() to detect if in training or in prediction.
 Dropouts are applied only if prediction.
 
 ### Constructors:
@@ -468,7 +468,7 @@ y = a \\cdot \\frac{(x - \\mu)}{(\\sigma + \\epsilon)} + b
 ```
 
 ### Constructors:
-+ `Batchnom(; trainable=false, channels=0)` will initialise
++ `BatchNorm(; trainable=false, channels=0)` will initialise
         the moments with `Knet.bnmoments()` and
         trainable parameters `a` and `b` only if
         `trainable==true` (in this case, the number of channels must
@@ -481,7 +481,7 @@ dimensions (2), (1,2,4) and (1,2,3,5) for 2d, 4d and 5d arrays, respectively.
 If `trainable=true` and `channels != 0`, trainable
 parameters `a` and `b` will be initialised for each channel.
 
-If `trainable=true` and `channels == 0` (i.e. `Batchnom(trainable=true)`),
+If `trainable=true` and `channels == 0` (i.e. `BatchNorm(trainable=true)`),
 the params `a` and `b` are not initialised by the constructor.
 Instead,
 the number of channels is inferred when the first minibatch is normalised
@@ -565,7 +565,7 @@ added to every value of the sample vector.
         of activations for one sample of the layer.
 
 ### Signatures:
-+ `function (l::LayerNorm)(x; dims=1)`: normalise x along the given dimensions.
++ `function (l::LayerNorm)(x; dims=1)`: normalise `x` along the given dimensions.
         The size of the specified dimension must fit with the initialised `depth`.
 """
 struct LayerNorm  <: Layer
@@ -600,7 +600,7 @@ end
     struct Recurrent <: Layer
 
 One layer RNN that works with minimatches of (time) series data.
-minibatch can be a 2- or 3-dimensional Array.
+Minibatch can be a 2- or 3-dimensional Array.
 If 2-d, inputs for one step are in one column and the Array has as
 many colums as steps.
 If 3-d, the last dimension iterates the samples of the minibatch.
@@ -617,7 +617,7 @@ steps for all smaples of the minibatch (with model depth as first and samples of
 + `n_units`:  number of units 
 + `u_type` :  unit type can be one of the Knet unit types
         (`:relu, :tanh, :lstm, :gru`) or a type which must be a 
-        subtype of `RecurrentUnit` and fullfill the repective interface 
+        subtype of `RecurrentUnit` and fullfill the respective interface 
         (see the docs for `RecurentUnit`).
 + `bidirectional=false`: if true, 2 layers of `n_units` units will be defined
         and run in forward and backward direction respectively. The hidden
@@ -827,7 +827,7 @@ end
     function get_hidden_states(l::<RNN_Type>; flatten=true)
 
 Return the hidden states of one or more layers of an RNN.
-`<RNN_Type>` is one of `NNHelderlein.Recurrent`, `Knet.RNN`.
+`<RNN_Type>` is one of `NNHelferlein.Recurrent`, `Knet.RNN`.
 
 ### Arguments:
 + `flatten=true`: if the states tensor is 3d with a 3rd dim > 1, the 
@@ -857,7 +857,7 @@ end
     function get_cell_states(l::<RNN_Type>; unbox=true, flatten=true)
 
 Return the cell states of one or more layers of an RNN only if
-it is a LSTM.
+it is a LSTM (Long short-term memory).
 
 ### Arguments:
 + `unbox=true`: By default, c is unboxed when called in `@diff` context (while AutoGrad 
@@ -894,7 +894,7 @@ end
     function set_hidden_states!(l::<RNN_Type>, h)
 
 Set the hidden states of one or more layers of an RNN
-to h.
+to `h`.
 """
 function set_hidden_states!(l::Union{Recurrent, Knet.RNN}, h)
     if l isa Recurrent
@@ -908,7 +908,7 @@ end
     function set_cell_states!(l::<RNN_Type>, c)
 
 Set the cell states of one or more layers of an RNN
-to c.
+to `c`.
 """
 function set_cell_states!(l::Union{Recurrent, Knet.RNN}, c)
     if l isa Recurrent
