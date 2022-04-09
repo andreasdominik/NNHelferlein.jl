@@ -16,22 +16,22 @@ Calculate an accuracy-like measure for data series consisting
 mainly of zeros and rare peaks.
 The function counts the number of peaks in `y` detected by `p` 
 (*true positives*), peaks not detected (*false negatives*) 
-and the nnumber of peaks in `p` not present in `y` 
+and the number of peaks in `p` not present in `y` 
 (*false positives*).
 
 It is assumed that peaks in `y` are marked by a single value
 higher as the limit (typically 1.0). Peaks in `p` may be 
 broader; and are defined as local maxima with a value above
 the limit.
-If the tolerance ist set to >0, it may happen that the peaks at the first 
-or last step are not evaluated (because evaluation stopss at 
+If the tolerance ist set to > 0, it may happen that the peaks at the first 
+or last step are not evaluated (because evaluation stops at 
 `end-tolerance`).
 
 If requested, *f1*, *G-mean* and *intersection over union* 
 are calulated from the raw values .
 
 ### Arguments:
-+ `p`, `t`: Predictions and teaching input (i.e. `y`) are mini-batches of
++ `p`, `t`: Predictions `p` and teaching input `t` (i.e. `y`) are mini-batches of
             1-d series of data. The sequence must be in the 1st dimension
             (column). All other dims are treated as separate windows
             of length size(p/t,1).
@@ -39,7 +39,7 @@ are calulated from the raw values .
         `:peaks`, `:recall`, `:precision`, `:miss_rate`, `:f1`,
         `:g_mean`, `:iou` or `:all`.
         If `:all` a named tuple is returned.
-+ `vervose=0`: if `0`, no additional output is generated;
++ `verbose=0`: if `0`, no additional output is generated;
         if `1`, composite measures are printed to stdout;
         if `2`, all raw counts are printed.
 + `tolerance=1`: peak finder tolerance: The peak is defined as *correct*
