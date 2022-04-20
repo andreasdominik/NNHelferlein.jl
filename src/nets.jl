@@ -46,16 +46,16 @@ end
 """
     struct Regressor
 
-Regression network with square loss.
+Regression network with square loss as loss function.
 
 ### Signatures:
-    (m::Regression)(x,y) = sum(abs2.( m(x) - y))
+    (m::Regression)(x,y) = sum(abs2, Array(m(x)) - y)
 """
 struct Regressor <: DNN
     layers
     Regressor(layers...) = new(Any[layers...])
 end
-(m::Regressor)(x,y) = sum(abs2, m(x) .- y)
+(m::Regressor)(x,y) = sum(abs2, Array(m(x)) - y)
 
 
 
