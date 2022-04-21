@@ -86,6 +86,9 @@ function dataframe_minibatches(data; size=16, ignore=[], teaching="y",
     end
     cols = filter(c->!(c in ignore), names(data))
     
+
+    # TODO: message is wrong if regression!
+    #
     if verbose > 0
         println("make minibatches")
         println("... number of records used:  $(Base.size(data,1))")
