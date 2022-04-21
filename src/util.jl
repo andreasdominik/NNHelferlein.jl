@@ -107,13 +107,15 @@ end
 """
     function convert2CuArray(x, innerType=Float32)
     function convert2KnetArray(x, innerType=Float32)
+    function ifgpu(x, innerType=Float32)
 
 Convert an array `x` to a `CuArray{Float32}` or whatever specified as innerType
 only in GPU context
 (if `CUDA.functional()`) or to an `Array{Float32}` otherwise.
 By converting, the data is copied to the GPU.
 
-`convert2KnetArray()` is kept as an alias for backward compatibility.
+`convert2KnetArray()` is kept as an alias for backward compatibility.    
+`ifgpu()` is an alias/shortcut to `convert2KnetArray()`.
 
 """
 function convert2CuArray(x, innerType=Float32)
@@ -132,6 +134,7 @@ function convert2CuArray(x, innerType=Float32)
     end
 end
 convert2KnetArray(x, innerType=Float32) = convert2CuArray(x, innerType)
+ifgpu(x, innerType=Float32) = convert2CuArray(x, innerType)
 
 
 """
