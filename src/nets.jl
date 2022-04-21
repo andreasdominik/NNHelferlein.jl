@@ -55,7 +55,7 @@ struct Regressor <: DNN
     layers
     Regressor(layers...) = new(Any[layers...])
 end
-(m::Regressor)(x,y) = sum(abs2, Array(m(x)) - y)
+(m::Regressor)(x,y) = sum(abs2, ifgpu(y) .- m(x))
 
 
 
