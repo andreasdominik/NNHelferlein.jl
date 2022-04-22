@@ -180,7 +180,7 @@ Type for a generic variational autoencoder.
 
 ### Constructor:
     VAE(encoder, decoder)
-Separate predefinded chains (ideally, but not necessarily of type `Chain`) 
+Separate predefind chains (ideally, but not necessarily of type `Chain`) 
 for encoder and decoder must be specified.
 The VAE needs the 2 parameters mean and variance to define the distribution of each
 code-neuron in the bottleneck-layer. In consequence the encoder output must be 2 times 

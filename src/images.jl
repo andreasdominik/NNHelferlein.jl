@@ -27,15 +27,15 @@ vector of class IDs as Int.
         for all classes). Balancing is achieved via oversampling
 + `shuffle`: if true, shuffle the images everytime the iterator
         restarts
-+ `train`: if true, minibatches with (x,y) Tuples are provided,
++ `train`: if true, minibatches with (x,y) tuples are provided,
         if false only x (for prediction)
 + `pre_load`: if `true` all images are loaded in advance;
-        otherwise images are loaded on demand durng training.
+        otherwise images are loaded on demand during training.
         (option is *not implemented yet!*)
 + `aug_pipl`: augmentation pipeline for Augmentor.jl. Augmentation
         is performed before the pre_proc-function is applied
 + `pre_proc`: function with preprocessing
-        and augmentation algoritms of type x = f(x). In contrast
+        and augmentation algorithms of type x = f(x). In contrast
         to the augmentation that modifies images, is `pre_proc`
         working on Arrays{Float32}.
 + `pre_load=false`: read all images from disk once when populating the

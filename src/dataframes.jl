@@ -20,7 +20,7 @@ function dataframe_read(fname)
         return readCSV(fname)
     else
         println("Error: unknown file format!")
-        println("Please support csv or ods file")
+        println("Please support csv file")
         return nothing
     end
 end
@@ -51,7 +51,7 @@ with one sample per row.
 + `teaching="y"`: defines the column name with teaching input. Default is "y".
                 `teaching` is handled differently, depending on its type:
                 If `Int`, the teaching input is interpreted as
-                class ids and directly used for training (this assumes that
+                class IDs and directly used for training (this assumes that
                 the values range from 1..n). If type is a String, values are
                 interpreted as class labels and converted to numeric class IDs
                 by calling `mk_class_ids()`. The list of valid lables and their
@@ -186,11 +186,11 @@ end
     function dataframe_split(df::DataFrames.DataFrame;
                              teaching="y", fr=0.2, balanced=true)
 
-Split data, organised row-wise in a DataFrame into train and valid sets.
+Split data, organised row-wise in a DataFrame into train and validation sets.
 
 ### Arguments:
 + `df`: data
-+ `teaching="y"`: name or index of column with teaching input (y)
++ `teaching="y"`: name or index of column with teaching input "y"
 + `fr=0.2`: fraction of data to be used for validation
 + `shuffle=true`: shuffle the rows of the dataframe.
 + `balanced=true`: if `true`, result datasets will be balanced by oversampling.
@@ -226,7 +226,7 @@ Gaussian noise with mean=1.0 and sd=sigma.
 ### Construtors:
     MBNoiser(mbs::Knet.Data, σ=1.0)
 
-+ `mbs`: iteraor with minibatches
++ `mbs`: iterator with minibatches
 + `σ`: standard deviation for the Gaussian noise
 
 ### Example:
@@ -272,13 +272,13 @@ Base.length(it::MBNoiser) = length(it.mbs)
     function split_minibatches(it, at=0.8; shuffle=true)
 
 Return 2 iterators od type `PartialIterator` which iterate only parts of the 
-states of the iterator it. 
+states of the iterator `it`. 
 Be aware that the partial iterators will not contain copies of the data
 but instead forward the data provided by the iterator `it`.
 
 The function can be used to split an iterator of minibatches into train- 
 and validation iterators, without copying any data.
-As the PartialIterator objects work with teh states of the inner iterator,
+As the `PartialIterator` objects work with the states of the inner iterator,
 it is important *not* to shuffle the inner iterator (in this case the 
 composition of the partial iterators would change!).
 

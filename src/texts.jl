@@ -285,7 +285,7 @@ end
     function get_tatoeba_corpus(lang; force=false,
                 url="https://www.manythings.org/anki/")
 
-Download and read a bilingual text corpus from Tatoeba (privided)
+Download and read a bilingual text corpus from Tatoeba (provided)
 by ManyThings (https://www.manythings.org).
 All corpi are English-*Language*-pairs with different size and
 quality. Considerable languages include:
@@ -296,7 +296,7 @@ quality. Considerable languages include:
 + `tur`: Turkish-English, 514 000 sentences
 
 The function returns two lists with corresponding sentences in both
-languages. Sentences are are *not* processed/normalised/cleaned, but
+languages. Sentences are *not* processed/normalised/cleaned, but
 exactly as provided by Tatoeba.
 
 The data is stored in the package directory and only downloaded once.
@@ -369,7 +369,7 @@ end
 # 
 # Return an iterator of type `Knet.Data` with sequence minibatches from a
 # list of sequences.
-# all
+# All
 # keyword args of [`Knet.minibatch()`](https://denizyuret.github.io/Knet.jl/latest/reference/#Knet.Train20.minibatch) can be used.
 # 
 # All sequences in x are brought to the same length by truncating (if too long)
@@ -422,7 +422,7 @@ end
 # 
 # Return an iterator of type `Knet.Data` with (x,y) sequence minibatches from
 # two lists of sequences.
-# all
+# All
 # keyword args of [`Knet.minibatch()`](https://denizyuret.github.io/Knet.jl/latest/reference/#Knet.Train20.minibatch) can be used.
 # 
 # All sequences in x and y are brought to the same length
@@ -436,14 +436,14 @@ end
 # + `seq_len=nothing`: demanded length of sequences in the minibatches.
 #         If `nothing`, all sequences are padded to match with the longest
 #         sequence. In case of `opti == true` sequences are truncated to 
-#         sqe_len.
-# + `optimize=false`: if `false` minibatches with the giveb seqence length are created. 
+#         `sqe_len`.
+# + `optimize=false`: if `false` minibatches with the given seqence length are created. 
 #         If `true` the sequence lengths are optimized to minimize padding, by sorting 
 #         the sequences by their length and restricting the seq-length of each minibatch
-#         to teh langest sequence of the minibatch.
+#         to the longest sequence of the minibatch.
 # + `pad_x=3`,
 # + `pad_y=x`: token, used for padding. The token must be compatible
-#         with the type of the sequence elements. If pad_y is omitted, pad_y is ste 
+#         with the type of the sequence elements. If pad_y is omitted, pad_y is set 
 #         equal to pad_x.
 # + `o...`: any other keyword arguments of `Knet.minibatch()`, such as
 #         `shuffle=true` or `partial=true` can be provided.
@@ -487,7 +487,7 @@ by padding with the token provided as `pad`.
 The sequences are sorted by length before building minibatches in order to 
 reduce padding (i.e. sequences of similar length are combined to a minibatch).
 If the same sequence length is needed for all minibatches, the sequences
-must be truncted or padded before call of `sequence_minibatch()` 
+must be truncated or padded before call of `sequence_minibatch()` 
 (see functions `truncate_seqence()` and `pad_sequence()`).
 
 ### Arguments:
@@ -502,7 +502,7 @@ must be truncted or padded before call of `sequence_minibatch()`
         created. Otherwise `y` is treated as scalar teaching input.
 + `shuffle=true`: The minibatches are shuffled as last step. If `false` the minibatches 
         with short sequences will be at the beginning of the dataset.
-+ `partial=false`: If `true`, a partial minibatch will be created if necessray to 
++ `partial=false`: If `true`, a partial minibatch will be created if necessaray to 
         include all input data.
 + `x_padding=false`: if `true`, pad sequences in x to make minibatches of the demanded size, 
         even if there are not
@@ -624,7 +624,7 @@ end
     function truncate_sequence(s, len; end_token=nothing)
 
 Truncate a sequence to the length `len`. 
-If not `isnothing(end_token)`, the last token of the sequenceis 
+If not `isnothing(end_token)`, the last token of the sequence is 
 overwritten by the token.
 """
 function truncate_sequence(s, len; end_token=nothing)
