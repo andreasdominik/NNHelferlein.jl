@@ -86,22 +86,23 @@ function dataframe_minibatches(data; size=16, ignore=[], teaching="y",
     end
     cols = filter(c->!(c in ignore), names(data))
     
-
-    # TODO: message is wrong if regression!
-    #
     if verbose > 0
-        println("make minibatches")
+        println("makeing minibatches from DataFrame:")
         println("... number of records used:  $(Base.size(data,1))")
         println("... teaching input y is:     $teaching")
-        println("... number of classes:       $(length(unique(data[!,teaching])))")
         println("... number of columns used:  $(length(cols))")
         println("... data columns:            $cols")
     end
+
 
     x = convert2KnetArray(data[!,cols])
     x = permutedims(x)
 
     if isnothing(teaching)
+        if verbose > 0
+            println("... no teaching input specified!")
+        end
+
         return Knet.minibatch(x, size; o...)
     else
         # care for type of teaching column:
@@ -121,6 +122,15 @@ function dataframe_minibatches(data; size=16, ignore=[], teaching="y",
             println("Don't know how to handle teaching input of type $t_type")
             return nothing
         end
+
+        if verbose > 0
+            if t_type <: Real 
+                println("... y is scalar in range     $(minimum(data[!,teaching])) - $(maximum(data[!,teaching]))")
+            else    
+                println("... number of classes:       $(length(unique(data[!,teaching])))")
+            end
+        end
+
         return Knet.minibatch(x, y, size; o...)
     end
 end
