@@ -115,6 +115,7 @@ only in GPU context
 By converting, the data is copied to the GPU.
 
 `convert2KnetArray()` is kept as an alias for backward compatibility.    
+   
 `ifgpu()` is an alias/shortcut to `convert2KnetArray()`.
 
 """
