@@ -232,7 +232,7 @@ Recycle an array `x` along the specified dimension
 (default the last dimension)
 and repeat the content of the array `n` times.
 The number of dims stays unchanged, but the array
-valueas are repeated `n` times.
+values are repeated `n` times.
 
 ### Arguments:
 + `x`: Array of any dimension

@@ -35,7 +35,7 @@ The model is updated (in-place) and the trained model is returned.
         0.01 to 0.001 during the training (by default in 5 steps).
 + `lrd_steps=5`: number of learning rate decay steps. Default is `5`, i.e.
         modify the lr 4 times during the training (resulting in 5 different 
-        leraning rates).
+        learning rates).
 + `lrd_linear=false`: type of learning rate decay;
         If `false`, lr is modified
         by a constant factor (e.g. 0.9) resulting in an exponential decay.
@@ -78,7 +78,7 @@ The model is updated (in-place) and the trained model is returned.
 TensorBoard log-directory is created from 3 parts:
 `tb_dir/tb_name/<current date time>`.
 
-+ `tb_dir="logs"`: root directory for tensorborad logs.
++ `tb_dir="logs"`: root directory for TensorBoard logs.
 + `tb_name="run"`: name of training run. `tb_name` will be used as
         directory name and should not include whitespace
 + `tb_text`:  description
