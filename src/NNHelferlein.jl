@@ -1,5 +1,5 @@
 module NNHelferlein
-
+# import Pkg; Pkg.add("Images")
 import Base: iterate, length, summary
 using LinearAlgebra
 using Unicode
@@ -20,6 +20,8 @@ import Images, Colors
 import Augmentor
 import MLDataUtils
 using TensorBoardLogger, Logging
+import MLBase: confusmat
+using FileIO
 
 include("types.jl")
 include("util.jl")
@@ -84,6 +86,7 @@ export DNN, Classifier, Regressor, Chain, VAE,          # chains
        blowup_array, recycle_array,
        de_embed,
        print_network,
-       DATA_DIR #, download_example_data, download_pretrained
+       DATA_DIR, #, download_example_data, download_pretrained
+       confusion_matrix
 
 end # module
