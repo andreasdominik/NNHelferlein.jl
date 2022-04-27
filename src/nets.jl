@@ -89,8 +89,6 @@ function add_layer!(n::NNHelferlein.DNN, l)
 end
 
 
-import Base.+
-
 """
     function +(n::DNN, l::Union{Layer, Chain})
 
@@ -128,7 +126,7 @@ Total number of layers: 3
 Total number of parameters: 51
 ```
 """
-function +(n::NNHelferlein.DNN, l::Union{NNHelferlein.Layer, NNHelferlein.Chain})
+function Base.:+(n::NNHelferlein.DNN, l::Union{NNHelferlein.Layer, NNHelferlein.Chain})
     add_layer!(n, l)
     return n
 end
