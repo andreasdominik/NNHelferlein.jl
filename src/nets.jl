@@ -99,7 +99,7 @@ to a network.
 
 ### Example:
 
-```Julia
+```julia
 julia> mdl = Classifier() + Dense(2,5)
 julia> print_network(mdl)
 
