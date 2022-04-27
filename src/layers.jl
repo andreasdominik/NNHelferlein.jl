@@ -5,15 +5,6 @@
 
 
 """
-    abstract type Layer end
-
-Mother type for layers hierarchy.
-"""
-abstract type Layer
-end
-
-
-"""
     struct Dense  <: Layer
 
 Default Dense layer.
