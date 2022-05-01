@@ -87,7 +87,7 @@ function dataframe_minibatches(data; size=16, ignore=[], teaching="y",
     cols = filter(c->!(c in ignore), names(data))
     
     if verbose > 0
-        println("makeing minibatches from DataFrame:")
+        println("making minibatches from DataFrame:")
         println("... number of records used:  $(Base.size(data,1))")
         println("... teaching input y is:     $teaching")
         println("... number of columns used:  $(length(cols))")
