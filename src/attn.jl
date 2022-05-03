@@ -41,14 +41,14 @@ dimensions are the same.
 + `reset=false`: If the keyword argument is set to `true`, projections of
             the encoder states are computed. By default projections are
             stored in the object and reused until the object is resetted.
-            For attention mechanisms that don't allow precomputation
+            For attention mechanisms that do not allow precomputation
             the argument is ignored.
 
 The short form `(::AttentionMechanism)(reset=true)` can be used to reset
 the precomputed projections.
 
 ### Return values
-All functions return `c` and `α` where α is a matrix of size [mb,steps]
+All functions return `c` and `α` where `α` is a matrix of size [mb,steps]
 with the attention factors for each step and minibatch.
 `c` is a matrix of size [units, mb] with the context vector for
 each sample of the minibatch, calculated as the α-weighted sum of
@@ -279,9 +279,9 @@ according to the Luong, et al. (2015) paper.
     AttnLocation(len, dec_units; scale=true)
 
 + `len`: maximum sequence length of the encoder to be considered
-        for attention. If the actual length of ``h_{enc}`` is bigger as the
-        length of α, attention factors for the remaining states are set to
-        0.0. If the actual length of h_enc is smaller than α, only the matching
+        for attention. If the actual length of ``h_{enc}`` is bigger than the
+        length of `α`, attention factors for the remaining states are set to
+        0.0. If the actual length of h_enc is smaller than `α`, only the matching
         attention factors are applied.
 + `dec_units`: number of decoder units.
 """
@@ -355,9 +355,9 @@ next input token.
     AttnInFeed(len, dec_units, fan_in; scale=true)
 
 + `len`: maximum sequence length of the encoder to be considered
-        for attention. If the actual length of ``h_{enc}`` is bigger as the
-        length of α, attention factors for the remaining states are set to
-        0.0. If the actual length of h_enc is smaller than α, only the matching
+        for attention. If the actual length of ``h_{enc}`` is bigger than the
+        length of `α`, attention factors for the remaining states are set to
+        0.0. If the actual length of `h_enc` is smaller than `α`, only the matching
         attention factors are applied.
 + `dec_units`: number of decoder units.
 + `fan_in`: size of the decoder input.

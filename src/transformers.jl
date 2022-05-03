@@ -30,7 +30,7 @@ end
 Positional encoding layer. Only *sincos*-style (according to
 Vaswani, et al., NIPS 2017) is implemented.
 
-The layer takes an array of any any number of dimensions (>=2), calculates
+The layer takes an array of any number of dimensions (>=2), calculates
 the Vaswani-2017-style positional encoding and adds the encoding to each plane
 of the array.
 """
@@ -53,7 +53,7 @@ end
 
 Make a padding mask; i.e. return an Array of type
 `KnetArray{Float32}` (or `Array{Float32}`) similar to `x` but with
-two additional dimension of size 1 in the middle (this will represent the
+two additional dimensions of size 1 in the middle (this will represent the
 2nd seq_len and the number of heads) in multi-head attention
 and the
 value `1.0` at each position where `x` is `pad` and `0.0` otherwise.
@@ -67,7 +67,7 @@ mechanisms.
 + `pad`: value for the token to be masked
 + `add_dims`: if `true`, 2 additional dimensions are inserted to 
     return a 4-D-array as needed for transformer architectures. Otherwise
-    the size of teh returned array is similar to x.
+    the size of the returned array is similar to `x`.
 """
 function mk_padding_mask(x; pad=TOKEN_PAD, add_dims=false)
 
@@ -89,7 +89,7 @@ The matrix can be used as peek-ahead mask in transformers.
 
 `dim=1` specifies the dimension in which the sequence length is
 represented. For un-embedded data this is normally `1`, i.e. the
-shape of x is [n_seq, n_mb]. After embedding the shape probably is
+shape of `x` is [n_seq, n_mb]. After embedding the shape probably is
 [depth, n_seq, n_mb].
 """
 function mk_peek_ahead_mask(x; dim=1)
@@ -114,7 +114,7 @@ Vaswani et al., (2017), *Attention Is All You Need*.
         broadcastable for addition to the scores tensor (which as the same size as
         alpha `[n_seq_v, n_seq_q, ...]`). In transformer context typical masks are one of:
         padding mask of size `[n_seq_v, ...]` or a peek-ahead mask of size `[n_seq_v, n_seq_v]`
-        (which is only possible in case of self-attention when all seqencee lengths
+        (which is only possible in case of self-attention when all sequence lengths
         are identical).
 
 `q, k, v` must have matching leading dimensions (i.e. same depth or embedding).

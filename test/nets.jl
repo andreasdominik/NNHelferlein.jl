@@ -175,3 +175,11 @@ function test_symbolic_api()
             nnc(16) ≈ 4.0 &&
             nnr(16) ≈ 1.41421356237
 end
+
+function test_add()
+    mdl = Classifier() + Dense(2,5)
+    mdl = mdl + Dense(5,5) + Dense(5,1, actf=identity)
+    n = print_network(mdl)
+
+    return n == 3
+end

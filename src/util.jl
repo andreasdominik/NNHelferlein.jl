@@ -107,13 +107,16 @@ end
 """
     function convert2CuArray(x, innerType=Float32)
     function convert2KnetArray(x, innerType=Float32)
+    function ifgpu(x, innerType=Float32)
 
 Convert an array `x` to a `CuArray{Float32}` or whatever specified as innerType
 only in GPU context
 (if `CUDA.functional()`) or to an `Array{Float32}` otherwise.
 By converting, the data is copied to the GPU.
 
-`convert2KnetArray()` is kept as an alias for backward compatibility.
+`convert2KnetArray()` is kept as an alias for backward compatibility.    
+   
+`ifgpu()` is an alias/shortcut to `convert2KnetArray()`.
 
 """
 function convert2CuArray(x, innerType=Float32)
@@ -132,6 +135,7 @@ function convert2CuArray(x, innerType=Float32)
     end
 end
 convert2KnetArray(x, innerType=Float32) = convert2CuArray(x, innerType)
+ifgpu(x, innerType=Float32) = convert2CuArray(x, innerType)
 
 
 """
@@ -229,7 +233,7 @@ Recycle an array `x` along the specified dimension
 (default the last dimension)
 and repeat the content of the array `n` times.
 The number of dims stays unchanged, but the array
-valueas are repeated `n` times.
+values are repeated `n` times.
 
 ### Arguments:
 + `x`: Array of any dimension

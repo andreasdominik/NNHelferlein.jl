@@ -44,7 +44,7 @@ DATA_DIR = normpath(joinpath(dirname(pathof(@__MODULE__)), "..", "data"))
 export DNN, Classifier, Regressor, Chain, VAE,          # chains
        DataLoader, SequenceData, PartialIterator,
        RecurrentUnit,
-       add_layer!,
+       add_layer!, 
        split_minibatches,
        ImageLoader, preproc_imagenet,
        get_class_labels,
@@ -81,7 +81,7 @@ export DNN, Classifier, Regressor, Chain, VAE,          # chains
        sequence_minibatch, pad_sequence, truncate_sequence, 
        TOKEN_START, TOKEN_END, TOKEN_PAD, TOKEN_UNKOWN,
        crop_array, init0, 
-       convert2CuArray, emptyCuArray,
+       convert2CuArray, emptyCuArray, ifgpu,
        convert2KnetArray, emptyKnetArray,
        blowup_array, recycle_array,
        de_embed,

@@ -81,7 +81,28 @@ mlp = tb_train!(lenet, Adam, dtrn, epochs=10, split=0.8,
                 acc_fun=accuracy, eval_size=0.2)
 ```
 
-Of course, both possibilities can be combined as desired; the
+As an alternative the `+`-operator is overloaded to be able to 
+just add layers to a network:
+
+```julia
+julia> mdl = Classifier() + Dense(2,5)
+julia> mdl = mdl + Dense(5,5) + Dense(5,1, actf=identity)
+julia> print_network(mdl)
+
+NNHelferlein neural network summary:
+Classifier with 3 layers,                                           51 params
+Details:
+ 
+    Dense layer 2 → 5 with sigm,                                    15 params
+    Dense layer 5 → 5 with sigm,                                    30 params
+    Dense layer 5 → 1 with identity,                                 6 params
+ 
+Total number of layers: 3
+Total number of parameters: 51
+```
+
+
+Of course, all possibilities can be combined as desired; the
 following code gives a similar model:
 
 ```julia

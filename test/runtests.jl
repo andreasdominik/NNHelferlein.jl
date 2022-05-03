@@ -138,6 +138,8 @@ using Statistics: mean
 @test test_decay_cp()
 
 @test test_vae()
+@test test_add()
+
 
 
 @test test_summary()

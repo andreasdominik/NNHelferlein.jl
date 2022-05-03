@@ -46,16 +46,16 @@ end
 """
     struct Regressor
 
-Regression network with square loss.
+Regression network with square loss as loss function.
 
 ### Signatures:
-    (m::Regression)(x,y) = sum(abs2.( m(x) - y))
+    (m::Regression)(x,y) = sum(abs2, Array(m(x)) - y)
 """
 struct Regressor <: DNN
     layers
     Regressor(layers...) = new(Any[layers...])
 end
-(m::Regressor)(x,y) = sum(abs2, m(x) .- y)
+(m::Regressor)(x,y) = sum(abs2, ifgpu(y) .- m(x))
 
 
 
@@ -81,9 +81,55 @@ length(n::NNHelferlein.DNN) = length(n.layers)
 
 Add a layer `l` or a chain to a model `n`. The layer is always added 
 at the end of the chains. 
+The modified model is returned.
 """
-add_layer!(n::NNHelferlein.DNN, l) = push!(n.layers, l)
+function add_layer!(n::NNHelferlein.DNN, l)
+    push!(n.layers, l)
+    return n
+end
 
+
+"""
+    function +(n::DNN, l::Union{Layer, Chain})
+
+The `plus`-operator is overloaded to be able to add layers and chains 
+to a network.
+
+### Example:
+
+```julia
+julia> mdl = Classifier() + Dense(2,5)
+julia> print_network(mdl)
+
+NNHelferlein neural network summary:
+Classifier with 1 layers,                                           15 params
+Details:
+ 
+    Dense layer 2 → 5 with sigm,                                    15 params
+ 
+Total number of layers: 1
+Total number of parameters: 15
+
+
+julia> mdl = mdl + Dense(5,5) + Dense(5,1, actf=identity)
+julia> print_network(mdl)
+
+NNHelferlein neural network summary:
+Classifier with 3 layers,                                           51 params
+Details:
+ 
+    Dense layer 2 → 5 with sigm,                                    15 params
+    Dense layer 5 → 5 with sigm,                                    30 params
+    Dense layer 5 → 1 with identity,                                 6 params
+ 
+Total number of layers: 3
+Total number of parameters: 51
+```
+"""
+function Base.:+(n::NNHelferlein.DNN, l::Union{NNHelferlein.Layer, NNHelferlein.Chain})
+    add_layer!(n, l)
+    return n
+end
 
 
 
@@ -180,7 +226,7 @@ Type for a generic variational autoencoder.
 
 ### Constructor:
     VAE(encoder, decoder)
-Separate predefinded chains (ideally, but not necessarily of type `Chain`) 
+Separate predefind chains (ideally, but not necessarily of type `Chain`) 
 for encoder and decoder must be specified.
 The VAE needs the 2 parameters mean and variance to define the distribution of each
 code-neuron in the bottleneck-layer. In consequence the encoder output must be 2 times 
