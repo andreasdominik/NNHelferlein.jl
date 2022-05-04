@@ -22,6 +22,7 @@ import MLDataUtils
 using TensorBoardLogger, Logging
 import MLBase: confusmat
 using FileIO
+import KnetMetrics
 
 include("types.jl")
 include("util.jl")

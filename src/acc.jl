@@ -308,3 +308,36 @@ function hamming_acc(mdl; data=data, o...)
     return mean(acc)
 end
     
+
+"""
+confusion_matrix(mdl; data)
+
+Compute and display the confusion matrix of  
+(x,y)-minibatches. Predictions are calculated with model `mdl` for which 
+a signature `mdl(x)` must exist.
+
+The function is an interface to the function `confusion_matrix` 
+provided by the package `KnetMetrics`.
+
+### Arguments:
+`mdl`: mdl with signature `mdl(x)` to generate predictions
+`data`: minibatches of (x,y)-tuples
+`print_matrix=false`: if `true`, the matrix will pe displayed to stdout
+`labels=nothing`: a vecor of human readable labels can be provided 
+`others`: all other arguments of `KnetMetrics.confusion_matrix()`
+        may be provided and will be forwarded.
+"""
+function confusion_matrix(mdl; data, print_matrix=false, labels=nothing, o...)
+
+    p, y = predict(mdl, data=data)
+    p = de_embed(p)
+
+    # compute confusion matrix 
+    #
+    c = KnetMetrics.confusion_matrix(vec(y), vec(p), labels=labels, o...)
+
+    if print_matrix
+        display(c)
+    end
+    return c
+end
