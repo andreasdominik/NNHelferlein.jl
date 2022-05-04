@@ -1,5 +1,5 @@
-using Pkg
-Pkg.add(url="https://github.com/denizyuret/AutoGrad.jl.git")
+#using Pkg
+# Pkg.add(url="https://github.com/denizyuret/AutoGrad.jl.git")
 
 using Knet, NNHelferlein, CUDA
 using Images, Colors
@@ -120,7 +120,7 @@ using Statistics: mean
 @test test_blowup()
 @test test_recycle()
 @test test_de_embed()
-@test test_confusion_matrix()
+#@test test_confusion_matrix()
 
 # other funs:
 #
