@@ -460,32 +460,38 @@ function predict_top5(mdl, x; top_n=5, classes=nothing)
 end
 
 """
-    function predict(mdl, x; softmax=false)
+    function predict(mdl, data; softmax=false)
+    function predict(mdl; data, softmax=false)
 
-Return the prediction for x.
+Return the prediction for minibatches of data.
+The second signature follows the standard call
+`predict(model, data=xxx)`.
 
 ### Arguments:
 + `mdl`: executable network model
-+ `x`: iterator providing minibatches
-        of input data
++ `data`: iterator providing minibatches
+        of input data or a single Array of input data (i.e. one minibatch).
 + `softmax`: if true or if model is of type `Classifier` the predicted
         softmax probabilities are returned instead of raw
         activations.
 """
-function predict(mdl, x; softmax=false)
+function predict(mdl, data; softmax=false)
 
-    if x isa AbstractArray
-        y = mdl(x)
+    if data isa AbstractArray
+        p = mdl(data)
     else
-        # ys = [mdl(i) for i in x]
-        y = cat((mdl(i) for i in x)..., dims=2)
+        p = cat((mdl(x) for x in data)..., dims=2)
     end
-    y = convert(Array{Float32}, y)
+    p = convert(Array{Float32}, p)
 
     if softmax || mdl isa Classifier
-        return Knet.softmax(y, dims=1)
+        return Knet.softmax(p, dims=1)
     else
-        return y
+        return p
     end
+end
+
+function predict(mdl; data, softmax=false)
+    return predict(mdl, data; softmax)
 end
 
