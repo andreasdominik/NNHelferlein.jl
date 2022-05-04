@@ -337,6 +337,56 @@ function de_embed(x; remove_dim=false)
 end
 
 
+"""
+confusion_matrix(model, data)
+
+Compute and display the confusion Matrix of a given model with data
+
+If `data` is unspecified, the function will use `dtst`
+```julia-repl
+julia> matrix = confusion_matrix(mlp, dtst, false)
+
+2×2 Matrix{Float64}:
+0.988706   0.0833133
+0.0722255  1.0
+```
+"""
+
+function confusion_matrix(model, data = dtst, human_readable = true)
+    
+ŷ = Int[]
+y_ges = Int[]
+for (x, y) in data
+    ŷ = vcat(ŷ, vec(de_embed(model(x))))
+    y_ges = vcat(y_ges, vec(y))
+end
+
+# compute confusion matrix 
+matrix = confusmat(length(Set(y_ges)), y_ges, ŷ)
+matrix = matrix ./ maximum(matrix)
+
+if human_readable
+    matrix = round.(matrix, digits = 3)
+    # Label of the konfuisonsmatrix:
+    matrix_label = reshape(
+        [
+            "True positive (TP):  ",
+            "False negative (FN): ",
+            "False positive (FP): ",
+            "True negative (TN):  ",
+        ],
+        2,
+        2,
+    )
+    # matrix = matrix_label
+
+    matrix = string.(matrix)
+    matrix = matrix_label .* matrix
+end
+return matrix
+end
+
+
 # Dead code:
 # this nice implementation is not running on the GPU and 
 # causing an warning.

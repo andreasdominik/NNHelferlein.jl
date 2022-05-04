@@ -3,7 +3,7 @@ Pkg.add(url="https://github.com/denizyuret/AutoGrad.jl.git")
 
 using Knet, NNHelferlein, CUDA
 using Images, Colors
-import Pkg; Pkg.add("Test"); using Test
+using Test
 using Statistics: mean
 
 
@@ -120,6 +120,7 @@ using Statistics: mean
 @test test_blowup()
 @test test_recycle()
 @test test_de_embed()
+@test test_confusion_matrix()
 
 # other funs:
 #
