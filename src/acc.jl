@@ -361,7 +361,7 @@ function confusion_matrix(y, p; labels=nothing, pretty_print=true)
 
         Base.print_matrix(stdout, dc)
     end
-    return dc
+    return c
 end
 
 
