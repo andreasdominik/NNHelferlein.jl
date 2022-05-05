@@ -501,9 +501,8 @@ function predict(mdl; data, softmax=false)
     end
 end
 
-function predict(mdl, x::Array; softmax=false )
+function predict(mdl, x; softmax=false )
     
-    println("absarray")
     p = mdl(x)
     if softmax || mdl isa Classifier
         p = Knet.softmax(p, dims=1)
