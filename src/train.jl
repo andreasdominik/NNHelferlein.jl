@@ -429,18 +429,18 @@ function calc_d_η(η_start, η_end, lrd_linear, steps)
 end
 
 """
-    function predict_top5(mdl, x; top_n=5, classes=nothing)
+    function predict_top5(mdl; data=x, top_n=5, classes=nothing)
 
-Run the model `mdl` for data in `x` and print the top 5
+Run the model `mdl` for data in minibatches `x` and print the top 5
 predictions as softmax probabilities.
 
 ### Arguments:
 + `top_n`: print top *n* hits
 + `classes`: optional list of human readable class labels.
 """
-function predict_top5(mdl, x; top_n=5, classes=nothing)
+function predict_top5(mdl; data=x, top_n=5, classes=nothing)
 
-    y = predict(mdl, x, softmax=false)
+    y = predict(mdl; data=x, softmax=false)
 
     if isnothing(classes)
         classes = repeat(["-"], size(y)[1])
@@ -471,7 +471,9 @@ The second signature predicts a single minibatch of data.
 ### Arguments:
 + `mdl`: executable network model
 + `data=iterator`: iterator providing minibatches
-        of input data 
+        of input data; if the minibatches include y-values 
+        (i.e. teaching input), predictions *and* the y-values 
+        will be returned. 
 + `data`: single Array of input data (i.e. input for one minibatch)
 + `softmax`: if true or if model is of type `Classifier` the predicted
         softmax probabilities are returned instead of raw
@@ -479,20 +481,29 @@ The second signature predicts a single minibatch of data.
 """
 function predict(mdl; data, softmax=false)
 
-    py = [(mdl(x), y) for (x,y) in data]
-    p = cat((p for (p,y) in py)..., dims=2)
-    y = cat((y for (p,y) in py)..., dims=2)
+    if first(data) isa Tuple
+        py = [(mdl(x), y) for (x,y) in data]
+        p = cat((p for (p,y) in py)..., dims=2)
+        y = cat((y for (p,y) in py)..., dims=2)
+    else
+        p = cat((mdl(x) for x in data)..., dims=2)
+    end
     p = convert(Array{Float32}, p)
 
     if softmax || mdl isa Classifier
         p = Knet.softmax(p, dims=1)
     end
 
-    return p, y
+    if first(data) isa Tuple
+        return p, y
+    else
+        return p
+    end
 end
 
 function predict(mdl, x::Array; softmax=false )
     
+    println("absarray")
     p = mdl(x)
     if softmax || mdl isa Classifier
         p = Knet.softmax(p, dims=1)

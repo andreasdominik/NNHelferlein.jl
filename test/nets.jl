@@ -38,7 +38,7 @@ function test_lenet()
                 balanced=false, shuffle=true,
                 train=false,
                 aug_pipl=augm, pre_proc=nothing)
-    p = predict_imagenet(mdl, tst, top_n=2)
+    p = predict_imagenet(mdl, data=tst, top_n=2)
     return acc isa Real && acc <= 1.0 &&
            isdir("logs") &&
            size(p) == (3,8)
