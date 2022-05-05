@@ -310,34 +310,58 @@ end
     
 
 """
-confusion_matrix(mdl; data)
+    function confusion_matrix(mdl; data, labels=nothing, pretty_print=true)
+    function confusion_matrix(y, p; labels=nothing, pretty_print=true)
 
 Compute and display the confusion matrix of  
 (x,y)-minibatches. Predictions are calculated with model `mdl` for which 
 a signature `mdl(x)` must exist.
 
-The function is an interface to the function `confusion_matrix` 
-provided by the package `KnetMetrics`.
+The second signature generates the confusion matrix from 
+the 2 vectors *ground truth* `y` and *predictions* `p`.
+
+The function is an interface to the function `confusmat` 
+provided by the package `MLBase`.
 
 ### Arguments:
 `mdl`: mdl with signature `mdl(x)` to generate predictions
 `data`: minibatches of (x,y)-tuples
-`print_matrix=false`: if `true`, the matrix will pe displayed to stdout
+`pretty_print=true`: if `true`, the matrix will pe displayed to stdout
 `labels=nothing`: a vecor of human readable labels can be provided 
-`others`: all other arguments of `KnetMetrics.confusion_matrix()`
-        may be provided and will be forwarded.
 """
-function confusion_matrix(mdl; data, print_matrix=false, labels=nothing, o...)
+function confusion_matrix(mdl; data, labels=nothing, pretty_print=true)
 
     p, y = predict(mdl, data=data)
     p = de_embed(p)
 
+    return confusion_matrix(y, p, labels=labels, pretty_print=pretty_print)
+end
+
+
+function confusion_matrix(y, p; labels=nothing, pretty_print=true)
+
+    p = vec(p)
+    y = vec(y)
+    len = length(unique(y))
+
     # compute confusion matrix 
     #
-    c = KnetMetrics.confusion_matrix(vec(y), vec(p), labels=labels, o...)
+    c = MLBase.confusmat(len, y, p)
 
-    if print_matrix
-        display(c)
+    if pretty_print
+        cols = permutedims(string.(collect(1:len)))
+        if isnothing(labels)
+            rows = ["pred/true", cols...]
+        else
+            labels = ["$i: $r" for (i,r) in enumerate(labels)]
+            rows = ["pred/true", labels...]
+        end
+        dc = vcat(cols, c)
+        dc = hcat(dc, rows)
+
+        Base.print_matrix(stdout, dc)
     end
-    return c
+    return dc
 end
+
+

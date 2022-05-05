@@ -160,6 +160,7 @@ predict
 predict_top5
 hamming_dist
 peak_finder_acc
+confusion_matrix
 ```
 
 # ImageNet tools

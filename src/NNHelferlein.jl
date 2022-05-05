@@ -21,7 +21,6 @@ import Augmentor
 import MLDataUtils
 using TensorBoardLogger, Logging
 import MLBase: confusmat
-import KnetMetrics
 
 include("types.jl")
 include("util.jl")
