@@ -96,3 +96,21 @@ function test_hamming_length()
 
      return h1 == 1 && h2 == 2
 end
+
+
+
+function test_confusion_matrix()
+     
+     # returns 1 for the first half of x and 2 for the rest.
+     #
+     function mdl(x)
+          half_1 = length(x) ÷ 2
+          half_2 = length(x) - half_1
+
+          return hcat(repeat([1;0], 1,half_1), repeat([0;1], 1, half_2))
+     end
+
+     mb = [(collect(1:10), [1 1 1 1 1 2 2 2 2 2])]
+     c = confusion_matrix(mdl, data=mb, pretty_print=true)
+     return c ≈ [5 0; 0 5]
+end

@@ -41,11 +41,4 @@ function test_de_embed()
     return size(y) == (1,4,12)
 end
 
-function test_confusion_matrix()
-    test_net = load(joinpath(DATA_DIR, "testdata", "dummy_mlp.jld2"))
-    model = test_net["mlp"]
-    data = test_net["mb"]
-    human_readable = false
-    return isapprox(confusion_matrix(model, data, human_readable ), [1.0 0.0; 0.454545 0.0]; atol = 0.01 )
-end  
 

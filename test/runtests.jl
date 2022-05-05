@@ -108,6 +108,7 @@ using Statistics: mean
 @test test_hamming_acc()
 @test test_hamming_vocab()
 @test test_hamming_length()
+@test test_confusion_matrix()
 
 
 
@@ -120,7 +121,6 @@ using Statistics: mean
 @test test_blowup()
 @test test_recycle()
 @test test_de_embed()
-#@test test_confusion_matrix()
 
 # other funs:
 #
