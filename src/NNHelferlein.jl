@@ -21,6 +21,7 @@ import Augmentor
 import MLDataUtils
 using TensorBoardLogger, Logging
 import MLBase: confusmat
+# TODO: tidy-up!
 
 include("types.jl")
 include("util.jl")
