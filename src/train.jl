@@ -429,18 +429,18 @@ function calc_d_η(η_start, η_end, lrd_linear, steps)
 end
 
 """
-    function predict_top5(mdl; data=x, top_n=5, classes=nothing)
+    function predict_top5(mdl; data, top_n=5, classes=nothing)
 
-Run the model `mdl` for data in minibatches `x` and print the top 5
+Run the model `mdl` for data in minibatches `data` and print the top 5
 predictions as softmax probabilities.
 
 ### Arguments:
 + `top_n`: print top *n* hits
 + `classes`: optional list of human readable class labels.
 """
-function predict_top5(mdl; data=x, top_n=5, classes=nothing)
+function predict_top5(mdl; data, top_n=5, classes=nothing)
 
-    y = predict(mdl; data=x, softmax=false)
+    y = predict(mdl; data=data, softmax=false)
 
     if isnothing(classes)
         classes = repeat(["-"], size(y)[1])
