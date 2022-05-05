@@ -512,5 +512,5 @@ function predict(mdl, x::AbstractArray; softmax=false )
     return p
 end
 
-# TODO: add de_embed!
+# TODO: add de_embed?
 
