@@ -82,5 +82,5 @@ predefined list of class labels.
 function predict_imagenet(mdl; data, top_n=5)
 
     classes = get_imagenet_classes()
-    return predict_top5(mdl; data=data; top_n=top_n, classes=classes)
+    return predict_top5(mdl; data=data, top_n=top_n, classes=classes)
 end
