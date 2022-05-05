@@ -460,50 +460,38 @@ function predict_top5(mdl, x; top_n=5, classes=nothing)
 end
 
 """
-    function predict(mdl, data; softmax=false)
     function predict(mdl; data, softmax=false)
-    function predict(mdl, x::AbstractArray; softmax=false )
+    function predict(mdl, x; softmax=false )
 
 Return the prediction for minibatches of data.     
-The second signature follows the standard call
+The signature follows the standard call
 `predict(model, data=xxx)`.     
-The third signature predicts a single minibatch of data.
+The second signature predicts a single minibatch of data.
 
 ### Arguments:
 + `mdl`: executable network model
-+ `data`: iterator providing minibatches
-        of input data or a single Array of input data (i.e. one minibatch).
++ `data=iterator`: iterator providing minibatches
+        of input data 
++ `data`: single Array of input data (i.e. input for one minibatch)
 + `softmax`: if true or if model is of type `Classifier` the predicted
         softmax probabilities are returned instead of raw
         activations.
 """
-function predict(mdl, data; softmax=false)
+function predict(mdl; data, softmax=false)
 
-    if first(data) isa Tuple
-        py = [(mdl(x), y) for (x,y) in data]
-        p = cat((p for (p,y) in py)..., dims=2)
-        y = cat((y for (p,y) in py)..., dims=2)
-    else
-        p = cat((mdl(x) for x in data)..., dims=2)
-    end
+    py = [(mdl(x), y) for (x,y) in data]
+    p = cat((p for (p,y) in py)..., dims=2)
+    y = cat((y for (p,y) in py)..., dims=2)
     p = convert(Array{Float32}, p)
 
     if softmax || mdl isa Classifier
         p = Knet.softmax(p, dims=1)
     end
 
-    if first(data) isa Tuple
-        return p, y
-    else
-        return p
-    end
+    return p, y
 end
 
-function predict(mdl; data, softmax=false)
-    return predict(mdl, data; softmax)
-end
-
-function predict(mdl, x::AbstractArray; softmax=false )
+function predict(mdl, x::Array; softmax=false )
     
     p = mdl(x)
     if softmax || mdl isa Classifier
