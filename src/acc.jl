@@ -346,7 +346,7 @@ function confusion_matrix(y, p; labels=nothing, pretty_print=true)
 
     # compute confusion matrix 
     #
-    c = MLBase.confusmat(len, y, p)
+    c = confusmat(len, y, p)
 
     if pretty_print
         cols = permutedims(string.(collect(1:len)))
