@@ -151,10 +151,10 @@ function tb_train!(mdl, opti, trn, vld=nothing; epochs=1,
     # prepare l1/l2:
     #
     if !isnothing(l2)
-        l2 = Float32(l2 / 2)
+        l2 = Float32(1 - l2/2)
     end
     if !isnothing(l1)
-        l1 = Float32(l1)
+        l1 = Float32(1 - l1)
     end
 
     # mk log directory:
@@ -221,15 +221,17 @@ function tb_train!(mdl, opti, trn, vld=nothing; epochs=1,
         end
 
         for p in params(loss)
+
             Δw = grad(loss, p) 
-            Knet.update!(value(p), Δw, p.opt) 
-            
-            if !isnothing(l2)
-                p.value .+= p.value .* l2
-            end
+
             if !isnothing(l1)
-                p.value .+= sign.(p.value) .* l1
+                p.value .= p.value .* l1 
             end
+            if !isnothing(l2)
+                p.value .= p.value .* l2
+            end
+            
+            Knet.update!(value(p), Δw, p.opt) 
         end
 
 
@@ -500,6 +502,8 @@ function predict(mdl; data, softmax=false)
         return p
     end
 end
+
+# TODO: predict sign, immwr mit Minibatch
 
 function predict(mdl, x; softmax=false )
     
