@@ -235,6 +235,7 @@ Gaussian noise with mean=1.0 and sd=sigma.
 
 ### Construtors:
     MBNoiser(mbs::Knet.Data, σ=1.0)
+    MBNoiser(mbs::Knet.Data; σ=1.0)
 
 + `mbs`: iterator with minibatches
 + `σ`: standard deviation for the Gaussian noise
@@ -250,7 +251,9 @@ struct MBNoiser
     size
     σ
     MBNoiser(mbs::Knet.Data, σ=1.0) = new(mbs, size(first(mbs)[1]), σ)
+    MBNoiser(mbs::Knet.Data; σ=1.0) = MBNoiser(mbs, σ)
 end
+
 
 
 # first call:
