@@ -237,6 +237,14 @@ Pages = [
     ]
 Depth = 2
 ```
+## Datasets
+
+Some datasets as playground-data are provided with the
+package. Maybe more will follow...
+
++ *MIT Normal Sinus Rhythm Database* is a modified version of the 
+  Physionet dataset, adapted for use in machine leraning
+  (see the docstring of `dataset_mit_nsr()` for details).
 
 
 

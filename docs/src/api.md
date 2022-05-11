@@ -203,3 +203,9 @@ init0
 convert2CuArray
 emptyCuArray
 ```
+
+## Datasets
+
+```@docs
+dataset_mit_nsr
+```

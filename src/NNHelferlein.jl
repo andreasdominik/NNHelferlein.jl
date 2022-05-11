@@ -36,7 +36,7 @@ include("texts.jl")
 include("train.jl")
 include("acc.jl")
 include("imagenet.jl")
-#include("data.jl")
+include("data.jl")
 
 
 DATA_DIR = normpath(joinpath(dirname(pathof(@__MODULE__)), "..", "data"))
@@ -87,6 +87,7 @@ export DNN, Classifier, Regressor, Chain, VAE,          # chains
        de_embed,
        print_network,
        DATA_DIR, #, download_example_data, download_pretrained
-       confusion_matrix
+       confusion_matrix,
+       dataset_mit_nsr
 
 end # module
