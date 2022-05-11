@@ -468,7 +468,7 @@ end
 Return the prediction for minibatches of data.     
 The signature follows the standard call
 `predict(model, data=xxx)`.     
-The second signature predicts a single minibatch of data.
+The second signature predicts a single Array of data.
 
 ### Arguments:
 + `mdl`: executable network model
