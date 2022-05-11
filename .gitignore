@@ -6,8 +6,10 @@ examples/logs/*
 examples/*.h5
 examples/play*
 examples/new*
+examples/archive
 examples/Untitled*
 data/Tatoeba
+data/MIT-normal_sinus_rhythm
 test/logs
 codecov.token
 logs
