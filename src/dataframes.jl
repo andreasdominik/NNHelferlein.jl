@@ -234,24 +234,24 @@ Each value will be multiplied with a random value form
 Gaussian noise with mean=1.0 and sd=sigma.
 
 ### Construtors:
-    MBNoiser(mbs::Knet.Data, σ=1.0)
+    MBNoiser(mbs::Knet.Data, σ)
     MBNoiser(mbs::Knet.Data; σ=1.0)
 
 + `mbs`: iterator with minibatches
 + `σ`: standard deviation for the Gaussian noise
 
 ### Example:
-```
-trn = minibatch(x)
-tb_train!(mdl, Adam, MBNoiser(trn, σ=0.1))
+```juliaREPL
+julia> trn = minibatch(x)
+julia> tb_train!(mdl, Adam, MBNoiser(trn, σ=0.1))
+julia> mbs_noised = MBNoiser(mbs, 0.05)
 ```
 """
 struct MBNoiser
     mbs::Knet.Data
     size
     σ
-    MBNoiser(mbs::Knet.Data, σ=1.0) = new(mbs, size(first(mbs)[1]), σ)
-    MBNoiser(mbs::Knet.Data; σ=1.0) = MBNoiser(mbs, σ)
+    MBNoiser(mbs::Knet.Data, sd=1.0; σ=sd) = new(mbs, size(first(mbs)[1]), σ)
 end
 
 
