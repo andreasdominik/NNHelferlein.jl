@@ -10,6 +10,7 @@ examples/archive
 examples/Untitled*
 data/Tatoeba
 data/MIT-normal_sinus_rhythm
+data/pretrained
 test/logs
 codecov.token
 logs
