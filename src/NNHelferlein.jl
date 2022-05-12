@@ -36,7 +36,7 @@ include("texts.jl")
 include("train.jl")
 include("acc.jl")
 include("imagenet.jl")
-include("data.jl")
+include("datasets.jl")
 
 
 DATA_DIR = normpath(joinpath(dirname(pathof(@__MODULE__)), "..", "data"))

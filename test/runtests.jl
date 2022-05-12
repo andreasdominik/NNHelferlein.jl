@@ -127,6 +127,11 @@ using Statistics: mean
 @show include("funs.jl")
 @test test_leaky()
 
+# datasets:
+@show include("datsets.jl")
+@test test_mit_nsr_download()
+@test test_mit_nsr_saved()
+
 
 # test Conv, Dense and tb_train():
 #
