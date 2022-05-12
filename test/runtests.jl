@@ -128,7 +128,7 @@ using Statistics: mean
 @test test_leaky()
 
 # datasets:
-@show include("datsets.jl")
+@show include("datasets.jl")
 @test test_mit_nsr_download()
 @test test_mit_nsr_saved()
 
